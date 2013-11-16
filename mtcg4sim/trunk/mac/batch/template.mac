@@ -1,0 +1,243 @@
+# ----------------
+# Run Settings
+# ----------------
+
+
+######################################################################
+# Commands to change physics settings.
+######################################################################
+
+## Produce Cerenkov light.
+## true: produce, false: do not produce.
+#/mtcg4/physics/produceCerenkov true
+#
+## Produce Scintillation light.
+## true: produce, false: do not produce.
+#/mtcg4/physics/produceScintillation true
+#
+## Take into account chemically bound atoms for thermal neutron scattering.
+## true: yes, false: no.
+#/mtcg4/physics/setNeutronHPThermalScattering true
+#
+## Set the maximum number of photons produced by the simulation per particle
+## step. This setting is optional.
+## Available range: [0, 1000].
+#/mtcg4/physics/setMaxNumPhotonsPerStep 1000
+#
+## Set verbosity setting for physics list.
+#/mtcg4/physics/setVerbosity 0
+
+
+######################################################################
+# Commands specific to G4EmMessenger class.
+######################################################################
+/physics_engine/tailor/MuonNuclear on
+/physics_engine/tailor/GammaNuclear on
+/physics_engine/tailor/SyncRadiation off
+/physics_engine/neutron/energyLimit 0. eV
+/physics_engine/neutron/timeLimit 1. s
+
+######################################################################
+# Commands to change output settings of output file containing particle
+# step information.
+######################################################################
+
+# Output only first n events. Set a positive integer for n. Integers of 0 or
+# less will be ignored.
+/mtcg4/io/outputOnlyFirstNEvents -1
+
+
+
+######################################################################
+# Custom commands for neutrino event.
+# Use these command to simulate an inverse-beta decay event.
+######################################################################
+
+# Flag to shoot or omit primary positron.
+# True: shoot, false: do not shoot.
+/mtcg4/primary/shootPrimaryPositron false
+
+# Flag to shoot or omit primary neutron.
+# True: shoot, false: do not shoot.
+/mtcg4/primary/shootPrimaryNeutron false
+
+# Set incoming neutrino direction.
+# Options:
+# +z		- all neutrinos will have the direction (x,y,z) = (0,0,1);
+# random	- direction of neutrinos will be distributed isotropically.
+/mtcg4/primary/setIncomingNeutrinoDirection +z
+
+# Set the neutrino inverse-beta decay interaction vertex in x-y-z coordinate
+# space inside the cube.
+# Options:
+# center	- all event vertices are located at the center of cube.
+# random	- event vertices will be distributed randomly inside of cube.
+# -z		- all event vertices will be located at (0mm, 0mm, -15mm).
+/mtcg4/primary/setInverseBetaDecayInteractionVertex center
+
+# Flag to read in data to set the initial momentum directions of the primary
+# particles with respect to incoming neutrino direction from file primary
+# particle data file specified below.
+# true: Initial momentum directions of positron and neutron are that of what is
+# read in from file, false: initial momentum directions of positron and neutron
+# are that of incoming neutrino.
+/mtcg4/primary/readInPrimaryParticleDataFile true
+
+# Set input data file path.
+/mtcg4/primary/setInputPath input/
+
+# Set primary particle data file name.
+/mtcg4/primary/setPrimaryParticleDataFile primaryParticleData.dat
+
+# Set the initial kinetic energies (same value for both particles) of positron
+# and neutron in units of eV.  This command is overridden when the command
+# readInPrimaryParticleDataFile is set to true.
+/mtcg4/primary/setInverseBetaDecayDaughterParticleKineticEnergy 1000
+
+
+
+######################################################################
+# Default command used to produce primary particles in Geant4.
+# Use this for events other than inverse-beta decay.
+######################################################################
+
+# Set flag to shoot particle gun.
+/gun/shootParticleGun false
+# Settings for particle.
+/gun/particle mu-
+#/gun/particle proton
+/gun/momentum 0 0 -1 GeV
+#/gun/energy 1000. eV
+#/gun/energy 283. GeV
+#/gun/energy 10. GeV
+/gun/energy 2. GeV
+/gun/position 0. 0. 5000.1 mm
+
+
+
+######################################################################
+# Command used to shoot cosmic ray muons.
+# Energy spectrum and zenith angle distributions are taken into account using
+# distributions provided by (fix later).
+######################################################################
+
+# Set flag to shoot cosmic ray muon.
+/gun/shootCosmicRayMuon true
+
+######################################################################
+# Commands to use the General Particle Source commands.
+# Use this for events other than inverse-beta decay.
+# These commands can be used to simulate a more complex event such as
+# an isotropic point/extended gamma source.
+# Refer to examples/extended/eventgenerator/exgps/ for more information.
+######################################################################
+
+# Set flag to shoot general particle source.
+/gps/shootGeneralParticleSource false
+# Settings for particle.
+/gps/particle gamma
+/gps/pos/type Point
+/gps/pos/centre 0 0 0 cm
+/gps/ang/type iso
+/gps/energy 1 MeV
+
+
+
+######################################################################
+# Commands to set scintillator doping properties.
+######################################################################
+
+# Select dopant material of the scintillator for neutron capture enhancement.
+# Choose "lithium" or "boron" or "none".
+/mtcg4/detector/setNeutronCaptureDopantMaterial boron
+
+# Set enrichment fraction of dopant material in scintillator to be 100% or that of
+# what is found in natural abundance.
+# true: 100%, false: natural abundance.
+/mtcg4/detector/setDopantErichment false
+
+# Set the fraction of dopant material for neutron capture in the scintillator.
+# Available options are those given by Eljen Technology: 0.01, 0.025, 0.05.
+/mtcg4/detector/setDopingFraction 0.01
+#/mtcg4/detector/setDopingFraction 0.
+
+
+
+######################################################################
+# Commands to change detector geometry.
+# Not used for now.
+######################################################################
+
+# Place PMTs on all faces of scintillator.
+# true: place, false: do not place.
+#/mtcg4/detector/setPMTPlacement true
+
+# Place support frame/clams around detector.
+# true: place, false: do not place
+#/mtcg4/detector/setFramePlacement true
+
+
+
+######################################################################
+# Commands for output settings.
+######################################################################
+
+# Set output path for simulation results.
+#/mtcg4/io/setOutputPath 283gev_mu/
+/mtcg4/io/setOutputPath /data/mtc-sim/cosmicray_mu/
+#/mtcg4/io/setOutputPath /data/mtc-sim/283gev_mu/
+#/mtcg4/io/setOutputPath /data/mtc-sim/2gev_mu/
+
+# Set output file name for all particle steps.
+/mtcg4/io/setStepOutputFile all_particle_step_runJOB_SUBMIT_NO
+
+# Set output file name for photoelectrons.
+/mtcg4/io/setPEOutputFile pe_runJOB_SUBMIT_NO
+
+
+
+######################################################################
+# Misc settings.
+######################################################################
+
+# Check for geometry overlaps.
+/geometry/test/grid_test true
+
+# Set random seed for run.
+# Deprecated seed setting. Now we use runID and eventID to create a seed unique
+# for given run and event.
+#/generator/seed SEED_NO
+
+# Set some verbose settings.
+/control/verbose 0
+/tracking/verbose 0
+/run/verbose 0
+
+
+
+######################################################################
+# Initialization and beamOn.
+######################################################################
+
+# Update any modified geometries and optimize.
+#/mtcg4/detector/update
+#/run/geometryModified
+#/run/physicsModified
+
+# Initialize run.
+/run/initialize
+/mtcg4/setRunID JOB_SUBMIT_NO
+#/tracking/storeTrajectory 1
+
+# Set number of events for this run.
+#/run/beamOn 1
+#/run/beamOn 10
+#/run/beamOn 50
+#/run/beamOn 100
+#/run/beamOn 500
+/run/beamOn 1000
+#/run/beamOn 10000
+#/run/beamOn 10000000
+#/run/beamOn 3 
+
+exit

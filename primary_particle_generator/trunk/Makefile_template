@@ -1,0 +1,11 @@
+all: generatePrimaryParticleData_VARIABLE_NEUTRINO_ENERGY generatePrimaryParticleData
+
+generatePrimaryParticleData:
+	g++ generatePrimaryParticleData.cpp -o generatePrimaryParticleData -I/opt/clhep/clhep_2.1.0.1/include/ -L/opt/clhep/clhep_2.1.0.1/lib/ -lCLHEP -Wall
+
+generatePrimaryParticleData_VARIABLE_NEUTRINO_ENERGY:
+	g++ generatePrimaryParticleData_VARIABLE_NEUTRINO_ENERGY.cpp -o generatePrimaryParticleData_VARIABLE_NEUTRINO_ENERGY -I/opt/clhep/clhep_2.1.0.1/include/ -L/opt/clhep/clhep_2.1.0.1/lib/ -lCLHEP -Wall
+
+clean:
+	rm generatePrimaryParticleData_VARIABLE_NEUTRINO_ENERGY
+	rm generatePrimaryParticleData

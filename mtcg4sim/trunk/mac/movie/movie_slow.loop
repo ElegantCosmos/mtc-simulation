@@ -1,0 +1,8 @@
+# movie.loop
+/vis/ogl/set/endTime {timeVariable} ns {timeRangeShort} ns
+# Print eps file
+/vis/ogl/printEPS
+/control/shell for i in {fileName}*.eps; do \
+		convert -quality 100% $i $(basename $i .eps).gif; \
+		done
+/control/shell rm {fileName}*.eps
