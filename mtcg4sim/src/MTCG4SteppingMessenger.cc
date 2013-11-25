@@ -9,42 +9,42 @@
 #include "MTCG4SteppingAction.hh"
 
 MTCG4SteppingMessenger::MTCG4SteppingMessenger(MTCG4SteppingAction* step)
-:	_steppingAction(step)
+: fStepAction(step)
 {
-	_steppingDirectory = new G4UIdirectory("/mtcg4/io/");
-	_steppingDirectory->SetGuidance("Stepping action control.");
+	fStepDir = new G4UIdirectory("/mtcg4/io/");
+	fStepDir->SetGuidance("Stepping action control.");
 
-	_commandForOutputtingOnlyFirstNEvents = new
+	fOutputOnlyFirstNEventsCmd = new
 		G4UIcmdWithAnInteger("/mtcg4/io/outputOnlyFirstNEvents", this);
-	_commandForOutputtingOnlyFirstNEvents ->
+	fOutputOnlyFirstNEventsCmd ->
 		SetGuidance("Set only the first n events of a run to be outputted to file.");
-	_commandForOutputtingOnlyFirstNEvents ->
+	fOutputOnlyFirstNEventsCmd ->
 		SetGuidance("n < 0: output all events, n >= 0: output only first n events");
-	_commandForOutputtingOnlyFirstNEvents ->
+	fOutputOnlyFirstNEventsCmd ->
 		SetParameterName("onlyFirstNEventsAreOutputted", true);
-	_commandForOutputtingOnlyFirstNEvents->AvailableForStates(G4State_PreInit,
+	fOutputOnlyFirstNEventsCmd->AvailableForStates(G4State_PreInit,
 			G4State_Idle);
 }
 
 MTCG4SteppingMessenger::~MTCG4SteppingMessenger()
 {
-	delete _commandForOutputtingOnlyFirstNEvents;
-	delete _steppingDirectory;
+	delete fOutputOnlyFirstNEventsCmd;
+	delete fStepDir;
 }
 
-void MTCG4SteppingMessenger::SetNewValue(G4UIcommand* command, G4String
+void MTCG4SteppingMessenger::SetNewValue(G4UIcommand* cmd, G4String
 		newValue)
 {
-	if(command == _commandForOutputtingOnlyFirstNEvents)
-		_steppingAction -> SetOutputOnlyFirstNEvents(
-				_commandForOutputtingOnlyFirstNEvents -> GetNewIntValue(newValue) );
+	if(cmd == fOutputOnlyFirstNEventsCmd)
+		fStepAction -> SetOutputOnlyFirstNEvents(
+				fOutputOnlyFirstNEventsCmd -> GetNewIntValue(newValue) );
 }
 
-G4String MTCG4SteppingMessenger::GetCurrentValue(G4UIcommand* command)
+G4String MTCG4SteppingMessenger::GetCurrentValue(G4UIcommand* cmd)
 {
 	G4String answer;
-	if(command == _commandForOutputtingOnlyFirstNEvents)
-		answer = _commandForOutputtingOnlyFirstNEvents ->
-			ConvertToString(_steppingAction -> GetOutputOnlyFirstNEvents());
+	if(cmd == fOutputOnlyFirstNEventsCmd)
+		answer = fOutputOnlyFirstNEventsCmd ->
+			ConvertToString(fStepAction -> GetOutputOnlyFirstNEvents());
 	return answer;
 }

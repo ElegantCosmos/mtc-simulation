@@ -25,9 +25,9 @@ class G4VPVParameterisation;
 class G4UnionSolid;
 class G4SubtractionSolid;
 
-enum ScintVisualization {scintVisOff, scintVisGray, scintVisColor};
-enum PmtVisualization {pmtVisOff, pmtVisGray, pmtVisColor};
-enum PeripheralGeomeotryVisualization {peripheralVisOff, peripheralVisGray,
+enum ScintVis {scintVisOff, scintVisGray, scintVisColor};
+enum PmtVis {pmtVisOff, pmtVisGray, pmtVisColor};
+enum PeripheralGeomeotryVis {peripheralVisOff, peripheralVisGray,
 	peripheralVisColor};
 
 class MTCG4DetectorConstruction : public G4VUserDetectorConstruction
@@ -63,14 +63,14 @@ public:
 	{ return fScintDimensionZ; }
 	inline G4double GetScintBufferThickness() const
 	{ return fScintBufferThickness; }
-	void SetScintVisualization(G4int value)
-	{ fScintVisualization = static_cast<ScintVisualization>(value); }
-	inline ScintVisualization GetScintVisualization() const
-	{ return fScintVisualization; }
-	void SetPMTModuleVisualization(G4int value)
-	{ fPmtVisualization = static_cast<PmtVisualization>(value); }
-	inline PmtVisualization GetPMTModuleVisualization() const
-	{ return fPmtVisualization; }
+	void SetScintVis(G4int value)
+	{ fScintVis = static_cast<ScintVis>(value); }
+	inline ScintVis GetScintVis() const
+	{ return fScintVis; }
+	void SetPMTModuleVis(G4int value)
+	{ fPmtVis = static_cast<PmtVis>(value); }
+	inline PmtVis GetPMTModuleVis() const
+	{ return fPmtVis; }
 	void SetPMTPlacement(G4bool value)
 	{ fPmtsArePlaced = value; }
 	inline G4bool GetPMTPlacement() const
@@ -92,7 +92,7 @@ public:
 	void SetupPMTGeometries();
 	void SetupPeripheralGeometries();
 	void CreatePMTs();
-	void SetVisualizationAttributes();
+	void SetVisAttributes();
 	void SetMaterialProperties();
 	void SetAirMaterialProperties();
 	void SetScintMaterialProperties();
@@ -129,9 +129,9 @@ private:
 	G4String	fNeutronCaptureMaterial;
 	G4bool		fDopantIsEnriched;
 	G4double	fDopingFraction;
-	ScintVisualization fScintVisualization;
-	PmtVisualization fPmtVisualization;
-	PeripheralGeomeotryVisualization fPeripheralGeometryVisualization;
+	ScintVis	fScintVis;
+	PmtVis		fPmtVis;
+	PeripheralGeomeotryVis fPeripheralGeometryVis;
 	G4bool		fNeutronHpThermalScatteringUsed;		
 
 	//

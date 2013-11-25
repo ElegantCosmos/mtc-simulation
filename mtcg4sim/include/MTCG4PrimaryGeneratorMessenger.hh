@@ -30,23 +30,21 @@ private:
 	MTCG4PrimaryGeneratorAction* fPrimaryGeneratorAction;
 
 	G4UIdirectory			*fPrimaryGeneratorDirectory;
-	G4UIcmdWithAnInteger	*fSetSeedCommand;
-	G4UIcmdWithAString		*fSetInputPathCommand;
-	G4UIcmdWithAString		*fSetPrimaryDataFileCommand;
-	G4UIcmdWithAString		*fSetIncomingNeutrinoDirectionCommand;
-	G4UIcmdWithAString		*fSetInverseBetaDecayInteractionVertexCommand;
-	G4UIcmdWithABool		*fReadInPrimaryParticleDataFileCommand;
-	G4UIcmdWithADoubleAndUnit
-		*fSetInverseBetaDecayDaughterParticleKineticEnergyCommand;
-	G4UIcmdWithABool		*fShootPrimaryPositronCommand;
-	G4UIcmdWithABool		*fShootPrimaryNeutronCommand;
-	G4UIcmdWithABool		*fShootParticleGunCommand;
-	G4UIcmdWithABool		*fShootGeneralParticleSourceCommand;
-	G4UIcmdWithABool		*fShootLaserCommand;
-	G4UIcmdWithABool		*fShootCosmicRayMuonCommand;
-	G4UIcmdWithADoubleAndUnit
-		*fSetCosmicRayMuonEnergy;
-	G4UIcmdWithAString		*fSetCosmicRayMuonDirection;
+	G4UIcmdWithAnInteger	*fSetSeedCmd;
+	G4UIcmdWithAString		*fSetInputPathCmd;
+	G4UIcmdWithAString		*fSetPrimaryDataFileCmd;
+	G4UIcmdWithAString		*fSetIncomingNeutrinoDirectionCmd;
+	G4UIcmdWithAString		*fSetInverseBetaDecayInteractionVertexCmd;
+	G4UIcmdWithABool		*fReadInPrimaryParticleDataFileCmd;
+	G4UIcmdWithADoubleAndUnit *fSetIBDDaughterParticleEnergyCmd;
+	G4UIcmdWithABool		*fShootPrimaryPositronCmd;
+	G4UIcmdWithABool		*fShootPrimaryNeutronCmd;
+	G4UIcmdWithABool		*fShootParticleGunCmd;
+	G4UIcmdWithABool		*fShootGeneralParticleSourceCmd;
+	G4UIcmdWithABool		*fShootLaserCmd;
+	G4UIcmdWithABool		*fShootCosmicRayMuonCmd;
+	G4UIcmdWithADoubleAndUnit *fSetCosmicRayMuonEnergyCmd;
+	G4UIcmdWithAString		*fSetCosmicRayMuonDirectionCmd;
 };
 
 #endif

@@ -37,14 +37,28 @@
 /physics_engine/neutron/energyLimit 0. eV
 /physics_engine/neutron/timeLimit 100. s
 
+
+
 ######################################################################
 # Commands to change output settings of output file containing particle
 # step information.
 ######################################################################
 
-# Output only first n events. Set a positive integer for n. Integers of 0 or
-# less will be ignored.
+# Output only first n events. Set a positive integer for n.
+# Negative integers will be ignored.
 /mtcg4/io/outputOnlyFirstNEvents -1
+
+
+
+######################################################################
+# Command to set optical photon tracking option.
+######################################################################
+
+# Options: killImmediately, trackImmediately, saveAndTrack, saveAndKill.
+# Not specifying any option will default to killImmediately.
+/mtcg4/stackingAction/trackOpticalPhotons killImmediately
+#/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
+#/mtcg4/stackingAction/trackOpticalPhotons saveAndTrack
 
 
 
@@ -122,11 +136,13 @@
 # Set flag to shoot cosmic ray muon.
 /gun/shootCosmicRayMuon true
 # Set energy of muon. Set <= 0 to specify sea level energy spectrum.
-/gun/setCosmicRayMuonEnergy 0 MeV
+/gun/setCosmicRayMuonEnergy 10 MeV
 # Set muon direction. Choose "sea-level" or "-z".
 # sea-level: random direction with zenith angle distribution at sea level.
 # -z: Straight down from top of cube.
 /gun/setCosmicRayMuonDirection sea-level
+
+
 
 ######################################################################
 # Commands to use the General Particle Source commands.

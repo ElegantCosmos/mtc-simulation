@@ -9,97 +9,97 @@
 #include "G4UIcmdWithAnInteger.hh"
 
 MTCG4PhysicsMessenger::MTCG4PhysicsMessenger(MTCG4PhysicsList* Phys)
-:physicsList(Phys)
+:fPhysicsList(Phys)
 {
-	physicsDirectory = new G4UIdirectory("/mtcg4/physics/");
-	physicsDirectory->SetGuidance("Physics options.");
+	fPhysicsDirectory = new G4UIdirectory("/mtcg4/physics/");
+	fPhysicsDirectory->SetGuidance("Physics options.");
 
-	commandForProducingCerenkov = new
+	fProduceCherenkovCmd = new
 		G4UIcmdWithABool("/mtcg4/physics/produceCerenkov", this);
-	commandForProducingCerenkov->SetGuidance("Produce Cerenkov light.");
-	commandForProducingCerenkov->SetGuidance("true: produce, false: do not produce.");
-	commandForProducingCerenkov->SetParameterName("cerenkovIsTurnedOn", false);
-	commandForProducingCerenkov->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fProduceCherenkovCmd->SetGuidance("Produce Cerenkov light.");
+	fProduceCherenkovCmd->SetGuidance("true: produce, false: do not produce.");
+	fProduceCherenkovCmd->SetParameterName("cerenkovIsTurnedOn", false);
+	fProduceCherenkovCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-	commandForProducingScintillation = new
+	fProduceScintillationCmd = new
 		G4UIcmdWithABool("/mtcg4/physics/produceScintillation", this);
-	commandForProducingScintillation->
+	fProduceScintillationCmd->
 		SetGuidance("Produce Scintillation light.");
-	commandForProducingScintillation->SetGuidance("true: produce, false: do not produce.");
-	commandForProducingScintillation->SetParameterName("scintillationIsTurnedOn", false);
-	commandForProducingScintillation->AvailableForStates(G4State_PreInit,
+	fProduceScintillationCmd->SetGuidance("true: produce, false: do not produce.");
+	fProduceScintillationCmd->SetParameterName("scintillationIsTurnedOn", false);
+	fProduceScintillationCmd->AvailableForStates(G4State_PreInit,
 			G4State_Idle);
 
-	commandForMaxNumPhotonsPerStep = new
+	fMaxNumPhotonsPerStepCmd = new
 		G4UIcmdWithAnInteger("/mtcg4/physics/setMaxNumPhotonsPerStep", this);
-	commandForMaxNumPhotonsPerStep->
+	fMaxNumPhotonsPerStepCmd->
 		SetGuidance("Set the maximum number of photons produced by the simulation per particle step.");
-	commandForMaxNumPhotonsPerStep->SetParameterName("maxNumPhotonsPerStep", false);
-	commandForMaxNumPhotonsPerStep->
+	fMaxNumPhotonsPerStepCmd->SetParameterName("maxNumPhotonsPerStep", false);
+	fMaxNumPhotonsPerStepCmd->
 		SetRange("maxNumPhotonsPerStep >= 0 && maxNumPhotonsPerStep <= 1000");
-	commandForMaxNumPhotonsPerStep->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fMaxNumPhotonsPerStepCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-	commandForNeutronHPThermalScattering = new
+	fNeutronHPThermalScatteringCmd = new
 		G4UIcmdWithABool("/mtcg4/physics/setNeutronHPThermalScattering", this);
-	commandForNeutronHPThermalScattering->
+	fNeutronHPThermalScatteringCmd->
 		SetGuidance("Take into account the chemical bindings of atoms in a molecule for thermal neutron scattering in a solid medium.");
-	commandForNeutronHPThermalScattering->SetGuidance("true: yes, false: no.");
-	commandForNeutronHPThermalScattering->SetParameterName("NeutronHPThermalScatteringIsTurnedOn", false);
-	commandForNeutronHPThermalScattering->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fNeutronHPThermalScatteringCmd->SetGuidance("true: yes, false: no.");
+	fNeutronHPThermalScatteringCmd->SetParameterName("NeutronHPThermalScatteringIsTurnedOn", false);
+	fNeutronHPThermalScatteringCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-	commandForVerbosity = new G4UIcmdWithAnInteger("/mtcg4/physics/setVerbosity", this);
-	commandForVerbosity->SetGuidance("Set verbosity setting for physics list.");
-	commandForVerbosity->AvailableForStates(G4State_PreInit, G4State_Idle);
+	fVerbosityCmd = new G4UIcmdWithAnInteger("/mtcg4/physics/setVerbosity", this);
+	fVerbosityCmd->SetGuidance("Set verbosity setting for physics list.");
+	fVerbosityCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
 MTCG4PhysicsMessenger::~MTCG4PhysicsMessenger()
 {
-	delete commandForProducingCerenkov;
-	delete commandForProducingScintillation;
-	delete commandForMaxNumPhotonsPerStep;
-	delete commandForNeutronHPThermalScattering;
-	delete commandForVerbosity;
-	delete physicsDirectory;
+	delete fProduceCherenkovCmd;
+	delete fProduceScintillationCmd;
+	delete fMaxNumPhotonsPerStepCmd;
+	delete fNeutronHPThermalScatteringCmd;
+	delete fVerbosityCmd;
+	delete fPhysicsDirectory;
 }
 
-void MTCG4PhysicsMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
+void MTCG4PhysicsMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
 {
-	if(command == commandForProducingCerenkov){
-		physicsList->SetCerenkovProduction(commandForProducingCerenkov->GetNewBoolValue(newValue));
+	if(cmd == fProduceCherenkovCmd){
+		fPhysicsList->SetCerenkovProduction(fProduceCherenkovCmd->GetNewBoolValue(newValue));
 	}
-	else if(command == commandForProducingScintillation){
-		physicsList->SetScintillationProduction(commandForProducingScintillation->GetNewBoolValue(newValue));
+	else if(cmd == fProduceScintillationCmd){
+		fPhysicsList->SetScintillationProduction(fProduceScintillationCmd->GetNewBoolValue(newValue));
 	}
-	else if(command == commandForMaxNumPhotonsPerStep){
-		physicsList->SetNbOfPhotonsCerenkov(commandForMaxNumPhotonsPerStep->GetNewIntValue(newValue));
+	else if(cmd == fMaxNumPhotonsPerStepCmd){
+		fPhysicsList->SetNbOfPhotonsCerenkov(fMaxNumPhotonsPerStepCmd->GetNewIntValue(newValue));
 	}
-	else if(command == commandForNeutronHPThermalScattering){
-		physicsList->SetNeutronHPThermalScattering(commandForNeutronHPThermalScattering->GetNewBoolValue(newValue));
+	else if(cmd == fNeutronHPThermalScatteringCmd){
+		fPhysicsList->SetNeutronHPThermalScattering(fNeutronHPThermalScatteringCmd->GetNewBoolValue(newValue));
 	}
-	else if(command == commandForVerbosity){
-		physicsList->SetVerbose(commandForVerbosity->GetNewIntValue(newValue));
+	else if(cmd == fVerbosityCmd){
+		fPhysicsList->SetVerbose(fVerbosityCmd->GetNewIntValue(newValue));
 	}
 }
 
-G4String MTCG4PhysicsMessenger::GetCurrentValue(G4UIcommand* command)
+G4String MTCG4PhysicsMessenger::GetCurrentValue(G4UIcommand* cmd)
 {
 	G4String answer;
-	if(command == commandForProducingCerenkov){
+	if(cmd == fProduceCherenkovCmd){
 		answer =
-			commandForProducingCerenkov->ConvertToString(physicsList->GetCerenkovProduction());
+			fProduceCherenkovCmd->ConvertToString(fPhysicsList->GetCerenkovProduction());
 	}
-	else if(command == commandForProducingScintillation){
+	else if(cmd == fProduceScintillationCmd){
 		answer =
-			commandForProducingScintillation->ConvertToString(physicsList->GetScintillationProduction());
+			fProduceScintillationCmd->ConvertToString(fPhysicsList->GetScintillationProduction());
 	}
-	else if(command == commandForMaxNumPhotonsPerStep){
+	else if(cmd == fMaxNumPhotonsPerStepCmd){
 		answer = "Value is not yet set.";
 	}
-	else if(command == commandForNeutronHPThermalScattering){
+	else if(cmd == fNeutronHPThermalScatteringCmd){
 		answer =
-			commandForNeutronHPThermalScattering->ConvertToString(physicsList->GetNeutronHPThermalScattering());
+			fNeutronHPThermalScatteringCmd->ConvertToString(fPhysicsList->GetNeutronHPThermalScattering());
 	}
-	else if(command == commandForVerbosity){
+	else if(cmd == fVerbosityCmd){
 		answer = "Value is not yet set.";
 	}
 	return answer;

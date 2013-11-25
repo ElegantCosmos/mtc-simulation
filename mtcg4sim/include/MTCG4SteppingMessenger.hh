@@ -20,14 +20,14 @@ class MTCG4SteppingMessenger: public G4UImessenger
 		~MTCG4SteppingMessenger();
 
 	public:
-		void SetNewValue(G4UIcommand*, G4String);
-		G4String GetCurrentValue(G4UIcommand*);
+		void SetNewValue(G4UIcommand* cmd, G4String newValue);
+		G4String GetCurrentValue(G4UIcommand* cmd);
 
 	private:
-		MTCG4SteppingAction* _steppingAction;
+		MTCG4SteppingAction*	fStepAction;
 
-		G4UIdirectory* _steppingDirectory;
-		G4UIcmdWithAnInteger* _commandForOutputtingOnlyFirstNEvents;
+		G4UIdirectory*			fStepDir;
+		G4UIcmdWithAnInteger*	fOutputOnlyFirstNEventsCmd;
 };
 
 #endif

@@ -1,8 +1,8 @@
 //
 // MTCG4DetectorMessenger.hh by Mich 111221
 //
-#ifndef MTCG4DetectorMessenger_h
-#define MTCG4DetectorMessenger_h 1
+#ifndef MTCG4_DETECTOR_MESSENGER_HH
+#define MTCG4_DETECTOR_MESSENGER_HH
 
 #include "globals.hh"
 #include "G4UImessenger.hh"
@@ -17,29 +17,29 @@ class G4UIcmdWithoutParameter;
 
 class MTCG4DetectorMessenger: public G4UImessenger
 {
-	public:
-		MTCG4DetectorMessenger(MTCG4DetectorConstruction*);
-		~MTCG4DetectorMessenger();
-	
-	public:
-		void SetNewValue(G4UIcommand*, G4String);
-		G4String GetCurrentValue(G4UIcommand*);
+public:
+	MTCG4DetectorMessenger(MTCG4DetectorConstruction*);
+	~MTCG4DetectorMessenger();
 
-	private:
-		MTCG4DetectorConstruction* fDetector;
+public:
+	void SetNewValue(G4UIcommand* cmd, G4String newValue);
+	G4String GetCurrentValue(G4UIcommand* cmd);
 
-		G4UIdirectory* fMtcG4Dir;
-		G4UIdirectory* fDetectorDir;
-		G4UIdirectory* fDetectorVisualizationDir;
+private:
+	MTCG4DetectorConstruction* fDetector;
 
-		G4UIcmdWithAString*		commandForNeutronCaptureDopantMaterial;
-		G4UIcmdWithABool*		commandForDopantEnrichment;
-		G4UIcmdWithABool*		commandForPlacingPMTs;
-		//G4UIcmdWithABool*		commandForThermalScatteringWithChemicallyBoundAtoms;
-		G4UIcmdWithADouble*		commandForDopingFraction;
-		G4UIcmdWithAnInteger*	commandForScintillatorVisualization;
-		G4UIcmdWithAnInteger*	commandForPMTVisualization;
-		G4UIcmdWithoutParameter* commandForUpdatingDetectorGeometry;
+	G4UIdirectory*			fMtcG4Dir;
+	G4UIdirectory*			fDetectorDir;
+	G4UIdirectory*			fDetectorVisDir;
+
+	G4UIcmdWithAString*		fSetNeutronCaptureDopantMaterialCmd;
+	G4UIcmdWithABool*		fSetDopantEnrichmentCmd;
+	G4UIcmdWithABool*		fSetPmtPlacementCmd;
+	//G4UIcmdWithABool*		fSetThermalScatteringWithChemicallyBoundAtomsCmd;
+	G4UIcmdWithADouble*		fSetDopingFractionCmd;
+	G4UIcmdWithAnInteger*	fSetScintillatorVisCmd;
+	G4UIcmdWithAnInteger*	fSetPmtVisCmd;
+	G4UIcmdWithoutParameter* fUpdateDetectorGeometryCmd;
 };
 
 #endif

@@ -183,10 +183,10 @@ MTCG4DetectorConstruction::MTCG4DetectorConstruction()
 		PMT_INNER_VACUUM_DEPTH;
 
 	// Visualization flags.
-	fScintVisualization = scintVisGray;
-	fPmtVisualization = pmtVisGray;
-	fPeripheralGeometryVisualization = peripheralVisOff;
-	//fPeripheralGeometryVisualization = peripheralVisGray;
+	fScintVis = scintVisGray;
+	fPmtVis = pmtVisGray;
+	fPeripheralGeometryVis = peripheralVisOff;
+	//fPeripheralGeometryVis = peripheralVisGray;
 
  	// Construct detector messenger.
 	fMessenger = new MTCG4DetectorMessenger(this);
@@ -217,7 +217,7 @@ G4VPhysicalVolume* MTCG4DetectorConstruction::Construct()
 	SetMaterialProperties();
 
 	// Visualization attributes.
-	SetVisualizationAttributes();
+	SetVisAttributes();
 
 	return fWorldPhysical;
 } 
@@ -2119,7 +2119,7 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 //
 // Visualization attributes.
 //
-void MTCG4DetectorConstruction::SetVisualizationAttributes() {
+void MTCG4DetectorConstruction::SetVisAttributes() {
 
 	// Make colours.
 	G4Colour  white   (1.0, 1.0, 1.0);
@@ -2140,16 +2140,16 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 	fWorldLogical->SetVisAttributes(G4VisAttributes::Invisible);
 
 	// Scintillator cube color.
-	if (fScintVisualization == scintVisColor)
+	if (fScintVis == scintVisColor)
 		fScintLogical->SetVisAttributes(new G4VisAttributes(cyan));
-	if (fScintVisualization == scintVisGray)
+	if (fScintVis == scintVisGray)
 		fScintLogical->SetVisAttributes(new G4VisAttributes(gray));
-	if (fScintVisualization == scintVisOff)
+	if (fScintVis == scintVisOff)
 		fScintLogical->SetVisAttributes(G4VisAttributes::Invisible);
 
 	// PMT color.
 	if (fPmtsArePlaced) {
-		if (fPmtVisualization == pmtVisColor) {
+		if (fPmtVis == pmtVisColor) {
 			fPmtBoundingVolumeLogical->
 				SetVisAttributes(G4VisAttributes::Invisible);
 			fPmtGlassHousingLogical->
@@ -2162,7 +2162,7 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 			fPmtInnerVacuumLogical->SetVisAttributes(G4VisAttributes::Invisible);
 			fDynodeLogical->SetVisAttributes(new G4VisAttributes(red));
 		}
-		if (fPmtVisualization == pmtVisGray) {
+		if (fPmtVis == pmtVisGray) {
 			fPmtBoundingVolumeLogical->
 				SetVisAttributes(G4VisAttributes::Invisible);
 			fPmtGlassHousingLogical->SetVisAttributes(new G4VisAttributes(gray));
@@ -2174,7 +2174,7 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 			fPmtInnerVacuumLogical->SetVisAttributes(G4VisAttributes::Invisible);
 			fDynodeLogical->SetVisAttributes(new G4VisAttributes(gray));
 		}
-		if (fPmtVisualization == pmtVisOff) {
+		if (fPmtVis == pmtVisOff) {
 			fPmtBoundingVolumeLogical->
 				SetVisAttributes(G4VisAttributes::Invisible);
 			fPmtGlassHousingLogical->
@@ -2190,7 +2190,7 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 	}
 	if (fFrameIsPlaced) {
 		//// Peripheral structure color.
-		//if (fPeripheralGeometryVisualization == peripheralVisColor) {
+		//if (fPeripheralGeometryVis == peripheralVisColor) {
 		//	for (unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
 		//		fFrameEndPlateLogical[iEndPlate]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
@@ -2207,7 +2207,7 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 		//		fLegLogical[iLeg]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
 		//}
-		//if (fPeripheralGeometryVisualization == peripheralVisGray) {
+		//if (fPeripheralGeometryVis == peripheralVisGray) {
 		//	for (unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
 		//		fFrameEndPlateLogical[iEndPlate]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
@@ -2224,7 +2224,7 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 		//		fLegLogical[iLeg]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
 		//}
-		//if (fPeripheralGeometryVisualization == peripheralVisOff) {
+		//if (fPeripheralGeometryVis == peripheralVisOff) {
 		//	for (unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
 		//		fFrameEndPlateLogical[iEndPlate]->SetVisAttributes(
 		//				G4VisAttributes::Invisible);

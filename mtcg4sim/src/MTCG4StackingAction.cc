@@ -4,7 +4,7 @@
 #include "MTCG4Trajectory.hh"
 //#include "MTCG4TrackInformation.hh"
 //#include "HistoManager.hh"
-//#include "StackingMessenger.hh"
+#include "MTCG4StackingMessenger.hh"
 
 #include "G4ClassificationOfNewTrack.hh"
 //#include "G4VTouchable.hh"
@@ -21,18 +21,19 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MTCG4StackingAction::MTCG4StackingAction(/*MTCG4RunAction* RA, MTCG4EventAction* EA, HistoManager* HM*/)
-	/*:runaction(RA), eventaction(EA), histoManager(HM)*/
-	: stage(0)
+	/*:fRunAction(RA), fEventAction(EA), fHistoManager(HM)*/
+	: fStage(0)
 {
-	//  killSecondary  = 0;
-	//  stackMessenger = new StackingMessenger(this);
+	fOpticalPhotonTrackingStatus = trackImmediately;
+	//  fKillSecondary  = 0;
+	fStackMessenger = new MTCG4StackingMessenger(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 MTCG4StackingAction::~MTCG4StackingAction()
 {
-	//  delete stackMessenger;
+	delete fStackMessenger;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -142,17 +143,30 @@ MTCG4StackingAction::ClassifyNewTrack(const G4Track* aTrack)
 	
 	// If particle is secondary photon.
 	if(aTrack->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition()) {
-		switch(stage)
+		switch(fStage)
 		{
 			case 0:
-				classification = fUrgent;
-				//classification = fWaiting;
-				//classification = fKill;
+				if (fOpticalPhotonTrackingStatus == killImmediately)
+					classification = fKill;
+				else if (fOpticalPhotonTrackingStatus == trackImmediately)
+					classification = fUrgent;
+				else if (fOpticalPhotonTrackingStatus == saveAndTrack)
+					classification = fWaiting;
+				else if (fOpticalPhotonTrackingStatus == saveAndKill)
+					classification = fWaiting;
+				else
+					classification = fUrgent;
 				break;
 
 			default:
-				classification = fUrgent;
-				//classification = fKill;
+				assert(fOpticalPhotonTrackingStatus != killImmediately);
+				assert(fOpticalPhotonTrackingStatus != trackImmediately);
+				if (fOpticalPhotonTrackingStatus == saveAndTrack)
+					classification = fUrgent;
+				else if (fOpticalPhotonTrackingStatus == saveAndKill)
+					classification = fKill;
+				else
+					classification = fUrgent;
 				//G4int parentID = aTrack->GetParentID();
 				//// As long as particle is a secondary particle.
 				//while(parentID > 0)
@@ -283,14 +297,14 @@ MTCG4StackingAction::ClassifyNewTrack(const G4Track* aTrack)
 	////  G4double energy = aTrack->GetKineticEnergy();
 	////  G4double charge = aTrack->GetDefinition()->GetPDGCharge();
 
-	////  if (charge != 0.) histoManager->FillHisto(2,energy);
+	////  if (charge != 0.) fHistoManager->FillHisto(2,energy);
 
 
 	//// Stack or delete secondarie S
 	///*
-	//if (killSecondary) {
-	//	if (killSecondary == 1) {
-	//		eventaction->AddEnergy(energy);
+	//if (fKillSecondary) {
+	//	if (fKillSecondary == 1) {
+	//		fEventAction->AddEnergy(energy);
 	//	}  
 	//	classification = fKill;
 	//}
@@ -357,12 +371,12 @@ MTCG4Trajectory* MTCG4StackingAction::GetTrajectory(G4int trackID)
 
 void MTCG4StackingAction::NewStage()
 {
-	stage++;
+	fStage++;
 	stackManager->ReClassify();
 	return;
 }
 
 void MTCG4StackingAction::PrepareNewEvent()
 {
-	stage = 0;
+	fStage = 0;
 }

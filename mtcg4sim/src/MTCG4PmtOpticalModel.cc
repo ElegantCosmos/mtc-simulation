@@ -1,14 +1,14 @@
 /** @file MTCG4PmtOpticalModel.cc
-    Defines a FastSimulationModel class for handling optical photon
-    interactions with PMT: partial reflection, transmission, absorption,
-    and hit generation.
-    
-    This file is part of the GenericLAND software library.
-    $Id: MTCG4PmtOpticalModel.cc,v 1.10 2007/03/18 01:48:39 kamland0 Exp $
-    
-    @author Glenn Horton-Smith, March 20, 2001.
-    @author Dario Motta, Feb. 23 2005: Formalism light interaction with photocathode.
-*/
+  Defines a FastSimulationModel class for handling optical photon
+  interactions with PMT: partial reflection, transmission, absorption,
+  and hit generation.
+
+  This file is part of the GenericLAND software library.
+  $Id: MTCG4PmtOpticalModel.cc,v 1.10 2007/03/18 01:48:39 kamland0 Exp $
+
+  @author Glenn Horton-Smith, March 20, 2001.
+  @author Dario Motta, Feb. 23 2005: Formalism light interaction with photocathode.
+  */
 
 //#include "local_g4compat.hh"
 #include "G4RunManager.hh"
@@ -39,44 +39,44 @@ G4int MTCG4PmtOpticalModel::fLuxLevel = 2;
 // local helper function
 static G4Envelope* GetOrMakeEnvelope(G4LogicalVolume*lv)
 {
-//#if G4VERSIONCODE<40800
-//  return lv;
-//#else
-  if (lv->IsRootRegion())
-    return lv->GetRegion();
-  G4Region* region = new G4Region(lv->GetName()+"_optical_model_region");
-  region->AddRootLogicalVolume(lv);
-  return region;
-//#endif
+	//#if G4VERSIONCODE<40800
+	//  return lv;
+	//#else
+	if (lv->IsRootRegion())
+		return lv->GetRegion();
+	G4Region* region = new G4Region(lv->GetName()+"_optical_model_region");
+	region->AddRootLogicalVolume(lv);
+	return region;
+	//#endif
 }
 
 // constructor -- also handles all initialization
 MTCG4PmtOpticalModel::MTCG4PmtOpticalModel(
 		G4String modelName,
 		G4VPhysicalVolume *envelope_phys)
-	:G4VFastSimulationModel(
+:G4VFastSimulationModel(
 		modelName,
 		GetOrMakeEnvelope(envelope_phys->GetLogicalVolume()))
 {
 	// Initialize fPhotonEnergy to a nonsense value to indicate that the other
 	// values are not initialized.
 	fPhotonEnergy = -1.0;
-  
+
 	// Save a few geometry values for later use.
 	G4LogicalVolume* envelope_log = envelope_phys->GetLogicalVolume();
-	//G4cout << "envelope name = " << envelope_log -> GetName() << G4endl;
+	//G4cout << "envelope name = " << envelope_log->GetName() << G4endl;
 	fPixelPitch =
-		((MTCG4DetectorConstruction*)G4RunManager::GetRunManager() ->
-		 GetUserDetectorConstruction()) -> GetPixelPitch();
+		((MTCG4DetectorConstruction*)G4RunManager::GetRunManager()->
+		 GetUserDetectorConstruction())->GetPixelPitch();
 	fPhotocathodeFaceDimension = 
-		((MTCG4DetectorConstruction*)G4RunManager::GetRunManager() ->
-		 GetUserDetectorConstruction()) -> GetPhotocathodeFaceDimension();
+		((MTCG4DetectorConstruction*)G4RunManager::GetRunManager()->
+		 GetUserDetectorConstruction())->GetPhotocathodeFaceDimension();
 	fFastSimulationVolumeExtentInX = .5*fPhotocathodeFaceDimension;
 	fFastSimulationVolumeExtentInY = .5*fPhotocathodeFaceDimension;
 	fFastSimulationVolumeExtentInZBottom =
-		((MTCG4DetectorConstruction*)G4RunManager::GetRunManager() ->
-		 GetUserDetectorConstruction()) -> GetBottomOfPmtInnerVacuumExtentInZ();
-	fGeometricTolerance = G4GeometryTolerance::GetInstance() ->
+		((MTCG4DetectorConstruction*)G4RunManager::GetRunManager()->
+		 GetUserDetectorConstruction())->GetBottomOfPmtInnerVacuumExtentInZ();
+	fGeometricTolerance = G4GeometryTolerance::GetInstance()->
 		GetSurfaceTolerance();
 	G4VPhysicalVolume *pmtOuterVacuum = envelope_log->GetDaughter(1); // Use 1.
 	assert(pmtOuterVacuum); // Pointer must exist.
@@ -108,10 +108,10 @@ MTCG4PmtOpticalModel::MTCG4PmtOpticalModel(
 		fPmtGlassWindowPhys->GetObjectTranslation();
 	fPmtInnerVacuumPhysTranslation =
 		fPmtInnerVacuumPhys->GetObjectTranslation();
-  
+
 	// Now fetch needed MPVs
 	InitMPVs(envelope_phys);
-  
+
 	// add UI commands
 	if ( fgCmdDir == NULL ) {
 		fgCmdDir = new G4UIdirectory("/PMTOpticalModel/");
@@ -137,18 +137,18 @@ MTCG4PmtOpticalModel::MTCG4PmtOpticalModel(
 // destructor
 MTCG4PmtOpticalModel::~MTCG4PmtOpticalModel ()
 {
-  // nothing to delete
-  // Note: The "MaterialPropertyVector"s are owned by the material, not us.
+	// nothing to delete
+	// Note: The "MaterialPropertyVector"s are owned by the material, not us.
 }
 
 
 // IsApplicable() method overriding virtual function of G4VFastSimulationModel
 // returns true if model is applicable to given particle.
 // -- see also Geant4 docs
-G4bool
+	G4bool
 MTCG4PmtOpticalModel::IsApplicable(const G4ParticleDefinition &particleType)
 {
-  return ( &particleType == G4OpticalPhoton::OpticalPhotonDefinition() ||
+	return ( &particleType == G4OpticalPhoton::OpticalPhotonDefinition() ||
 			&particleType == G4Gamma::GammaDefinition() );
 }
 
@@ -156,19 +156,19 @@ MTCG4PmtOpticalModel::IsApplicable(const G4ParticleDefinition &particleType)
 // ModelTrigger() method overriding virtual function of G4VFastSimulationModel
 // returns true if model should take over this specific track.
 // -- see also Geant4 docs
-G4bool
+	G4bool
 MTCG4PmtOpticalModel::ModelTrigger(const G4FastTrack &fastTrack)
 {
-  //// we trigger if the track position is above the equator
-  //// or if it is on the equator and heading up
-  //if ( fastTrack.GetPrimaryTrackLocalPosition().z() >
-	//		G4GeometryTolerance::GetInstance() -> GetSurfaceTolerance() )
-  //  return true;
+	//// we trigger if the track position is above the equator
+	//// or if it is on the equator and heading up
 	//if ( fastTrack.GetPrimaryTrackLocalPosition().z() >
-	//		-G4GeometryTolerance::GetInstance() -> GetSurfaceTolerance() &&
+	//		G4GeometryTolerance::GetInstance()->GetSurfaceTolerance() )
+	//  return true;
+	//if ( fastTrack.GetPrimaryTrackLocalPosition().z() >
+	//		-G4GeometryTolerance::GetInstance()->GetSurfaceTolerance() &&
 	//		fastTrack.GetPrimaryTrackLocalDirection().z() > 0.0 )
-  //  return true;
-  //return false;
+	//  return true;
+	//return false;
 
 	if( fastTrack.GetPrimaryTrackLocalPosition().z() >
 			fFastSimulationVolumeExtentInZBottom + fGeometricTolerance
@@ -376,7 +376,7 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 			//G4cout << "dir = " << dir << G4endl;
 			//G4cout << "sin(theta) = " << sin(dir.theta()/rad) << G4endl;
 			//G4cout << "time = " << time << G4endl;
-			dist1 = fPmtGlassWindowSolid ->
+			dist1 = fPmtGlassWindowSolid->
 				DistanceToOut( pos-fPmtGlassWindowPhysTranslation, dir );
 			//G4cout << "fPmtGlassWindowPhysTranslation = "
 			//	<< fPmtGlassWindowPhysTranslation << G4endl;
@@ -444,7 +444,7 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 			{
 				G4cerr << "MTCG4PmtOpticalModel::DoIt(): "
 					<< "Warning, strangeness detected! pmt_inner_vacuum->DistanceToOut()="
-							<< dist << G4endl;
+					<< dist << G4endl;
 				dist = 0.0;
 			}
 			pos += dist*dir;
@@ -455,30 +455,30 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 			//G4cout << "time = " << time << G4endl;
 			if(
 					(pos.z()>fFastSimulationVolumeExtentInZBottom-fGeometricTolerance
-					&&
-					pos.z()<fFastSimulationVolumeExtentInZBottom+fGeometricTolerance)
+					 &&
+					 pos.z()<fFastSimulationVolumeExtentInZBottom+fGeometricTolerance)
 					||
 					(pos.x()>fFastSimulationVolumeExtentInX-fGeometricTolerance&&
-					pos.x()<fFastSimulationVolumeExtentInX+fGeometricTolerance)
+					 pos.x()<fFastSimulationVolumeExtentInX+fGeometricTolerance)
 					||
 					(pos.x()>-fFastSimulationVolumeExtentInX-fGeometricTolerance&&
-					pos.x()<-fFastSimulationVolumeExtentInX+fGeometricTolerance)
+					 pos.x()<-fFastSimulationVolumeExtentInX+fGeometricTolerance)
 					||
 					(pos.y()>fFastSimulationVolumeExtentInY-fGeometricTolerance&&
-					pos.y()<fFastSimulationVolumeExtentInY+fGeometricTolerance)
+					 pos.y()<fFastSimulationVolumeExtentInY+fGeometricTolerance)
 					||
 					(pos.y()>-fFastSimulationVolumeExtentInY-fGeometricTolerance&&
-					pos.y()<-fFastSimulationVolumeExtentInY+fGeometricTolerance)
-				)
+					 pos.y()<-fFastSimulationVolumeExtentInY+fGeometricTolerance)
+			  )
 				exiting = true;
-			//if ( pos.z() < G4GeometryTolerance::GetInstance() -> GetSurfaceTolerance() ) // we're passing through the equator
+			//if ( pos.z() < G4GeometryTolerance::GetInstance()->GetSurfaceTolerance() ) // we're passing through the equator
 			//	exiting = true;
 			fN1 = 1.0;
 			fN3 = n_glass;
 		}
 
-			//G4cout << "Absorption limit = " << abs_limit_glass_pathlength/mm << "mm" << G4endl;
-			//G4cout << "glass pathlength = " << glass_pathlength/mm << "mm" << G4endl;
+		//G4cout << "Absorption limit = " << abs_limit_glass_pathlength/mm << "mm" << G4endl;
+		//G4cout << "glass pathlength = " << glass_pathlength/mm << "mm" << G4endl;
 
 		//if photon is absorbed by glass, kill photon and break out of loop here
 		if(glass_pathlength > abs_limit_glass_pathlength) 
@@ -507,12 +507,12 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 		if ( fCosTheta1 < 0.0 ) {
 			G4cerr << "MTCG4PmtOpticalModel::DoIt(): "
 				<< " The normal points the wrong way!\n"
-						 << "  norm: " << norm << G4endl
-							 << "  dir:  " << dir << G4endl
-								<< "  fCosTheta1:  " << fCosTheta1 << G4endl
-								 << "  pos:  " << pos << G4endl
-								 << "  whereAmI:  " << (int)(whereAmI) << G4endl
-								 << " Reversing normal!" << G4endl;
+				<< "  norm: " << norm << G4endl
+				<< "  dir:  " << dir << G4endl
+				<< "  fCosTheta1:  " << fCosTheta1 << G4endl
+				<< "  pos:  " << pos << G4endl
+				<< "  whereAmI:  " << (int)(whereAmI) << G4endl
+				<< " Reversing normal!" << G4endl;
 			fCosTheta1 = -fCosTheta1;
 			norm = -norm;
 		}
@@ -569,7 +569,7 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 
 			// Set flag to indicate photon was detected to user step.
 			((MTCG4SteppingAction*)
-					G4RunManager::GetRunManager()->GetUserSteppingAction())->
+			 G4RunManager::GetRunManager()->GetUserSteppingAction())->
 				SetPhotonDetectedAtEndOfStep(true);
 
 			if ( detector != NULL && detector->isActive() ) {
@@ -590,7 +590,7 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 
 				// Create photon hit.
 				((MTCG4PmtSD *)detector)->SimpleHit(
-				 	ipmt,
+					ipmt,
 					(G4int)row_id,
 					(G4int)column_id,
 					time,
@@ -649,7 +649,7 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 		fastStep.ProposeTrackStatus(fStopAndKill);
 		if (weight < 0) {
 			G4cerr << "MTCG4PmtOpticalModel::DoIt(): Logic error, weight = "
-																							 << weight << G4endl;
+				<< weight << G4endl;
 		}
 	}
 	else {
@@ -658,7 +658,7 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 	}
 	if (iloop >= max_iloop) {
 		G4cerr << "MTCG4PmtOpticalModel::DoIt(): Too many loops, particle trapped!"
-																						 << " Killing it." << G4endl;
+			<< " Killing it." << G4endl;
 		fastStep.ProposeTrackStatus(fStopAndKill);
 	}
 
@@ -670,290 +670,291 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 // *** THE PHYSICS, AT LAST!!! :-) ***
 // Correct formalism implemented by Dario Motta (CEA-Saclay) 23 Feb 2005
 
-void
+	void
 MTCG4PmtOpticalModel::CalculateCoefficients()
-  // calculate and set fR_s, etc.
+	// calculate and set fR_s, etc.
 {
 	//G4cout << "Calculating coefficients with luxlevel = " << fLuxLevel << G4endl;
-  if (fLuxLevel <= 0) {
-    // no reflection or transmission, just a black "light bucket"
-    // 100% absorption, and QE will be renormalized later
-    fR_s = fR_p = 0.0;
-    fT_s = fT_p = 0.0;
-    fR_n = 0.0;
-    fT_n = 0.0;
-    return;
-  }
-  else if (fLuxLevel == 1) {
-    // this is what was calculated before, when we had no good defaults
-    // for cathode thickness and complex rindex
-    // set normal incidence coefficients: 50/50 refl/transm if not absorb.
-    fR_n = fT_n = 0.5*(1.0 - fEfficiency);
-    // set sines and cosines
-    fSinTheta1 = sqrt(1.0-fCosTheta1*fCosTheta1);
-    fSinTheta3 = fN1/fN3 * fSinTheta1;
-    if (fSinTheta3 > 1.0) {
-      // total non-transmission -- what to do?
-      // total reflection or absorption
-      fCosTheta3 = 0.0;
-      fR_s = fR_p = 1.0 - fEfficiency;
-      fT_s = fT_p = 0.0;
-      return;
-    }
-    fCosTheta3 = sqrt(1.0-fSinTheta3*fSinTheta3);
-    fR_s = fR_p = fR_n;
-    fT_s = fT_p = fT_n;
-    return;
-  }  
-  // else...
-    
-  // declare the prototypes of some useful functions
-  G4complex carcsin(G4complex theta); //complex sin^-1
-  G4complex gfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj);
-  G4complex rfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj);
-  G4complex trfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj,
-               G4complex tk);
-  
-  // declare some useful constants
-  G4complex _n2comp(fN2,-fK2); //complex photocathode refractive index
-  G4complex eta =twopi*_n2comp*fThickness/fWavelength;
-  G4complex zi(0.,1.); //imaginary unit
+	if (fLuxLevel <= 0) {
+		// no reflection or transmission, just a black "light bucket"
+		// 100% absorption, and QE will be renormalized later
+		fR_s = fR_p = 0.0;
+		fT_s = fT_p = 0.0;
+		fR_n = 0.0;
+		fT_n = 0.0;
+		return;
+	}
+	else if (fLuxLevel == 1) {
+		// this is what was calculated before, when we had no good defaults
+		// for cathode thickness and complex rindex
+		// set normal incidence coefficients: 50/50 refl/transm if not absorb.
+		fR_n = fT_n = 0.5*(1.0 - fEfficiency);
+		// set sines and cosines
+		fSinTheta1 = sqrt(1.0-fCosTheta1*fCosTheta1);
+		fSinTheta3 = fN1/fN3 * fSinTheta1;
+		if (fSinTheta3 > 1.0) {
+			// total non-transmission -- what to do?
+			// total reflection or absorption
+			fCosTheta3 = 0.0;
+			fR_s = fR_p = 1.0 - fEfficiency;
+			fT_s = fT_p = 0.0;
+			return;
+		}
+		fCosTheta3 = sqrt(1.0-fSinTheta3*fSinTheta3);
+		fR_s = fR_p = fR_n;
+		fT_s = fT_p = fT_n;
+		return;
+	}  
+	// else...
 
-  // declare local variables
-  
-  G4complex theta1,theta2,theta3,delta;//geometric parameters
-  G4complex r12,r23,t12,t21,t23;//reflection- and transmission-related terms
-  G4complex ampr,ampt; //relfection and transmission amplitudes
-  
-  // first set sines and cosines
-  fSinTheta1 = sqrt(1.0-fCosTheta1*fCosTheta1);
-  fSinTheta3 = fN1/fN3 * fSinTheta1;
-  if (fSinTheta3 > 1.0) {
-    // total non-transmission -- what to do???
-    // these variables only used to decide refracted track direction,
-    // so doing the following should be okay:
-    fSinTheta3 = 1.0;
-  }
-  fCosTheta3 = sqrt(1.0-fSinTheta3*fSinTheta3);
+	// declare the prototypes of some useful functions
+	G4complex carcsin(G4complex theta); //complex sin^-1
+	G4complex gfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj);
+	G4complex rfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj);
+	G4complex trfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj,
+			G4complex tk);
 
-  // Determine all angles
-  theta1 =asin(fSinTheta1);//incidence angle
-  theta2 =carcsin((fN1/_n2comp)*fSinTheta1);//complex angle in the photocathode
-  theta3 =carcsin((_n2comp/fN3)*sin(theta2));//angle of refraction into vacuum
-  if (imag(theta3)<0.) theta3 =conj(theta3);//needed! (sign ambiguity arcsin)
+	// declare some useful constants
+	G4complex _n2comp(fN2,-fK2); //complex photocathode refractive index
+	G4complex eta =twopi*_n2comp*fThickness/fWavelength;
+	G4complex zi(0.,1.); //imaginary unit
 
-  delta =eta*cos(theta2);
-  
-  //Calculation for the s-polarization
-  
-  r12 =rfunc(fN1,_n2comp,theta1,theta2);
-  r23 =rfunc(_n2comp,fN3,theta2,theta3);
-  t12 =trfunc(fN1,_n2comp,theta1,theta1,theta2);
-  t21 =trfunc(_n2comp,fN1,theta2,theta2,theta1);
-  t23 =trfunc(_n2comp,fN3,theta2,theta2,theta3);
-  
-  ampr =r12+(t12*t21*r23*exp(-2.*zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
-  ampt =(t12*t23*exp(-zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
-  
-  //And finally...!
-  fR_s =real(ampr*conj(ampr));
-  fT_s =real(gfunc(fN3,fN1,theta3,theta1)*ampt*conj(ampt));
+	// declare local variables
 
-  //Calculation for the p-polarization
-  
-  r12 =rfunc(fN1,_n2comp,theta2,theta1);
-  r23 =rfunc(_n2comp,fN3,theta3,theta2);
-  t12 =trfunc(fN1,_n2comp,theta1,theta2,theta1);
-  t21 =trfunc(_n2comp,fN1,theta2,theta1,theta2);
-  t23 =trfunc(_n2comp,fN3,theta2,theta3,theta2);
-  
-  ampr =r12+(t12*t21*r23*exp(-2.*zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
-  ampt =(t12*t23*exp(-zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
-  
-  //And finally...!
-  fR_p =real(ampr*conj(ampr));
-  fT_p =real(gfunc(fN3,fN1,theta3,theta1)*ampt*conj(ampt));
+	G4complex theta1,theta2,theta3,delta;//geometric parameters
+	G4complex r12,r23,t12,t21,t23;//reflection- and transmission-related terms
+	G4complex ampr,ampt; //relfection and transmission amplitudes
 
-  //Now calculate the reference values at normal incidence (to scale QE)
-  
-  delta = eta;
-  //Calculation for both polarization (the same at normal incidence)
-  r12 =rfunc(fN1,_n2comp,0.,0.);
-  r23 =rfunc(_n2comp,fN3,0.,0.);
-  t12 =trfunc(fN1,_n2comp,0.,0.,0.);
-  t21 =trfunc(_n2comp,fN1,0.,0.,0.);
-  t23 =trfunc(_n2comp,fN3,0.,0.,0.);
-  
-  ampr =r12+(t12*t21*r23*exp(-2.*zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
-  ampt =(t12*t23*exp(-zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
-  
-  //And finally...!
-  fR_n =real(ampr*conj(ampr));
-  fT_n =real(gfunc(fN3,fN1,0.,0.)*ampt*conj(ampt));
-  
-  
+	// first set sines and cosines
+	fSinTheta1 = sqrt(1.0-fCosTheta1*fCosTheta1);
+	fSinTheta3 = fN1/fN3 * fSinTheta1;
+	if (fSinTheta3 > 1.0) {
+		// total non-transmission -- what to do???
+		// these variables only used to decide refracted track direction,
+		// so doing the following should be okay:
+		fSinTheta3 = 1.0;
+	}
+	fCosTheta3 = sqrt(1.0-fSinTheta3*fSinTheta3);
+
+	// Determine all angles
+	theta1 =asin(fSinTheta1);//incidence angle
+	theta2 =carcsin((fN1/_n2comp)*fSinTheta1);//complex angle in the photocathode
+	theta3 =carcsin((_n2comp/fN3)*sin(theta2));//angle of refraction into vacuum
+	if (imag(theta3)<0.) theta3 =conj(theta3);//needed! (sign ambiguity arcsin)
+
+	delta =eta*cos(theta2);
+
+	//Calculation for the s-polarization
+
+	r12 =rfunc(fN1,_n2comp,theta1,theta2);
+	r23 =rfunc(_n2comp,fN3,theta2,theta3);
+	t12 =trfunc(fN1,_n2comp,theta1,theta1,theta2);
+	t21 =trfunc(_n2comp,fN1,theta2,theta2,theta1);
+	t23 =trfunc(_n2comp,fN3,theta2,theta2,theta3);
+
+	ampr =r12+(t12*t21*r23*exp(-2.*zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
+	ampt =(t12*t23*exp(-zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
+
+	//And finally...!
+	fR_s =real(ampr*conj(ampr));
+	fT_s =real(gfunc(fN3,fN1,theta3,theta1)*ampt*conj(ampt));
+
+	//Calculation for the p-polarization
+
+	r12 =rfunc(fN1,_n2comp,theta2,theta1);
+	r23 =rfunc(_n2comp,fN3,theta3,theta2);
+	t12 =trfunc(fN1,_n2comp,theta1,theta2,theta1);
+	t21 =trfunc(_n2comp,fN1,theta2,theta1,theta2);
+	t23 =trfunc(_n2comp,fN3,theta2,theta3,theta2);
+
+	ampr =r12+(t12*t21*r23*exp(-2.*zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
+	ampt =(t12*t23*exp(-zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
+
+	//And finally...!
+	fR_p =real(ampr*conj(ampr));
+	fT_p =real(gfunc(fN3,fN1,theta3,theta1)*ampt*conj(ampt));
+
+	//Now calculate the reference values at normal incidence (to scale QE)
+
+	delta = eta;
+	//Calculation for both polarization (the same at normal incidence)
+	r12 =rfunc(fN1,_n2comp,0.,0.);
+	r23 =rfunc(_n2comp,fN3,0.,0.);
+	t12 =trfunc(fN1,_n2comp,0.,0.,0.);
+	t21 =trfunc(_n2comp,fN1,0.,0.,0.);
+	t23 =trfunc(_n2comp,fN3,0.,0.,0.);
+
+	ampr =r12+(t12*t21*r23*exp(-2.*zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
+	ampt =(t12*t23*exp(-zi*delta))/(1.+r12*r23*exp(-2.*zi*delta));
+
+	//And finally...!
+	fR_n =real(ampr*conj(ampr));
+	fT_n =real(gfunc(fN3,fN1,0.,0.)*ampt*conj(ampt));
+
+
 # ifdef G4DEBUG
-  if (fVerbosity >= 10) {
-    G4cout<<"=> lam, n1, n2: "<<fWavelength/nanometer<<" "<<fN1<<" "<<_n2comp<<G4endl;      
-    G4cout<<"=> Angles: "<<real(theta1)/degree<<" "<<theta2/degree<<" "
-	  <<theta3/degree<<G4endl;      
-    G4cout<<"Rper, Rpar, Tper, Tpar: "<<fR_s<<" "<<fR_p<<" "<<fT_s<<" "<<fT_p;
-    G4cout<<"\nRn, Tn : "<<fR_n<<" "<<fT_n;
-    G4cout<<"\n-------------------------------------------------------"<<G4endl;
-  }
+	if (fVerbosity >= 10) {
+		G4cout<<"=> lam, n1, n2: "<<fWavelength/nanometer<<" "<<fN1<<" "<<_n2comp<<G4endl;      
+		G4cout<<"=> Angles: "<<real(theta1)/degree<<" "<<theta2/degree<<" "
+			<<theta3/degree<<G4endl;      
+		G4cout<<"Rper, Rpar, Tper, Tpar: "<<fR_s<<" "<<fR_p<<" "<<fT_s<<" "<<fT_p;
+		G4cout<<"\nRn, Tn : "<<fR_n<<" "<<fT_n;
+		G4cout<<"\n-------------------------------------------------------"<<G4endl;
+	}
 # endif
 
 }
 
 G4complex carcsin(G4complex theta) //complex sin^-1 
 {
-  G4complex zi(0.,1.);
-  G4complex value =(1./zi)*(log(zi*theta+sqrt(1.-theta*theta)));
-  return value; 
+	G4complex zi(0.,1.);
+	G4complex value =(1./zi)*(log(zi*theta+sqrt(1.-theta*theta)));
+	return value; 
 }
 
 G4complex gfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj)
 {
-  G4complex value =(ni*cos(ti))/(nj*cos(tj));
-  return value;
+	G4complex value =(ni*cos(ti))/(nj*cos(tj));
+	return value;
 }
 
 G4complex rfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj)
 {
-  G4complex value =(ni*cos(ti)-nj*cos(tj))/(ni*cos(ti)+nj*cos(tj));
-  return value;
+	G4complex value =(ni*cos(ti)-nj*cos(tj))/(ni*cos(ti)+nj*cos(tj));
+	return value;
 }
 
 G4complex trfunc(G4complex ni, G4complex nj, G4complex ti, G4complex tj,
-             G4complex tk)
+		G4complex tk)
 {
-  G4complex value =2.*(ni*cos(ti))/(ni*cos(tj)+nj*cos(tk));
-  return value;
+	G4complex value =2.*(ni*cos(ti))/(ni*cos(tj)+nj*cos(tk));
+	return value;
 }
 
 
 // Reflect() method, used by DoIt()
-void
+	void
 MTCG4PmtOpticalModel::Reflect(G4ThreeVector &dir,
-			   G4ThreeVector &pol,
-			   G4ThreeVector &norm)
+		G4ThreeVector &pol,
+		G4ThreeVector &norm)
 {
-  dir -= 2.*(dir*norm)*norm;
-  pol -= 2.*(pol*norm)*norm;
+	dir -= 2.*(dir*norm)*norm;
+	pol -= 2.*(pol*norm)*norm;
 }
 
 // Refract() method, used by DoIt()
-void
+	void
 MTCG4PmtOpticalModel::Refract(G4ThreeVector &dir,
-			   G4ThreeVector &pol,
-			   G4ThreeVector &norm)
+		G4ThreeVector &pol,
+		G4ThreeVector &norm)
 {
-  dir = (fCosTheta3 - fCosTheta1*fN1/fN3)*norm + (fN1/fN3)*dir;
-  pol = (pol-(pol*dir)*dir).unit();
+	dir = (fCosTheta3 - fCosTheta1*fN1/fN3)*norm + (fN1/fN3)*dir;
+	pol = (pol-(pol*dir)*dir).unit();
 }
 
 
 // user command handling functions
-void
-MTCG4PmtOpticalModel::SetNewValue(G4UIcommand * command, G4String newValues)
+	void
+MTCG4PmtOpticalModel::SetNewValue(G4UIcommand * cmd, G4String newValue)
 {
-   G4String commandName = command -> GetCommandName();
-   if (commandName == "verbose") {
-     fVerbosity = strtol((const char *)newValues, NULL, 0);
-   }
-   else if (commandName == "luxlevel") {
-     fLuxLevel = strtol((const char *)newValues, NULL, 0);
-   }
-   else {
-     G4cerr << "No PMTOpticalModel command named " << commandName << G4endl;
-   }
-   return;
+	G4String cmdName = cmd->GetCommandName();
+	if (cmdName == "verbose") {
+		fVerbosity = strtol((const char *)newValue, NULL, 0);
+	}
+	else if (cmdName == "luxlevel") {
+		fLuxLevel = strtol((const char *)newValue, NULL, 0);
+	}
+	else {
+		G4Exception( "MTCG4PmtOpticalModel.cc", "1", FatalErrorInArgument,
+				(cmdName + ": " + newValue + " option not found.").c_str() );
+	}
+	return;
 }
 
-G4String
-MTCG4PmtOpticalModel::GetCurrentValue(G4UIcommand * command)
+	G4String
+MTCG4PmtOpticalModel::GetCurrentValue(G4UIcommand * cmd)
 {
-   G4String commandName = command -> GetCommandName();
-   if (commandName == "verbose") {
-     char outbuff[64];
-     sprintf(outbuff, "%d", fVerbosity);
-     return G4String(outbuff);
-   }
-   else if (commandName == "luxlevel") {
-     char outbuff[64];
-     sprintf(outbuff, "%d", fLuxLevel);
-     return G4String(outbuff);
-   }
-   else {
-     return (commandName+" is not a valid PMTOpticalModel command");
-   }
+	G4String cmdName = cmd->GetCommandName();
+	if (cmdName == "verbose") {
+		char outbuff[64];
+		sprintf(outbuff, "%d", fVerbosity);
+		return G4String(outbuff);
+	}
+	else if (cmdName == "luxlevel") {
+		char outbuff[64];
+		sprintf(outbuff, "%d", fLuxLevel);
+		return G4String(outbuff);
+	}
+	else {
+		return (cmdName+" is not a valid PMTOpticalModel command");
+	}
 }
 
 
 // function added: DR 092704
 //  (see include file)
 // code extracted from constructor
-void
+	void
 MTCG4PmtOpticalModel::InitMPVs(G4VPhysicalVolume* envelope_phys)
 {
-  // get material properties vectors
-  // ... material properties of glass
-  G4LogicalVolume* envelope_log = envelope_phys->GetLogicalVolume();
-  G4MaterialPropertiesTable* glass_pt =
-    envelope_log->GetMaterial()->GetMaterialPropertiesTable();
-  if (glass_pt == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "glass lacks a properties table!");
-  
-  fRIndexGlass = glass_pt->GetProperty("RINDEX");
-  if (fRIndexGlass == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "glass does not have RINDEX!");
+	// get material properties vectors
+	// ... material properties of glass
+	G4LogicalVolume* envelope_log = envelope_phys->GetLogicalVolume();
+	G4MaterialPropertiesTable* glass_pt =
+		envelope_log->GetMaterial()->GetMaterialPropertiesTable();
+	if (glass_pt == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "glass lacks a properties table!");
 
-  fAttenuationGlass = glass_pt->GetProperty("ABSLENGTH");
-  if (fAttenuationGlass == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "glass does not have ABSLENGTH!");
+	fRIndexGlass = glass_pt->GetProperty("RINDEX");
+	if (fRIndexGlass == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "glass does not have RINDEX!");
 
-  // ... material properties of photocathode (first get photocathode surface)
-  G4LogicalBorderSurface* pc_log_surface =
-    G4LogicalBorderSurface::GetSurface(fPmtGlassWindowPhys/*envelope_phys*/, fPmtInnerVacuumPhys);
-  if (pc_log_surface == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "no photocathode logical surface!?!");
+	fAttenuationGlass = glass_pt->GetProperty("ABSLENGTH");
+	if (fAttenuationGlass == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "glass does not have ABSLENGTH!");
 
-//#if (G4VERSIONCODE < 40600 )
-//  // it used to be so easy...
-//  G4OpticalSurface* pc_opsurf = pc_log_surface->GetOpticalSurface();
-//#else
-  // G4LogicalSurface::GetOpticalSurface() function was eliminated from Geant4
-  // version 6.  G4OpticalSurface now inherits from G4SurfaceProperty.
-  // We have to trust that the G4SurfaceProperty returned by
-  // pc_log_surface->GetSurfaceProperty() will be a G4OpticalSurface,
-  // and cast the pointer accordingly by faith alone!
-  G4OpticalSurface* pc_opsurf = (G4OpticalSurface*)
-    ( pc_log_surface->GetSurfaceProperty() );
-//#endif
-  
-  if (pc_opsurf == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "no photocathode optical surface!?!");
-  G4MaterialPropertiesTable* pc_pt =
-    pc_opsurf->GetMaterialPropertiesTable();
-  if (pc_pt == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode lacks a properties table!");
-  
-  fRIndexPhotocathode = pc_pt->GetProperty("RINDEX");
-  if (fRIndexPhotocathode == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have RINDEX!");
-  
-  fKIndexPhotocathode = pc_pt->GetProperty("KINDEX");
-  if (fKIndexPhotocathode == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have KINDEX!");
-  
-  fThicknessPhotocathode = pc_pt->GetProperty("THICKNESS");
-  if (fThicknessPhotocathode == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have THICKNESS!");
+	// ... material properties of photocathode (first get photocathode surface)
+	G4LogicalBorderSurface* pc_log_surface =
+		G4LogicalBorderSurface::GetSurface(fPmtGlassWindowPhys/*envelope_phys*/, fPmtInnerVacuumPhys);
+	if (pc_log_surface == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "no photocathode logical surface!?!");
 
-  fEfficiencyPhotocathode = pc_pt->GetProperty("EFFICIENCY");
-  if (fEfficiencyPhotocathode == NULL)
-    G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have EFFICIENCY!");
-  
-  fEffVSRhoPhotocathode = pc_pt->GetProperty("EFFVSRHO");
-  // it's okay for the above to be null
+	//#if (G4VERSIONCODE < 40600 )
+	//  // it used to be so easy...
+	//  G4OpticalSurface* pc_opsurf = pc_log_surface->GetOpticalSurface();
+	//#else
+	// G4LogicalSurface::GetOpticalSurface() function was eliminated from Geant4
+	// version 6.  G4OpticalSurface now inherits from G4SurfaceProperty.
+	// We have to trust that the G4SurfaceProperty returned by
+	// pc_log_surface->GetSurfaceProperty() will be a G4OpticalSurface,
+	// and cast the pointer accordingly by faith alone!
+	G4OpticalSurface* pc_opsurf = (G4OpticalSurface*)
+		( pc_log_surface->GetSurfaceProperty() );
+	//#endif
+
+	if (pc_opsurf == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "no photocathode optical surface!?!");
+	G4MaterialPropertiesTable* pc_pt =
+		pc_opsurf->GetMaterialPropertiesTable();
+	if (pc_pt == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode lacks a properties table!");
+
+	fRIndexPhotocathode = pc_pt->GetProperty("RINDEX");
+	if (fRIndexPhotocathode == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have RINDEX!");
+
+	fKIndexPhotocathode = pc_pt->GetProperty("KINDEX");
+	if (fKIndexPhotocathode == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have KINDEX!");
+
+	fThicknessPhotocathode = pc_pt->GetProperty("THICKNESS");
+	if (fThicknessPhotocathode == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have THICKNESS!");
+
+	fEfficiencyPhotocathode = pc_pt->GetProperty("EFFICIENCY");
+	if (fEfficiencyPhotocathode == NULL)
+		G4Exception("MTCG4PmtOpticalModel", "", FatalErrorInArgument, "photocathode does not have EFFICIENCY!");
+
+	fEffVSRhoPhotocathode = pc_pt->GetProperty("EFFVSRHO");
+	// it's okay for the above to be null
 }

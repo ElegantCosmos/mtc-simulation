@@ -19,18 +19,18 @@ class MTCG4PhysicsMessenger: public G4UImessenger
 		~MTCG4PhysicsMessenger();
 	
 	public:
-		void SetNewValue(G4UIcommand*, G4String);
-		G4String GetCurrentValue(G4UIcommand*);
+		void SetNewValue(G4UIcommand* cmd, G4String newValue);
+		G4String GetCurrentValue(G4UIcommand* cmd);
 
 	private:
-		MTCG4PhysicsList* physicsList;
+		MTCG4PhysicsList*		fPhysicsList;
 
-		G4UIdirectory*			physicsDirectory;
-		G4UIcmdWithABool*		commandForProducingCerenkov;
-		G4UIcmdWithABool*		commandForProducingScintillation;
-		G4UIcmdWithABool*		commandForNeutronHPThermalScattering;
-		G4UIcmdWithAnInteger*	commandForMaxNumPhotonsPerStep;
-		G4UIcmdWithAnInteger*	commandForVerbosity;
+		G4UIdirectory*			fPhysicsDirectory;
+		G4UIcmdWithABool*		fProduceCherenkovCmd;
+		G4UIcmdWithABool*		fProduceScintillationCmd;
+		G4UIcmdWithABool*		fNeutronHPThermalScatteringCmd;
+		G4UIcmdWithAnInteger*	fMaxNumPhotonsPerStepCmd;
+		G4UIcmdWithAnInteger*	fVerbosityCmd;
 };
 
 #endif

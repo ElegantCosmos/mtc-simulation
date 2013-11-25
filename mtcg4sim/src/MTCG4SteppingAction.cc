@@ -59,13 +59,14 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 		return;
 	}
 	
-	if (fOutputOnlyFirstNEvents >= 0) // Do output for only first n events.
+	if (fOutputOnlyFirstNEvents >= 0) {// Do output for only first n events.
 		if (G4EventManager::GetEventManager()-> GetConstCurrentEvent() ->
 				GetEventID() >= fOutputOnlyFirstNEvents)
 			return;
+	}
 
 	DoStepOutputToRootFile(theStep);
-	//DoStepOutputToTextFile(theStep);
+	DoStepOutputToTextFile(theStep);
 
 	fPhotonDetectedAtEndOfStep = false; // Reset photon detection flag.
 }

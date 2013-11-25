@@ -15,15 +15,15 @@ public:
 	MTCG4RunMessenger(MTCG4RunAction* myAction);
 	~MTCG4RunMessenger();
 
-	void SetNewValue(G4UIcommand* command, G4String newValue);
+	void SetNewValue(G4UIcommand* cmd, G4String newValue);
 
 private:
 	MTCG4RunAction			*fRunAction;
 
-	G4UIcmdWithAnInteger	*fSetRunIDCommand;
-	G4UIcmdWithAString		*fSetOutputPathCommand;
-	G4UIcmdWithAString		*fSetStepOutputFileCommand;
-	G4UIcmdWithAString		*fSetPEOutputFileCommand;
+	G4UIcmdWithAnInteger	*fSetRunIDCmd;
+	G4UIcmdWithAString		*fSetOutputPathCmd;
+	G4UIcmdWithAString		*fSetStepOutputFileCmd;
+	G4UIcmdWithAString		*fSetPEOutputFileCmd;
 };
 
 #endif
