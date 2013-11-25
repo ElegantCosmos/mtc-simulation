@@ -30,7 +30,8 @@ G4double GetCosmicRayMuonDifferentialIntensity();
 void GetMuonMomentumAngles(G4double &theta, G4double &phi);
 G4double GetMuonEnergy();
 
-MTCG4PrimaryGeneratorAction::MTCG4PrimaryGeneratorAction()
+MTCG4PrimaryGeneratorAction::MTCG4PrimaryGeneratorAction() :
+	fCosmicRayMuonEnergy(0)
 {
 	//
 	// Parameter default values.
@@ -409,48 +410,74 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		(((MTCG4DetectorConstruction*)G4RunManager::GetRunManager()->
 		  GetUserDetectorConstruction())->
 		 GetScintDimensionZ());
-	// Get rho and phi of initial muon starting position vector. We want this
-	// vector to point with uniform probability over a circular disk surface
-	// parallel to the x-y plane with a radius such that its diameter will cover
-	// the entire cube regardless of where the disk may be in terms of
-	// orientation and position if the disk axis always goes through the center
-	// of the cube.  The hight of this disk wrt the center of the
-	// cube (0, 0, 0) is arbitrarily set to 65 mm + 130 mm (the hight of the
-	// scintillator cube). The differential surface area for a disk in
-	// cyllindrical coordinates is dS = rho*d(rho)*d(phi) = 0.5*d(rho^2)*d(phi).
-	// So sampling uniformly and randomly over [0, 1] for rho^2 is what we want
-	// to do. Then we can take the sqrt to find rho. Phi can be sampled as is
-	// over [0, 2pi].
-	const G4double muonInitPosRho =
-		0.5*
-		sqrt(scintDimensionX*scintDimensionX + scintDimensionY*scintDimensionY +
-				scintDimensionZ*scintDimensionZ)*sqrt(G4UniformRand());
-	const G4double muonInitPosPhi = twopi*G4UniformRand()*rad;
-	const G4double muonInitPosZ = // Initial muon Z coordinate.
-				scintDimensionZ + 65.*mm;
-	//G4ThreeVector muonInitPos( // Muon initial vertex.
-	//		muonInitPosRho*sin(muonInitPosPhi/rad),
-	//		muonInitPosRho*cos(muonInitPosPhi/rad),
-	//	   	muonInitPosZ);
-	G4ThreeVector muonInitPos(0*mm, 0*mm, 5000.1*mm);
-	G4cout << "muonInitPos before rotation: " << muonInitPos << G4endl;
-	G4double muonMomAnglePhi = 0*rad, // Muon momentum angles.
-			 muonMomAngleTheta = 0*rad;
-	GetMuonMomentumAngles(muonMomAngleTheta, muonMomAnglePhi);
-	//G4cout << "muonMomAnglePhi: " << muonMomAnglePhi << G4endl;
-	//G4cout << "muonMomAngleTheta: " << muonMomAngleTheta << G4endl;
+	G4ThreeVector muonInitPos(0, 0, 0);
+	G4ThreeVector muonMomentumDir(0, 0, 0);
+	G4double muonEnergy = 0*MeV;
 
-	// Rotate circular disk of muon initial positions such that it is
-	// perpendicular to the muon momentum. This way we maximize the probability
-	// that the muon will interact with the scintillating cube so we can save
-	// computing time. The disk will be placed on the opposite side of the muon
-	// momentum direction wrt the center of the cube.
-	//muonInitPos.rotateY(pi - muonMomAngleTheta/rad);
-	//muonInitPos.rotateZ(pi + muonMomAnglePhi/rad);
-	//G4cout << "muonInitPos after rotation: " << muonInitPos << G4endl;
+	// Set cosmic ray muon properties according to macro settings.
+	if (fCosmicRayMuonDirectionDescription == "sea-level") {
+		// Set random direction of cosmic ray muons to that of sea-level.
+		// Get rho and phi of initial muon starting position vector. We want
+		// this vector to point with uniform probability over a circular disk
+		// surface parallel to the x-y plane with a radius such that its
+		// diameter will cover the entire cube regardless of where the disk may
+		// be in terms of orientation and position if the disk axis always goes
+		// through the center of the cube. The hight of this disk wrt the
+		// center of the cube (0, 0, 0) is arbitrarily set to 65 mm + 130 mm
+		// (the hight of the scintillator cube). The differential surface area
+		// for a disk in cyllindrical coordinates is dS = rho*d(rho)*d(phi) =
+		// 0.5*d(rho^2)*d(phi). So sampling uniformly and randomly over [0, 1]
+		// for rho^2 is what we want to do. Then we can take the sqrt to find
+		// rho. Phi can be sampled as is over [0, 2pi].
+		const G4double muonInitPosRho =
+			0.5*sqrt(
+					scintDimensionX*scintDimensionX +
+					scintDimensionY*scintDimensionY +
+					scintDimensionZ*scintDimensionZ)*
+			sqrt(G4UniformRand());
+		const G4double muonInitPosPhi = twopi*G4UniformRand()*rad;
+		const G4double muonInitPosZ = // Initial muon Z coordinate.
+			fabs(2*scintDimensionZ);
+		muonInitPos = G4ThreeVector( // Muon initial vertex.
+				muonInitPosRho*sin(muonInitPosPhi/rad),
+				muonInitPosRho*cos(muonInitPosPhi/rad),
+				muonInitPosZ);
+		G4cout << "muonInitPos before rotation: " << muonInitPos << G4endl;
+		G4double muonMomAnglePhi = 0*rad, // Muon momentum angles.
+				 muonMomAngleTheta = 0*rad;
+		GetMuonMomentumAngles(muonMomAngleTheta, muonMomAnglePhi);
+		G4cout << "muonMomAnglePhi: " << muonMomAnglePhi << G4endl;
+		G4cout << "muonMomAngleTheta: " << muonMomAngleTheta << G4endl;
+
+		// Rotate circular disk of muon initial positions such that it is
+		// perpendicular to the muon momentum. This way we maximize the
+		// probability that the muon will interact with the scintillating cube
+		// so we can save computing time. The disk will be placed on the
+		// opposite side of the muon momentum direction wrt the center of the
+		// cube.
+		muonInitPos.rotateY(pi - muonMomAngleTheta/rad);
+		muonInitPos.rotateZ(pi + muonMomAnglePhi/rad);
+		G4cout << "muonInitPos after rotation: " << muonInitPos << G4endl;
+
+		// Muon momentum direction.
+		muonMomentumDir = G4ThreeVector(0, 0, 1);
+		muonMomentumDir.setPhi(muonMomAnglePhi/rad);
+		muonMomentumDir.setTheta(muonMomAngleTheta/rad);
+		muonMomentumDir.setMag(1);
+	}
+	else if (fCosmicRayMuonDirectionDescription == "-z") {
+		// Set downward going muon direction through center of cube.
+		muonInitPos = G4ThreeVector(0*mm, 0*mm, 2*scintDimensionZ);
+		muonMomentumDir = G4ThreeVector(0, 0, -1);
+	}
+	else {
+		// Set default behavior to be same as above. Fix later.
+		muonInitPos = G4ThreeVector(0*mm, 0*mm, 2*scintDimensionZ);
+		muonMomentumDir = G4ThreeVector(0, 0, -1);
+	}
 
 	// Get muon kinetic energy.
-	const G4double muonEnergy = GetMuonEnergy();
+	muonEnergy = GetMuonEnergy();
 	//G4cout << "muonEnergy: " << muonEnergy << G4endl;
 
 	// Set primary particle properties.
@@ -461,13 +488,8 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		fPrimaryCosmicRayMuonGun->SetParticleDefinition(particleTable->
 				FindParticle(G4MuonMinus::MuonMinusDefinition()));
 	fPrimaryCosmicRayMuonGun->SetParticlePosition(muonInitPos);
-	//G4ThreeVector primaryCosmicRayMuonMomentumDirection(0, 0, 1);
-	//primaryCosmicRayMuonMomentumDirection.setPhi(muonMomAnglePhi/rad);
-	//primaryCosmicRayMuonMomentumDirection.setTheta(muonMomAngleTheta/rad);
-	//primaryCosmicRayMuonMomentumDirection.setMag(1);
-	G4ThreeVector primaryCosmicRayMuonMomentumDirection(0, 0, -1);
 	fPrimaryCosmicRayMuonGun->SetParticleMomentumDirection(
-			primaryCosmicRayMuonMomentumDirection);
+			muonMomentumDir);
 	fPrimaryCosmicRayMuonGun->SetParticleEnergy(muonEnergy);
 	fPrimaryCosmicRayMuonGun->GeneratePrimaryVertex(theEvent);
 }
@@ -491,8 +513,6 @@ void GetMuonMomentumAngles(G4double &theta, G4double &phi)
 	muonDir.setTheta(muonTheta/rad);
 	muonDir.setPhi(muonPhi/rad);
 	muonDir.setMag(1);
-	G4cout << "muonTheta: " << muonTheta/rad << G4endl;
-	G4cout << "muonPhi: " <<muonPhi/rad << G4endl;
 	theta = muonTheta;
 	phi = muonPhi;
 }
@@ -507,17 +527,23 @@ G4double GetCosmicRayMuonDifferentialIntensity(G4double momentum)
 	return a*pow(momentum/GeV - b, c);
 }
 
-G4double GetMuonEnergy()
+G4double MTCG4PrimaryGeneratorAction::GetMuonEnergy()
 {
-	G4double momentum; // Momentum of muon in GeV/c, c = 1.
-	G4double randNo = 0; // Random sample 0~1.
-	do {
-		momentum = 1000*G4UniformRand()*GeV; // Momentum 0~1000 GeV/c, c = 1.
-		// Ignore momentum below 0.1 GeV (minimum of fit spectrum of muons).
-		if (momentum < 0.1*GeV) continue;
-		randNo = G4UniformRand(); // 0~1.
-	} while (randNo > 400*GetCosmicRayMuonDifferentialIntensity(momentum));
-	const G4double mass = G4MuonMinus::MuonMinusDefinition()->GetPDGMass();
-	G4double energy = sqrt(momentum*momentum + mass*mass) - mass;
+	G4double energy = 0*MeV;
+	if (fCosmicRayMuonEnergy <= 0) { // Assign sea level muon spectrum.
+		G4double momentum; // Momentum of muon in GeV/c, c = 1.
+		do {
+			momentum = 1000*G4UniformRand()*GeV; // Momentum 0~1000GeV/c, c=1.
+			// Ignore momentum below 0.1 GeV (spectrum minimum of muons).
+			if (momentum < 0.1*GeV) continue;
+		} while (G4UniformRand() >
+				400*GetCosmicRayMuonDifferentialIntensity(momentum));
+		const G4double mass =
+		   	G4MuonMinus::MuonMinusDefinition()->GetPDGMass();
+		energy = sqrt(momentum*momentum + mass*mass) - mass;
+	}
+	else { // Assign mono-energetic muon energy.
+		energy = fCosmicRayMuonEnergy;
+	}
 	return energy;
 }

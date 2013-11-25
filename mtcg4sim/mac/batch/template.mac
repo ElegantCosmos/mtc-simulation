@@ -35,7 +35,7 @@
 /physics_engine/tailor/GammaNuclear on
 /physics_engine/tailor/SyncRadiation off
 /physics_engine/neutron/energyLimit 0. eV
-/physics_engine/neutron/timeLimit 1. s
+/physics_engine/neutron/timeLimit 100. s
 
 ######################################################################
 # Commands to change output settings of output file containing particle
@@ -90,9 +90,9 @@
 /mtcg4/primary/setPrimaryParticleDataFile primaryParticleData.dat
 
 # Set the initial kinetic energies (same value for both particles) of positron
-# and neutron in units of eV.  This command is overridden when the command
-# readInPrimaryParticleDataFile is set to true.
-/mtcg4/primary/setInverseBetaDecayDaughterParticleKineticEnergy 1000
+# and neutron. Default in units in MeV. This command is overridden when the
+# command readInPrimaryParticleDataFile is set to true.
+/mtcg4/primary/setInverseBetaDecayDaughterParticleKineticEnergy 1e-3
 
 
 
@@ -117,12 +117,16 @@
 
 ######################################################################
 # Command used to shoot cosmic ray muons.
-# Energy spectrum and zenith angle distributions are taken into account using
-# distributions provided by (fix later).
 ######################################################################
 
 # Set flag to shoot cosmic ray muon.
 /gun/shootCosmicRayMuon true
+# Set energy of muon. Set <= 0 to specify sea level energy spectrum.
+/gun/setCosmicRayMuonEnergy 0 MeV
+# Set muon direction. Choose "sea-level" or "-z".
+# sea-level: random direction with zenith angle distribution at sea level.
+# -z: Straight down from top of cube.
+/gun/setCosmicRayMuonDirection sea-level
 
 ######################################################################
 # Commands to use the General Particle Source commands.
@@ -184,9 +188,13 @@
 
 # Set output path for simulation results.
 #/mtcg4/io/setOutputPath 283gev_mu/
-/mtcg4/io/setOutputPath /data/mtc-sim/cosmicray_mu/
+#/mtcg4/io/setOutputPath /data/mtc-sim/cosmicray_mu/
 #/mtcg4/io/setOutputPath /data/mtc-sim/283gev_mu/
 #/mtcg4/io/setOutputPath /data/mtc-sim/2gev_mu/
+/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_without_wls/
+#/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_with_wls/
+#/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_with_wls_straight_down/
+
 
 # Set output file name for all particle steps.
 /mtcg4/io/setStepOutputFile all_particle_step_runJOB_SUBMIT_NO
@@ -235,7 +243,7 @@
 #/run/beamOn 50
 #/run/beamOn 100
 #/run/beamOn 500
-/run/beamOn 1000
+/run/beamOn 10
 #/run/beamOn 10000
 #/run/beamOn 10000000
 #/run/beamOn 3 

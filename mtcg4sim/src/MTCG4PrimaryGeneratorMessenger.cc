@@ -2,8 +2,6 @@
 // MTCG4PrimaryGeneratorMessenger.cc Mich 111222
 //
 
-#include "CLHEP/Random/Random.h"
-
 #include "Randomize.hh"
 #include "G4ios.hh"
 #include "G4UImanager.hh"
@@ -75,7 +73,8 @@ MTCG4PrimaryGeneratorMessenger::MTCG4PrimaryGeneratorMessenger(MTCG4PrimaryGener
 		SetGuidance("Set the initial kinetic energies (same value for both particles) of positron and neutron.");
 	fSetInverseBetaDecayDaughterParticleKineticEnergyCommand->
 		SetGuidance("This command is overridden by the command readInPrimaryParticleDataFile being set to true.");
-	fSetInverseBetaDecayDaughterParticleKineticEnergyCommand->SetDefaultUnit("eV");
+	fSetInverseBetaDecayDaughterParticleKineticEnergyCommand->
+		SetDefaultUnit("MeV");
 	fSetInverseBetaDecayDaughterParticleKineticEnergyCommand->
 		AvailableForStates(G4State_PreInit, G4State_Idle);
 
@@ -132,6 +131,32 @@ MTCG4PrimaryGeneratorMessenger::MTCG4PrimaryGeneratorMessenger(MTCG4PrimaryGener
 				"will be used.");
 	fShootCosmicRayMuonCommand->
 		AvailableForStates(G4State_PreInit, G4State_Idle);
+
+	fSetCosmicRayMuonEnergy = new
+		G4UIcmdWithADoubleAndUnit("/gun/setCosmicRayMuonEnergy", this);
+	fSetCosmicRayMuonEnergy->
+		SetGuidance("Sets kinetic energy of cosmic ray muons.");
+	fSetCosmicRayMuonEnergy->
+		SetGuidance("Set energy with units, e.g. 1000 MeV.");
+	fSetCosmicRayMuonEnergy->
+		SetGuidance("Defaut units in MeV.");
+	fSetCosmicRayMuonEnergy->
+		SetGuidance("Set <= 0 to assign sea level muon spectrum.");
+	fSetCosmicRayMuonEnergy->
+		SetDefaultUnit("MeV");
+	fSetCosmicRayMuonEnergy->
+		AvailableForStates(G4State_PreInit, G4State_Idle);
+
+	fSetCosmicRayMuonDirection = new
+		G4UIcmdWithAString("/gun/setCosmicRayMuonDirection", this);
+	fSetCosmicRayMuonDirection->
+		SetGuidance("Set direction of cosmic ray muon.");
+	fSetCosmicRayMuonDirection->
+		SetGuidance("Options: sea-level, -z.");
+	fSetCosmicRayMuonDirection->
+		SetCandidates("sea-level -z");
+	fSetCosmicRayMuonDirection->
+		AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
 MTCG4PrimaryGeneratorMessenger::~MTCG4PrimaryGeneratorMessenger()
@@ -150,6 +175,8 @@ MTCG4PrimaryGeneratorMessenger::~MTCG4PrimaryGeneratorMessenger()
 	delete fShootGeneralParticleSourceCommand;
 	delete fShootLaserCommand;
 	delete fShootCosmicRayMuonCommand;
+	delete fSetCosmicRayMuonEnergy;
+	delete fSetCosmicRayMuonDirection;
 }
 
 void MTCG4PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
@@ -160,105 +187,119 @@ void MTCG4PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command, G4String 
 		is >> new_seed;
 		CLHEP::HepRandom::setTheSeed(new_seed);
 	}
-
-	else if (command == fSetInputPathCommand)
+	else if (command == fSetInputPathCommand) {
 		fPrimaryGeneratorAction->SetInputPath(newValue);
-
-	else if (command == fSetPrimaryDataFileCommand)
+	}
+	else if (command == fSetPrimaryDataFileCommand) {
 		fPrimaryGeneratorAction->SetPrimaryDataFileName(newValue);
-
-	else if (command == fSetIncomingNeutrinoDirectionCommand)
+	}
+	else if (command == fSetIncomingNeutrinoDirectionCommand) {
 		fPrimaryGeneratorAction->SetIncomingNeutrinoDirection(newValue);
-
-	else if (command == fSetInverseBetaDecayInteractionVertexCommand)
+	}
+	else if (command == fSetInverseBetaDecayInteractionVertexCommand) {
 		fPrimaryGeneratorAction->SetInverseBetaDecayInteractionVertex(newValue);
-
-	else if (command == fReadInPrimaryParticleDataFileCommand)
+	}
+	else if (command == fReadInPrimaryParticleDataFileCommand) {
 		fPrimaryGeneratorAction->SetFlagForReadingInPrimaryParticleDataFile(
 					fReadInPrimaryParticleDataFileCommand->
 					GetNewBoolValue(newValue) );
-
-	else if (command == fSetInverseBetaDecayDaughterParticleKineticEnergyCommand)
+	}
+	else if (command == fSetInverseBetaDecayDaughterParticleKineticEnergyCommand) {
 		fPrimaryGeneratorAction->
 			SetInverseBetaDecayDaughterParticleKineticEnergy(
 				fSetInverseBetaDecayDaughterParticleKineticEnergyCommand->
 				GetNewDoubleValue(newValue) );
-
-	else if (command == fShootPrimaryPositronCommand)
+	}
+	else if (command == fShootPrimaryPositronCommand) {
 		fPrimaryGeneratorAction->
 			SetFlagForShootingPrimaryPositron( fShootPrimaryPositronCommand->
 					GetNewBoolValue(newValue) );
-
-	else if (command == fShootPrimaryNeutronCommand)
+	}
+	else if (command == fShootPrimaryNeutronCommand) {
 		fPrimaryGeneratorAction->SetFlagForShootingPrimaryNeutron(
 				fShootPrimaryNeutronCommand->GetNewBoolValue(newValue) );
-
-	else if (command == fShootParticleGunCommand)
+	}
+	else if (command == fShootParticleGunCommand) {
 		fPrimaryGeneratorAction->SetFlagForShootingParticleGun(
 				fShootParticleGunCommand->GetNewBoolValue(newValue) );
-
-	else if (command == fShootGeneralParticleSourceCommand)
+	}
+	else if (command == fShootGeneralParticleSourceCommand) {
 		fPrimaryGeneratorAction->SetFlagForShootingGeneralParticleSource(
 				fShootGeneralParticleSourceCommand->GetNewBoolValue(newValue) );
-
-	else if (command == fShootLaserCommand)
+	}
+	else if (command == fShootLaserCommand) {
 		fPrimaryGeneratorAction->SetFlagForShootingLaser(
 				fShootLaserCommand->GetNewBoolValue(newValue) );
-
-	else if (command == fShootCosmicRayMuonCommand)
+	}
+	else if (command == fShootCosmicRayMuonCommand) {
 		fPrimaryGeneratorAction->SetFlagForShootingCosmicRayMuon(
 				fShootCosmicRayMuonCommand->GetNewBoolValue(newValue) );
+	}
+	else if (command == fSetCosmicRayMuonEnergy) {
+		fPrimaryGeneratorAction->SetCosmicRayMuonEnergy(
+				fSetCosmicRayMuonEnergy->GetNewDoubleValue(newValue) );
+	}
+	else if (command == fSetCosmicRayMuonDirection) {
+		fPrimaryGeneratorAction->SetCosmicRayMuonDirection(newValue);
+	}
+	else {
+		G4Exception(
+				"MTCG4PrimaryGeneratorMessenger.cc",
+				"0",
+				FatalErrorInArgument,
+				"Macro command not found. Please check macro parameters."
+				);
+	}
 }
 
 G4String MTCG4PrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
 {
 	G4String answer;
-
-	if (command == fSetIncomingNeutrinoDirectionCommand)
+	if (command == fSetIncomingNeutrinoDirectionCommand) {
 		answer = fPrimaryGeneratorAction->GetIncomingNeutrinoDirection();
-	
-	else if (command == fSetInverseBetaDecayInteractionVertexCommand)
+	}
+	else if (command == fSetInverseBetaDecayInteractionVertexCommand) {
 		answer = fPrimaryGeneratorAction->GetInverseBetaDecayInteractionVertex();
-	
-	else if (command == fReadInPrimaryParticleDataFileCommand)
+	}
+	else if (command == fReadInPrimaryParticleDataFileCommand) {
 		answer = fReadInPrimaryParticleDataFileCommand->
 			ConvertToString(fPrimaryGeneratorAction->
 					GetFlagForReadingInPrimaryParticleDataFile());
-	
-	else if (command == fSetInverseBetaDecayDaughterParticleKineticEnergyCommand)
+	}	
+	else if (command == fSetInverseBetaDecayDaughterParticleKineticEnergyCommand) {
 		answer = fSetInverseBetaDecayDaughterParticleKineticEnergyCommand->
 			ConvertToString(fPrimaryGeneratorAction->
 					GetInverseBetaDecayDaughterParticleKineticEnergy(), "eV");
-	
-	else if (command == fShootPrimaryPositronCommand)
+	}	
+	else if (command == fShootPrimaryPositronCommand) {
 		answer = fShootPrimaryPositronCommand->
 			ConvertToString(fPrimaryGeneratorAction->
 					GetFlagForShootingPrimaryPositron());
-
-	else if (command == fShootPrimaryNeutronCommand)
+	}
+	else if (command == fShootPrimaryNeutronCommand) {
 		answer = fShootPrimaryNeutronCommand->
 			ConvertToString(fPrimaryGeneratorAction->
 					GetFlagForShootingPrimaryNeutron());
-
-	else if (command == fShootParticleGunCommand)
+	}
+	else if (command == fShootParticleGunCommand) {
 		answer = fShootParticleGunCommand->
 			ConvertToString( fPrimaryGeneratorAction->
 					GetFlagForShootingParticleGun() );
-
-	else if (command == fShootGeneralParticleSourceCommand)
+	}
+	else if (command == fShootGeneralParticleSourceCommand) {
 		answer = fShootGeneralParticleSourceCommand->
 			ConvertToString( fPrimaryGeneratorAction->
 					GetFlagForShootingGeneralParticleSource() );
-
-	else if (command == fShootLaserCommand)
+	}
+	else if (command == fShootLaserCommand) {
 		answer = fShootLaserCommand->
 			ConvertToString( fPrimaryGeneratorAction->
 					GetFlagForShootingLaser() );
-
-	else if (command == fShootCosmicRayMuonCommand)
+	}
+	else if (command == fShootCosmicRayMuonCommand) {
 		answer = fShootCosmicRayMuonCommand->
 			ConvertToString( fPrimaryGeneratorAction->
 					GetFlagForShootingCosmicRayMuon() );
-
+	}
 	return answer;
 }

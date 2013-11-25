@@ -44,6 +44,9 @@ private:
 	G4UIcmdWithABool		*fShootGeneralParticleSourceCommand;
 	G4UIcmdWithABool		*fShootLaserCommand;
 	G4UIcmdWithABool		*fShootCosmicRayMuonCommand;
+	G4UIcmdWithADoubleAndUnit
+		*fSetCosmicRayMuonEnergy;
+	G4UIcmdWithAString		*fSetCosmicRayMuonDirection;
 };
 
 #endif

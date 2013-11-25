@@ -78,6 +78,7 @@ StepTextIO::StepTextIO()
 	fAllParticleStepHeader += "ProcessSubType ";
 	fAllParticleStepHeader += "TrackStatus ";
 	fAllParticleStepHeader += "postStepPointInDetector ";
+	fAllParticleStepHeader += "photonDetectedAtEndOfStep";
 }
 
 StepTextIO::~StepTextIO()
@@ -144,6 +145,7 @@ void StepTextIO::Write()
 	fOut << std::setw(m) << fProcessSubType << " ";
 	fOut << std::setw(s) << std::right << fTrackStatus << " ";
 	fOut << fPostStepPointInDetector << " ";
+	fOut << fPhotonDetectedAtEndOfStep;
 	fOut << G4endl;
 }
 

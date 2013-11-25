@@ -34,14 +34,14 @@
 
 class MTCG4HitPmt {
 public:
-  MTCG4HitPmt(G4int ID);
-  ~MTCG4HitPmt();
+	MTCG4HitPmt(G4int ID);
+	~MTCG4HitPmt();
 
-  void Clear();
-  void DetectPhoton(MTCG4HitPhoton*);
-  void SortTimeAscending();
+	void Clear();
+	void DetectPhoton(MTCG4HitPhoton*);
+	void SortTimeAscending();
 
-  G4int GetID() const { return fID; }
+	G4int GetID() const { return fID; }
 
 	// There is no anode row nor column ID for MTCG4HitPmt.
 	// In the future, maybe these my be included if we decide to change this into
@@ -50,39 +50,39 @@ public:
 	//G4int GetAnodeColumn() const { return fAnodeColumn; }
 
 	// Get number of photon hits for whole PMT.
-  G4int GetEntries() const { return fPhotons.size(); }
+	G4int GetEntries() const { return fPhotons.size(); }
 
 	// Get number of photon hits at specifice anode.
 	// anode is in format row_id*10 + column_id.
 	G4int GetEntriesInAnode(G4int anode);
 
-  MTCG4HitPhoton* GetPhoton(G4int i) const { return fPhotons[i]; }
+	MTCG4HitPhoton* GetPhoton(G4int i) const { return fPhotons[i]; }
 
-  void Print(std::ostream &, bool fullDetailsMode=false);
+	void Print(std::ostream &, bool fullDetailsMode=false);
 
-  static const size_t kApproxMaxIndividualHitPhotonsPerPMT;
-  static const G4double kMergeTime;
-  
-private:
-  G4int fID;
+	static const size_t kApproxMaxIndividualHitPhotonsPerPMT;
+	static const G4double kMergeTime;
+
+	private:
+	G4int fID;
 	//G4int fAnodeRow;
 	//G4int fAnodeColumn;
-  std::vector<MTCG4HitPhoton*> fPhotons;
+	std::vector<MTCG4HitPhoton*> fPhotons;
 };
 
 
 /** comparison function for sorting MTCG4HitPmt pointers
- */
-inline bool
+*/
+	inline bool
 Compare_HitPMTPtr_TimeAscending(const MTCG4HitPmt *a,
-				const MTCG4HitPmt *b)
+		const MTCG4HitPmt *b)
 {
-  // put empties at the end
-  if (!a || a->GetEntries()<=0)
-    return false;
-  if (!b || b->GetEntries()<=0)
-    return true;
-  return a->GetPhoton(0)->GetTime() < b->GetPhoton(0)->GetTime();
+	// put empties at the end
+	if (!a || a->GetEntries()<=0)
+		return false;
+	if (!b || b->GetEntries()<=0)
+		return true;
+	return a->GetPhoton(0)->GetTime() < b->GetPhoton(0)->GetTime();
 }
 
 

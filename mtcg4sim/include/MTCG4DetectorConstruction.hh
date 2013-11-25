@@ -94,13 +94,11 @@ public:
 	void CreatePMTs();
 	void SetVisualizationAttributes();
 	void SetMaterialProperties();
+	void SetAirMaterialProperties();
 	void SetScintMaterialProperties();
 	void SetPmtMaterialProperties();
 	void UpdateGeometry();
 	G4double GetEJ254Density(G4double dopingFraction) const;
-	G4double GetAnthraceneFraction(G4double dopingFraction) const;
-	G4double GetPolyvinyltolueneFraction
-		(G4double dopingFraction, G4double anthraceneFraction) const;
 
 private:
 	// World dimensions.

@@ -49,9 +49,12 @@ public:
 		{ fOutputOnlyFirstNEvents = n; }
 	inline G4int GetOutputOnlyFirstNEvents() const
 		{ return fOutputOnlyFirstNEvents; }
+	inline void SetPhotonDetectedAtEndOfStep(G4bool flag)
+		{ fPhotonDetectedAtEndOfStep = flag; }
 
 private:
-	G4int		fOutputOnlyFirstNEvents;
+	G4int	fOutputOnlyFirstNEvents;
+	G4bool	fPhotonDetectedAtEndOfStep;
 
 private:
 	MTCG4SteppingMessenger* fMessenger;

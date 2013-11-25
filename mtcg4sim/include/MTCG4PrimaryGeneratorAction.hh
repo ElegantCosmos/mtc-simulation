@@ -66,6 +66,10 @@ public:
 	{ fCosmicRayMuonIsShot = flag; }
 	inline G4bool GetFlagForShootingCosmicRayMuon()
 	{ return fCosmicRayMuonIsShot; }
+	void SetCosmicRayMuonEnergy(G4double energy)
+	{ fCosmicRayMuonEnergy = energy; }
+	void SetCosmicRayMuonDirection(G4String dir)
+	{ fCosmicRayMuonDirectionDescription = dir; }
 
 	void GeneratePrimaries(G4Event*);
 	void GenerateFilesAndHeadersForRun();
@@ -73,8 +77,10 @@ public:
 	void GenerateIBDPrimaries(G4Event*);
 	void GenerateCosmicRayMuons(G4Event*);
 
-private:
-	// Parameters.
+private: // Private methods.
+	G4double	GetMuonEnergy();	
+
+private: // Flags and strings.
 	G4bool		fInputFileIsOpened;
 	G4String	fInputPath;
 	G4String	fPrimaryDataFileName;
@@ -89,8 +95,13 @@ private:
 	G4bool		fLaserIsShot;
 	G4bool		fCosmicRayMuonIsShot;
 	//G4bool		fPrimaryElectronAntiNeutrinoIsShot;
+	G4String	fCosmicRayMuonDirectionDescription;
 
-private:
+private: // Parameters.
+	G4double	fCosmicRayMuonEnergy;
+	G4double fGammaEnergy;
+
+private: // Classes.
 	MTCG4PrimaryGeneratorMessenger	*fMessenger;
 
 	G4ParticleGun	*fParticleGun;
@@ -102,9 +113,6 @@ private:
 	G4ParticleGun	*fPrimaryLaserGun;
 	G4ParticleGun	*fPrimaryCosmicRayMuonGun;
 	//G4ParticleGun *fPrimaryElectronAntiNuGun;
-
-private:
-	G4double fGammaEnergy;
 };
 
 #endif

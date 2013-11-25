@@ -4,9 +4,9 @@
 
 #include <cstring>
 
-#include "globals.hh"
 #include "cmath"
 
+#include "globals.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 #include "G4UnionSolid.hh"
@@ -45,17 +45,17 @@
 //
 
 // (mm) Length of one side of World Volume cube.
-//const G4double WORLD_DIMENSION_HIGHT = 1000.*mm;
-//const G4double WORLD_DIMENSION_WIDTH_X = 1000.*mm;
-//const G4double WORLD_DIMENSION_WIDTH_Y = 1000.*mm;
-const G4double WORLD_DIMENSION_HIGHT = 100000.*mm;
-const G4double WORLD_DIMENSION_WIDTH_X = 100000.*mm;
-const G4double WORLD_DIMENSION_WIDTH_Y = 100000.*mm;
+const G4double WORLD_DIMENSION_HIGHT = 1000.*mm;
+const G4double WORLD_DIMENSION_WIDTH_X = 1000.*mm;
+const G4double WORLD_DIMENSION_WIDTH_Y = 1000.*mm;
+//const G4double WORLD_DIMENSION_HIGHT = 100000.*mm;
+//const G4double WORLD_DIMENSION_WIDTH_X = 100000.*mm;
+//const G4double WORLD_DIMENSION_WIDTH_Y = 100000.*mm;
 
 // (mm) Length of one side of sctintillator cube. Our current mTC scintillator
 // cube dimension is 130mm on one edge.
-//const G4double SCINT_DIMENSION = 130.*mm;
-const G4double SCINT_DIMENSION = 10000.*mm;
+const G4double SCINT_DIMENSION = 130.*mm;
+//const G4double SCINT_DIMENSION = 10000.*mm;
 
 // (mm) Length of one side of PMT glass housing face.
 const G4double PMT_GLASS_HOUSING_FACE_DIMENSION = 59.*mm;
@@ -159,10 +159,10 @@ MTCG4DetectorConstruction::MTCG4DetectorConstruction()
 	fDopantIsEnriched = false;
 	fDopingFraction = 1.*perCent;
 	fCadFilesPath = "mtc_cad/";
-	//fPmtsArePlaced = true; // Flag to place PMTs on scintillator surfaces.
-	fPmtsArePlaced = false; // Flag to place PMTs on scintillator surfaces.
-	//fFrameIsPlaced = true;
-	fFrameIsPlaced = false;
+	fPmtsArePlaced = true; // Flag to place PMTs on scintillator surfaces.
+	//fPmtsArePlaced = false; // Flag to place PMTs on scintillator surfaces.
+	fFrameIsPlaced = true;
+	//fFrameIsPlaced = false;
 	fNeutronHpThermalScatteringUsed = true;
 	//fNeutronHpThermalScatteringUsed =
 	//	dynamic_cast<MTCG4PhysicsList*>(G4RunManager::GetRunManager()->GetUserPhysicsList())
@@ -208,7 +208,7 @@ G4VPhysicalVolume* MTCG4DetectorConstruction::Construct()
 	G4cout << "fDopingFraction = " << fDopingFraction << G4endl;
 	//G4cout << "fNeutronHpThermalScatteringUsed = " << fNeutronHpThermalScatteringUsed << G4endl;
 	
-	G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+	//G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 	
 	// Geometry definitions.
 	SetupGeometry();
@@ -259,7 +259,6 @@ void MTCG4DetectorConstruction::DefineMaterials()
 	G4int ncomponents, natoms;
 	G4double fractionMass;
 	G4double relativeAbundance;
-	G4double anthraceneFraction;
 	G4double enrichmentFraction;
 
 	// Air.
@@ -279,7 +278,7 @@ void MTCG4DetectorConstruction::DefineMaterials()
 				pressure = STP_Pressure*density/(1.29e-3*g/cm3)); // from klg4sim?
 	fPmtVacuum->AddMaterial(fAir, fractionMass = 100.*perCent);
 	// Following method gives incorrect pressure of 1 atm.
-	//fPmtVacuum = nistManager ->
+	//fPmtVacuum = nistManager->
 	// 	BuildMaterialWithNewDensity("PMT_Vacuum", "G4_AIR", density =
 	//			1.e-3*kGasThreshold); // From G4PhysicalConstants.hh
 	
@@ -335,12 +334,6 @@ void MTCG4DetectorConstruction::DefineMaterials()
 	polyvinyltoluene->AddElement(C, natoms=9);
 	polyvinyltoluene->AddElement(H, natoms=10);
 
-	// Define Anthracene.	
-	G4Material* anthracene =
-	 	new G4Material("anthracene", density=1.25*g/cm3, ncomponents=2);
-	anthracene->AddElement(C, natoms=14);
-	anthracene->AddElement(H, natoms=10);
-
 	// Define enriched and natural Boron.
 	G4Isotope* B10 = new G4Isotope("Boron10", z=5, n=10, a=10.0129370*g/mole);
 	G4Isotope* B11 = new G4Isotope("Boron11", z=5, n=11, a=11.0093054*g/mole);
@@ -380,56 +373,89 @@ void MTCG4DetectorConstruction::DefineMaterials()
 	G4double dopingFraction;
 	// scintillator doped with 0 percent natural Boron.
 	dopingFraction = 0.*perCent;
-	fEJ254_OnePercentNaturalBoronDoped =
-		new G4Material("EJ254_ZeroPercentNaturalBoronDoped", density =
-				GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_OnePercentNaturalBoronDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_OnePercentNaturalBoronDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_OnePercentNaturalBoronDoped->AddElement(BNatural, fractionMass = dopingFraction);
+	fEJ254_OnePercentNaturalBoronDoped = new G4Material(
+			"EJ254_ZeroPercentNaturalBoronDoped",
+			density =
+				GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_OnePercentNaturalBoronDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_OnePercentNaturalBoronDoped->AddElement(BNatural,
+			fractionMass = dopingFraction);
 
 	// scintillator doped with 1 percent natural Boron.
 	dopingFraction = 1.*perCent;
-	fEJ254_OnePercentNaturalBoronDoped =
-		new G4Material("EJ254_OnePercentNaturalBoronDoped", density =
-				GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_OnePercentNaturalBoronDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_OnePercentNaturalBoronDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_OnePercentNaturalBoronDoped->AddElement(BNatural, fractionMass = dopingFraction);
+	fEJ254_OnePercentNaturalBoronDoped = new G4Material(
+			"EJ254_OnePercentNaturalBoronDoped",
+			density =
+				GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_OnePercentNaturalBoronDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_OnePercentNaturalBoronDoped->AddElement(BNatural,
+			fractionMass = dopingFraction);
 
 	// scintillator doped with 2.5 percent natural Boron.
 	dopingFraction = 2.5*perCent;
-	fEJ254_TwoAndHalfPercentNaturalBoronDoped = new G4Material("EJ254_TwoAndHalfPercentNaturalBoronDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_TwoAndHalfPercentNaturalBoronDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_TwoAndHalfPercentNaturalBoronDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_TwoAndHalfPercentNaturalBoronDoped->AddElement(BNatural, fractionMass = dopingFraction);
+	fEJ254_TwoAndHalfPercentNaturalBoronDoped = new G4Material(
+			"EJ254_TwoAndHalfPercentNaturalBoronDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_TwoAndHalfPercentNaturalBoronDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_TwoAndHalfPercentNaturalBoronDoped->AddElement(BNatural,
+			fractionMass = dopingFraction);
 
 	// scintillator doped with 5 percent natural Boron.
 	dopingFraction = 5.*perCent;
-	fEJ254_FivePercentNaturalBoronDoped = new G4Material("EJ254_FivePercentNaturalBoronDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_FivePercentNaturalBoronDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_FivePercentNaturalBoronDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_FivePercentNaturalBoronDoped->AddElement(BNatural, fractionMass = dopingFraction);
+	fEJ254_FivePercentNaturalBoronDoped = new G4Material(
+			"EJ254_FivePercentNaturalBoronDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_FivePercentNaturalBoronDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_FivePercentNaturalBoronDoped->AddElement(BNatural,
+			fractionMass = dopingFraction);
 	
 	// scintillator doped with 1 percent enriched Boron.
 	dopingFraction = 1.*perCent;
-	fEJ254_OnePercentEnrichedBoronDoped = new G4Material("EJ254_OnePercentEnrichedBoronDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_OnePercentEnrichedBoronDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_OnePercentEnrichedBoronDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_OnePercentEnrichedBoronDoped->AddElement(BEnriched, fractionMass = dopingFraction);
+	fEJ254_OnePercentEnrichedBoronDoped = new G4Material(
+			"EJ254_OnePercentEnrichedBoronDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_OnePercentEnrichedBoronDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_OnePercentEnrichedBoronDoped->AddElement(BEnriched,
+			fractionMass = dopingFraction);
 
 	// scintillator doped with 2.5 percent enriched Boron.
 	dopingFraction = 2.5*perCent;
-	fEJ254_TwoAndHalfPercentEnrichedBoronDoped = new G4Material("EJ254_TwoAndHalfPercentEnrichedBoronDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->AddElement(BEnriched, fractionMass = dopingFraction);
+	fEJ254_TwoAndHalfPercentEnrichedBoronDoped = new G4Material(
+			"EJ254_TwoAndHalfPercentEnrichedBoronDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->AddElement(BEnriched,
+			fractionMass = dopingFraction);
 	
 	// scintillator doped with 5 percent enriched Boron.
 	dopingFraction = 5.*perCent;
-	fEJ254_FivePercentEnrichedBoronDoped = new G4Material("EJ254_FivePercentEnrichedBoronDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_FivePercentEnrichedBoronDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_FivePercentEnrichedBoronDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_FivePercentEnrichedBoronDoped->AddElement(BEnriched, fractionMass = dopingFraction);
+	fEJ254_FivePercentEnrichedBoronDoped = new G4Material(
+			"EJ254_FivePercentEnrichedBoronDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_FivePercentEnrichedBoronDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_FivePercentEnrichedBoronDoped->AddElement(BEnriched,
+			fractionMass = dopingFraction);
 
 	//
 	// Lithium doped scintillator.
@@ -437,52 +463,94 @@ void MTCG4DetectorConstruction::DefineMaterials()
 	
 	// scintillator doped with 0 percent natural Lithium.
 	dopingFraction = 0.*perCent;
-	fEJ254_OnePercentNaturalLithiumDoped = new G4Material("EJ254_OnePercentNaturalLithiumDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_OnePercentNaturalLithiumDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_OnePercentNaturalLithiumDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_OnePercentNaturalLithiumDoped->AddElement(LiNatural, fractionMass = dopingFraction);
+	fEJ254_OnePercentNaturalLithiumDoped = new G4Material(
+			"EJ254_OnePercentNaturalLithiumDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_OnePercentNaturalLithiumDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_OnePercentNaturalLithiumDoped->AddElement(
+			LiNatural,
+			fractionMass = dopingFraction);
 
 	// scintillator doped with 1 percent natural Lithium.
 	dopingFraction = 1.*perCent;
-	fEJ254_OnePercentNaturalLithiumDoped = new G4Material("EJ254_OnePercentNaturalLithiumDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_OnePercentNaturalLithiumDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_OnePercentNaturalLithiumDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_OnePercentNaturalLithiumDoped->AddElement(LiNatural, fractionMass = dopingFraction);
+	fEJ254_OnePercentNaturalLithiumDoped = new G4Material(
+			"EJ254_OnePercentNaturalLithiumDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_OnePercentNaturalLithiumDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_OnePercentNaturalLithiumDoped->AddElement(
+			LiNatural,
+			fractionMass = dopingFraction);
 
 	// scintillator doped with 2.5 percent natural Lithium.
 	dopingFraction = 2.5*perCent;
-	fEJ254_TwoAndHalfPercentNaturalLithiumDoped = new G4Material("EJ254_TwoAndHalfPercentNaturalLithiumDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->AddElement(LiNatural, fractionMass = dopingFraction);
+	fEJ254_TwoAndHalfPercentNaturalLithiumDoped = new G4Material(
+			"EJ254_TwoAndHalfPercentNaturalLithiumDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->AddElement(
+			LiNatural,
+			fractionMass = dopingFraction);
 	
 	// scintillator doped with 5 percent natural Lithium.
 	dopingFraction = 5.*perCent;
-	fEJ254_FivePercentNaturalLithiumDoped = new G4Material("EJ254_FivePercentNaturalLithiumDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_FivePercentNaturalLithiumDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_FivePercentNaturalLithiumDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_FivePercentNaturalLithiumDoped->AddElement(LiNatural, fractionMass = dopingFraction);
+	fEJ254_FivePercentNaturalLithiumDoped = new G4Material(
+			"EJ254_FivePercentNaturalLithiumDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_FivePercentNaturalLithiumDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_FivePercentNaturalLithiumDoped->AddElement(
+			LiNatural,
+			fractionMass = dopingFraction);
 	
 	// scintillator doped with 1 percent enriched Lithium.
 	dopingFraction = 1.*perCent;
-	fEJ254_OnePercentEnrichedLithiumDoped = new G4Material("EJ254_OnePercentEnrichedLithiumDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_OnePercentEnrichedLithiumDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_OnePercentEnrichedLithiumDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_OnePercentEnrichedLithiumDoped->AddElement(LiEnriched, fractionMass = dopingFraction);
+	fEJ254_OnePercentEnrichedLithiumDoped = new G4Material(
+			"EJ254_OnePercentEnrichedLithiumDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_OnePercentEnrichedLithiumDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_OnePercentEnrichedLithiumDoped->AddElement(
+			LiEnriched,
+			fractionMass = dopingFraction);
 
 	// scintillator doped with 2.5 percent enriched Lithium.
 	dopingFraction = 2.5*perCent;
-	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped = new G4Material("EJ254_TwoAndHalfPercentEnrichedLithiumDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->AddElement(LiEnriched, fractionMass = dopingFraction);
+	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped = new G4Material(
+			"EJ254_TwoAndHalfPercentEnrichedLithiumDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->AddElement(
+			LiEnriched,
+			fractionMass = dopingFraction);
 	
 	// scintillator doped with 5 percent enriched Lithium.
 	dopingFraction = 5.*perCent;
-	fEJ254_FivePercentEnrichedLithiumDoped = new G4Material("EJ254_FivePercentEnrichedLithiumDoped", density = GetEJ254Density(dopingFraction), ncomponents = 3);
-	fEJ254_FivePercentEnrichedLithiumDoped->AddMaterial(anthracene, anthraceneFraction = GetAnthraceneFraction(dopingFraction));
-	fEJ254_FivePercentEnrichedLithiumDoped->AddMaterial(polyvinyltoluene, fractionMass = GetPolyvinyltolueneFraction(dopingFraction, anthraceneFraction));
-	fEJ254_FivePercentEnrichedLithiumDoped->AddElement(LiEnriched, fractionMass = dopingFraction);
+	fEJ254_FivePercentEnrichedLithiumDoped = new G4Material(
+			"EJ254_FivePercentEnrichedLithiumDoped",
+			density = GetEJ254Density(dopingFraction),
+			ncomponents = 2);
+	fEJ254_FivePercentEnrichedLithiumDoped->AddMaterial(
+			polyvinyltoluene,
+			fractionMass = 100*perCent - dopingFraction);
+	fEJ254_FivePercentEnrichedLithiumDoped->AddElement(
+			LiEnriched,
+			fractionMass = dopingFraction);
 }// DefineMaterial().
 
 //
@@ -543,9 +611,9 @@ void MTCG4DetectorConstruction::SetupGeometry()
 			false,
 			0);
 
-	if(fPmtsArePlaced)
+	if (fPmtsArePlaced)
 		SetupPMTGeometries(); // Create PMTs.
-	if(fFrameIsPlaced)
+	if (fFrameIsPlaced)
 		SetupPeripheralGeometries(); // Create support frame/clams stand rods, etc.
 }// SetupGeometry().
 
@@ -620,7 +688,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 1.
 	G4RotationMatrix pmt1RotationMatrix;
-	pmt1RotationMatrix.rotateZ(+CLHEP::pi*rad);
+	pmt1RotationMatrix.rotateZ(pi*rad);
 	G4ThreeVector pmt1TranslationVector(
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -637,7 +705,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 2.
 	G4RotationMatrix pmt2RotationMatrix;
-	pmt2RotationMatrix.rotateZ(+CLHEP::pi*rad);
+	pmt2RotationMatrix.rotateZ(pi*rad);
 	G4ThreeVector pmt2TranslationVector(
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -686,7 +754,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 5.
 	G4RotationMatrix pmt5RotationMatrix;
-	pmt5RotationMatrix.rotateX(-.5*CLHEP::pi*rad);
+	pmt5RotationMatrix.rotateX(-.5*pi*rad);
 	G4ThreeVector pmt5TranslationVector(
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -703,7 +771,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 6.
 	G4RotationMatrix pmt6RotationMatrix;
-	pmt6RotationMatrix.rotateX(-.5*CLHEP::pi*rad);
+	pmt6RotationMatrix.rotateX(-.5*pi*rad);
 	G4ThreeVector pmt6TranslationVector(
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -720,8 +788,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 7.
 	G4RotationMatrix pmt7RotationMatrix;
-	pmt7RotationMatrix.rotateZ(+CLHEP::pi*rad);
-	pmt7RotationMatrix.rotateX(-.5*CLHEP::pi*rad);
+	pmt7RotationMatrix.rotateZ(pi*rad);
+	pmt7RotationMatrix.rotateX(-.5*pi*rad);
 	G4ThreeVector pmt7TranslationVector(
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -738,8 +806,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 8.
 	G4RotationMatrix pmt8RotationMatrix;
-	pmt8RotationMatrix.rotateZ(+CLHEP::pi*rad);
-	pmt8RotationMatrix.rotateX(-.5*CLHEP::pi*rad);
+	pmt8RotationMatrix.rotateZ(pi*rad);
+	pmt8RotationMatrix.rotateX(-.5*pi*rad);
 	G4ThreeVector pmt8TranslationVector(
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -756,8 +824,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 9.
 	G4RotationMatrix pmt9RotationMatrix;
-	pmt9RotationMatrix.rotateZ(-.5*CLHEP::pi*rad);
-	pmt9RotationMatrix.rotateY(+.5*CLHEP::pi*rad);
+	pmt9RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt9RotationMatrix.rotateY(.5*pi*rad);
 	G4ThreeVector pmt9TranslationVector(
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -774,8 +842,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 10.
 	G4RotationMatrix pmt10RotationMatrix;
-	pmt10RotationMatrix.rotateZ(-.5*CLHEP::pi*rad);
-	pmt10RotationMatrix.rotateY(+.5*CLHEP::pi*rad);
+	pmt10RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt10RotationMatrix.rotateY(.5*pi*rad);
 	G4ThreeVector pmt10TranslationVector(
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -792,8 +860,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 11.
 	G4RotationMatrix pmt11RotationMatrix;
-	pmt11RotationMatrix.rotateZ(+.5*CLHEP::pi*rad);
-	pmt11RotationMatrix.rotateY(+.5*CLHEP::pi*rad);
+	pmt11RotationMatrix.rotateZ(.5*pi*rad);
+	pmt11RotationMatrix.rotateY(.5*pi*rad);
 	G4ThreeVector pmt11TranslationVector(
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -810,8 +878,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 12.
 	G4RotationMatrix pmt12RotationMatrix;
-	pmt12RotationMatrix.rotateZ(+.5*CLHEP::pi*rad);
-	pmt12RotationMatrix.rotateY(+.5*CLHEP::pi*rad);
+	pmt12RotationMatrix.rotateZ(.5*pi*rad);
+	pmt12RotationMatrix.rotateY(.5*pi*rad);
 	G4ThreeVector pmt12TranslationVector(
 			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -828,8 +896,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 13.
 	G4RotationMatrix pmt13RotationMatrix;
-	pmt13RotationMatrix.rotateZ(+.5*CLHEP::pi*rad);
-	pmt13RotationMatrix.rotateY(-.5*CLHEP::pi*rad);
+	pmt13RotationMatrix.rotateZ(.5*pi*rad);
+	pmt13RotationMatrix.rotateY(-.5*pi*rad);
 	G4ThreeVector pmt13TranslationVector(
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -846,8 +914,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 14.
 	G4RotationMatrix pmt14RotationMatrix;
-	pmt14RotationMatrix.rotateZ(+.5*CLHEP::pi*rad);
-	pmt14RotationMatrix.rotateY(-.5*CLHEP::pi*rad);
+	pmt14RotationMatrix.rotateZ(.5*pi*rad);
+	pmt14RotationMatrix.rotateY(-.5*pi*rad);
 	G4ThreeVector pmt14TranslationVector(
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -864,8 +932,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 15.
 	G4RotationMatrix pmt15RotationMatrix;
-	pmt15RotationMatrix.rotateZ(-.5*CLHEP::pi*rad);
-	pmt15RotationMatrix.rotateY(-.5*CLHEP::pi*rad);
+	pmt15RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt15RotationMatrix.rotateY(-.5*pi*rad);
 	G4ThreeVector pmt15TranslationVector(
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -882,8 +950,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 16.
 	G4RotationMatrix pmt16RotationMatrix;
-	pmt16RotationMatrix.rotateZ(-.5*CLHEP::pi*rad);
-	pmt16RotationMatrix.rotateY(-.5*CLHEP::pi*rad);
+	pmt16RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt16RotationMatrix.rotateY(-.5*pi*rad);
 	G4ThreeVector pmt16TranslationVector(
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -900,8 +968,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 17.
 	G4RotationMatrix pmt17RotationMatrix;
-	pmt17RotationMatrix.rotateZ(+CLHEP::pi*rad);
-	pmt17RotationMatrix.rotateX(+.5*CLHEP::pi*rad);
+	pmt17RotationMatrix.rotateZ(pi*rad);
+	pmt17RotationMatrix.rotateX(.5*pi*rad);
 	G4ThreeVector pmt17TranslationVector(
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -918,8 +986,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 18.
 	G4RotationMatrix pmt18RotationMatrix;
-	pmt18RotationMatrix.rotateZ(+CLHEP::pi*rad);
-	pmt18RotationMatrix.rotateX(+.5*CLHEP::pi*rad);
+	pmt18RotationMatrix.rotateZ(pi*rad);
+	pmt18RotationMatrix.rotateX(.5*pi*rad);
 	G4ThreeVector pmt18TranslationVector(
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -936,7 +1004,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 19.
 	G4RotationMatrix pmt19RotationMatrix;
-	pmt19RotationMatrix.rotateX(+.5*CLHEP::pi*rad);
+	pmt19RotationMatrix.rotateX(.5*pi*rad);
 	G4ThreeVector pmt19TranslationVector(
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -953,7 +1021,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 20.
 	G4RotationMatrix pmt20RotationMatrix;
-	pmt20RotationMatrix.rotateX(+.5*CLHEP::pi*rad);
+	pmt20RotationMatrix.rotateX(.5*pi*rad);
 	G4ThreeVector pmt20TranslationVector(
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
@@ -970,7 +1038,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 21.
 	G4RotationMatrix pmt21RotationMatrix;
-	pmt21RotationMatrix.rotateX(+CLHEP::pi*rad);
+	pmt21RotationMatrix.rotateX(pi*rad);
 	G4ThreeVector pmt21TranslationVector(
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -987,7 +1055,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 22.
 	G4RotationMatrix pmt22RotationMatrix;
-	pmt22RotationMatrix.rotateX(+CLHEP::pi*rad);
+	pmt22RotationMatrix.rotateX(pi*rad);
 	G4ThreeVector pmt22TranslationVector(
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -1004,8 +1072,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 23.
 	G4RotationMatrix pmt23RotationMatrix;
-	pmt23RotationMatrix.rotateZ(+CLHEP::pi*rad);
-	pmt23RotationMatrix.rotateX(+CLHEP::pi*rad);
+	pmt23RotationMatrix.rotateZ(pi*rad);
+	pmt23RotationMatrix.rotateX(pi*rad);
 	G4ThreeVector pmt23TranslationVector(
 			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -1022,8 +1090,8 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 
 	// PMT 24.
 	G4RotationMatrix pmt24RotationMatrix;
-	pmt24RotationMatrix.rotateZ(+CLHEP::pi*rad);
-	pmt24RotationMatrix.rotateX(+CLHEP::pi*rad);
+	pmt24RotationMatrix.rotateZ(pi*rad);
+	pmt24RotationMatrix.rotateX(pi*rad);
 	G4ThreeVector pmt24TranslationVector(
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
 			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
@@ -1223,7 +1291,7 @@ void MTCG4DetectorConstruction::SetupPMTGeometries()
 	// Get the sensitive detector manager and define fAPmtSD if it is not yet
 	// defined. Assign the photocathode to the sensitive detector manager.
 	fSDManager = G4SDManager::GetSDMpointer();
-	if(!fAPmtSD) {
+	if (!fAPmtSD) {
 		G4String MTCG4PmtSDName =
 			"/MTCG4PMT/MTCG4PmtSD";
 		fAPmtSD = new MTCG4PmtSD( MTCG4PmtSDName );
@@ -1272,7 +1340,7 @@ void MTCG4DetectorConstruction::SetupPeripheralGeometries()
 	// memory leaks associated with not deleting the dynamic non-const char
 	// array. Will have to fix this later if it turns out to be a problem.
 
-	for(unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate) {
+	for (unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate) {
 		std::ostringstream oss;
 		oss << iEndPlate+1;
 		G4String stlFileName =
@@ -1304,7 +1372,7 @@ void MTCG4DetectorConstruction::SetupPeripheralGeometries()
 	// Side plates of frame structure that holds the scintillating cube.
 	//
 
-	for(unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate) {
+	for (unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate) {
 		std::ostringstream oss; oss << iSidePlate+1;
 		G4String stlFileName =
 		   	fCadFilesPath + "frameSidePlate" + oss.str() + ".stl";
@@ -1335,7 +1403,7 @@ void MTCG4DetectorConstruction::SetupPeripheralGeometries()
 	// End clamps of frame structure that holds the scintillating cube.
 	//
 
-	for(unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp) {
+	for (unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp) {
 		std::ostringstream oss; oss << iEndClamp+1;
 		G4String stlFileName =
 			fCadFilesPath + "frameEndClamp" + oss.str() + ".stl";
@@ -1366,7 +1434,7 @@ void MTCG4DetectorConstruction::SetupPeripheralGeometries()
 	// Side clamps of frame structure that holds the scintillating cube.
 	//
 
-	for(unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp) {
+	for (unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp) {
 		std::ostringstream oss; oss << iSideClamp+1;
 		G4String stlFileName =
 		   	fCadFilesPath + "frameSideClamp" + oss.str() + ".stl";
@@ -1397,7 +1465,7 @@ void MTCG4DetectorConstruction::SetupPeripheralGeometries()
 	// Legs holding frame structure that holds the scintillating cube.
 	//
 
-	for(unsigned int iLeg = 0; iLeg < 4; ++iLeg) {
+	for (unsigned int iLeg = 0; iLeg < 4; ++iLeg) {
 		std::ostringstream oss; oss << iLeg+1;
 		G4String stlFileName =
 		   	fCadFilesPath + "leg" + oss.str() + ".stl";
@@ -1430,10 +1498,27 @@ void MTCG4DetectorConstruction::SetupPeripheralGeometries()
 // properties.
 // Important note: this needs to be done after the definitions of materials, as
 // I have done in this code, in order to work.
+// All optical properties are handled within the vacuum photon wavelengths of
+// 200~800 nm. I think this range should be kept consistent throughout the code
+// for all materials because we don't want weird things going on when a photon
+// tranvels inside a medium where the optical properties for the photon's
+// energy is not defined. Extrapolation using best guesses are used in the case
+// no optical properties data can be found in literature.
 void MTCG4DetectorConstruction::SetMaterialProperties() {
+	SetAirMaterialProperties();
+	if (fPmtsArePlaced) MTCG4DetectorConstruction::SetPmtMaterialProperties();
+	MTCG4DetectorConstruction::SetScintMaterialProperties();
+} // SetMaterialProperties()
+
+//
+// Material properties for air.
+//
+void MTCG4DetectorConstruction::SetAirMaterialProperties()
+{
 	// Set different photon wavelengths that will be referenced in calculating
 	// optical properties of air.
-	const G4double wavelengthsForAir[8] = 
+	const int N_SPEC_POINTS = 7;
+	const G4double WAVELENGTHS[N_SPEC_POINTS] = 
 	{
 		800*nm,
 		700*nm,
@@ -1441,20 +1526,19 @@ void MTCG4DetectorConstruction::SetMaterialProperties() {
 		500*nm,
 		400*nm,
 		300*nm,
-		200*nm,
-		100*nm
+		200*nm
 	};
 	// Set order of photon energies for air in increasing order.
-	static G4double photonEnergiesForAir[8];
-	for(G4int i = 0; i < 8; i++)
-		photonEnergiesForAir[i] =
-			CLHEP::h_Planck*CLHEP::c_light/wavelengthsForAir[i];
+	G4double photonEnergies[N_SPEC_POINTS];
+	for (G4int i = 0; i < N_SPEC_POINTS; ++i) {
+		photonEnergies[i] = h_Planck*c_light/WAVELENGTHS[i];
+	}
 	// Dispersion formula used for air: n-1 =
 	// C1/(C2-lambda^-2)+C3/(C4-lambda^-2), where C1 = 5792105E-8; C2 = 238.0185;
 	// C3 = 167917E-8; C4 = 57.362 and lambda is in units of um.  Reference:
 	// Philip E. Ciddor. Refractive index of air: new equations for the visible
 	// and near infrared, Appl. Optics 35, 1566-1573 (1996)
-	static G4double airRindex[8] =
+	G4double rIndices[N_SPEC_POINTS] =
 	{
 		1.0002750, // 800*nm
 		1.0002758, // 700*nm
@@ -1462,58 +1546,53 @@ void MTCG4DetectorConstruction::SetMaterialProperties() {
 		1.0002790, // 500*nm
 		1.0002828, // 400*nm
 		1.0002916, // 300*nm
-		1.0003238, // 200*nm
-		1.0003803 // 100*nm
+		1.0003238 // 200*nm
 	};
-	static G4double airAbslength[8] = {
+	G4double absLengths[N_SPEC_POINTS] = {
 		1.0e6*mm, // 800*nm
 		1.0e6*mm, // 700*nm
 		1.0e6*mm, // 600*nm
 		1.0e6*mm, // 500*nm
 		1.0e6*mm, // 400*nm
 		1.0e6*mm, // 300*nm
-		1.0e6*mm, // 200*nm
-		1.0e6*mm // 100*nm
+		1.0e6*mm // 200*nm
 	}; // Fix later.
 	// Attenuation length formula used for Rayleigh scattering.
 	// Attenuation length = 1/alpha where alpha =
-	// 2*(2*CLHEP::pi/lambda)^4/(3*CLHEP::pi*N)*(n-1)^2.
-	// lambda = wavelengthsForAir(cm), N(density of molecules) = 2.7e19(cm^-3),
+	// 2*(2*pi/lambda)^4/(3*pi*N)*(n-1)^2.
+	// lambda = WAVELENGTHS(cm), N(density of molecules) = 2.7e19(cm^-3),
 	// n = refractive index.
 	// Reference: T. Tsang, Classical electrodynamics, Blue Sky and Red Sunset,
 	// p.202.
-	static G4double
-		airRayleighScatteringLength[8] = {
-			4.42161e+05*m, // 800*nm
-			2.57685e+05*m, // 700*nm
-			1.37889e+05*m, // 600*nm
-			6.55476e+04*m, // 500*nm
-			2.61316e+04*m, // 400*nm
-			7.77670e+03*m, // 300*nm
-			1.24581e+03*m, // 200*nm
-			5.64459e+01*m, // 100*nm
-		};
+	G4double rayleighScatteringLengths[N_SPEC_POINTS] = {
+		4.42161e+05*m, // 800*nm
+		2.57685e+05*m, // 700*nm
+		1.37889e+05*m, // 600*nm
+		6.55476e+04*m, // 500*nm
+		2.61316e+04*m, // 400*nm
+		7.77670e+03*m, // 300*nm
+		1.24581e+03*m // 200*nm
+	};
 	G4MaterialPropertiesTable* air_MPT = new G4MaterialPropertiesTable();
-	air_MPT->AddProperty("RINDEX", photonEnergiesForAir, airRindex, 8);
-	air_MPT->AddProperty("ABSLENGTH", photonEnergiesForAir, airAbslength, 8);
-	air_MPT->AddProperty("RAYLEIGH", photonEnergiesForAir, airRayleighScatteringLength, 8);
+	air_MPT->AddProperty("RINDEX", photonEnergies, rIndices, N_SPEC_POINTS);
+	air_MPT->AddProperty("ABSLENGTH", photonEnergies, absLengths,
+			N_SPEC_POINTS);
+	air_MPT->AddProperty("RAYLEIGH", photonEnergies,
+			rayleighScatteringLengths, N_SPEC_POINTS);
 	fAir->SetMaterialPropertiesTable(air_MPT);
-
-	if(fPmtsArePlaced)
-		MTCG4DetectorConstruction::SetPmtMaterialProperties();
-	MTCG4DetectorConstruction::SetScintMaterialProperties();
-} // SetMaterialProperties()
+}
 
 //
 // Material properties for scintillator.
 //
 void MTCG4DetectorConstruction::SetScintMaterialProperties()
 {
+	const int N_SPEC_POINTS_SCINT = 13;
 	// Set different photon wavelengths that will be referenced in calculating
 	// scintillator properties, e.g. decay time constant.
-	const G4double wavelengthForEJ254[13] =
+	const G4double WAVELENGTHS_SCINT[N_SPEC_POINTS_SCINT] =
 	{
-		600*nm,
+		800*nm,
 		500*nm,
 		490*nm,
 		480*nm,
@@ -1525,16 +1604,16 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 		425*nm,
 		420*nm,
 		410*nm,
-		400*nm
+		200*nm
 	};
 	// Set order of photon energies for EJ254 in increasing order.
-	static G4double photonEnergiesForEJ254[13];
-	for(G4int i = 0; i < 13; i++)
-		photonEnergiesForEJ254[i] =
-			CLHEP::h_Planck*CLHEP::c_light/wavelengthForEJ254[i];
-	static G4double fEJ254_ScintFast[13] =
+	G4double photonEnergies_Scint[N_SPEC_POINTS_SCINT];
+	for (G4int i = 0; i < N_SPEC_POINTS_SCINT; ++i) {
+		photonEnergies_Scint[i] = h_Planck*c_light/WAVELENGTHS_SCINT[i];
+	}
+	G4double scintFast_EJ254[N_SPEC_POINTS_SCINT] =
 	{
-		0.00, // 600*nm, arbitrary cutoff
+		0.00, // 800*nm, arbitrary cutoff
 		0.05, // 500*nm
 		0.10, // 490*nm
 		0.15, // 480*nm
@@ -1546,11 +1625,11 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 		1.00, // 425*nm, peak of distribution
 		0.90, // 420*nm
 		0.25, // 410*nm
-		0.00 // 400*nm
+		0.00 // 200*nm
 	};
-	static G4double fEJ254_ScintSlow[13] =
+	G4double scintSlow_EJ254[N_SPEC_POINTS_SCINT] = // Identical. Fix later.
 	{
-		0.00, // 600*nm, arbitrary cutoff
+		0.00, // 800*nm, arbitrary cutoff
 		0.05, // 500*nm
 		0.10, // 490*nm
 		0.15, // 480*nm
@@ -1562,79 +1641,135 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 		1.00, // 425*nm, peak of distribution
 		0.90, // 420*nm
 		0.25, // 410*nm
-		0.00 // 400*nm
+		0.00 // 200*nm
 	};
+
 	// Refractive index for EJ254 plastic scintillator.
 	// Formula used for refractive index n where n^2 = (nI)^2 + A/(lambda^2 -
-	// lambda_0^2).  nI = 1.53319, A = 20,690nm^2, lambda_0 = 196.6nm.
-	// nI was fitted such that lambda = 425nm => n = 1.58 as is reported in the
-	// EJ254 data sheet. Other constants were extracted as is from the following
+	// lambda_0^2).  nI = 1.53319, A = 20,690nm^2, lambda_0 = 196.6nm.  nI was
+	// fitted such that lambda = 425nm => n = 1.58 as is reported in the EJ254
+	// data sheet. Other constants were extracted as is from the following
 	// reference.
 	// Reference: Journal of Colloid and Interface Science, Volume 118, Issue 2,
-	// August 1987, Pages 314–325, Measurement of the complex refractive index of
-	// polyvinyltoluene in the UV, visible, and near IR: Application to the size
-	// determination of PVT latices.
-	// T. Depireux, F. Dumont, A. Watillon
-	static G4double fEJ254_RefIndex[13] =
+	// August 1987, Pages 314–325, Measurement of the complex refractive index
+	// of polyvinyltoluene in the UV, visible, and near IR: Application to the
+	// size determination of PVT latices. T. Depireux, F. Dumont, A. Watillon.
+	const int N_SPEC_POINTS_RINDEX = 16;
+	const G4double WAVELENGTHS_RINDEX[N_SPEC_POINTS_RINDEX] =
 	{
-		1.55405, // 600*nm
-		1.56479, // 500*nm
-		1.56633, // 490*nm
-		1.56798, // 480*nm
-		1.56978, // 470*nm
-		1.57172, // 460*nm
-		1.57383, // 450*nm
-		1.57613, // 440*nm
-		1.57865, // 430*nm
-		1.58000, // 425*nm
-		1.58141, // 420*nm
-		1.58446, // 410*nm
-		1.58782 // 400*nm
-	}; // Fix later.
-	// This seems to be a pretty constant number according to the above reference.
-	static G4double fEJ254_AbsLength[13] = {
-		250.*cm, // 600*nm
-		250.*cm, // 500*nm
-		250.*cm, // 490*nm
-		250.*cm, // 480*nm
-		250.*cm, // 470*nm
-		250.*cm, // 460*nm
-		250.*cm, // 450*nm
-		250.*cm, // 440*nm
-		250.*cm, // 430*nm
-		250.*cm, // 425*nm
-		250.*cm, // 420*nm
-		250.*cm, // 410*nm
-		250.*cm // 400*nm
-	}; // Fix later.
+		800*nm,
+		700*nm,
+		600*nm,
+		500*nm,
+		400*nm,
+		300*nm,
+		280*nm,
+		260*nm,
+		240*nm,
+		220*nm,
+		210*nm,
+		208*nm,
+		206*nm,
+		204*nm,
+		202*nm,
+		200*nm
+	};
+	G4double photonEnergies_RIndex[N_SPEC_POINTS_RINDEX];
+	for (int i = 0; i < N_SPEC_POINTS_RINDEX; ++i) {
+		photonEnergies_RIndex[i] = h_Planck*c_light/WAVELENGTHS_RINDEX[i];
+	}
+	const G4double nI = 1.53319, A = 20690*nm*nm, lambda_0 = 196.6*nm;
+	G4double rIndices[N_SPEC_POINTS_RINDEX];
+	for (int i = 0; i < N_SPEC_POINTS_RINDEX; ++i) {
+		rIndices[i] =
+			sqrt(nI*nI + A/(WAVELENGTHS_RINDEX[i]*WAVELENGTHS_RINDEX[i] -
+						lambda_0*lambda_0));
+	}
+
+	// Absorption lengths for PVT based scintillator NE-110 below obtained from
+	// "Measurement of the reflectivities and absorption lengths at different
+	// wavelengths of plastic scintillator and acrylglass: Calculations of the
+	// light attenuation in large area detectors", G. Kettenring, Nuclear
+	// Instruments and Methods, volume 131, issue 3, 28 Dec. 1975, p. 451~456.
+	const int N_SPEC_POINTS_ABS = 8;
+	const G4double WAVELENGTHS_ABS_LENGTH[N_SPEC_POINTS_ABS] =
+	{
+		800*nm,
+		633*nm,
+		515*nm,
+		502*nm,
+		488*nm,
+		473*nm,
+		458*nm,
+		200*nm
+	};
+	G4double photonEnergies_AbsLength[N_SPEC_POINTS_ABS];
+	for (G4int i = 0; i < N_SPEC_POINTS_ABS; ++i) {
+		photonEnergies_AbsLength[i] =
+			h_Planck*c_light/WAVELENGTHS_ABS_LENGTH[i];
+	}
+	G4double absLengths_EJ254[N_SPEC_POINTS_ABS] = {
+		418*cm, // 800*nm const extrapolation from 633*nm.
+		418*cm, // 633*nm,
+		311*cm, // 515*nm,
+		291*cm, // 502*nm,
+		264*cm, // 488*nm,
+		236*cm, // 473*nm,
+		204*cm, // 458*nm
+		204*cm // 200*nm const extrapolation from 458*nm.
+	};
+	G4double reemission_EJ254[N_SPEC_POINTS_SCINT] = { // Same as fast scint.
+		0.00, // 800*nm, arbitrary cutoff
+		0.05, // 500*nm
+		0.10, // 490*nm
+		0.15, // 480*nm
+		0.30, // 470*nm
+		0.45, // 460*nm
+		0.55, // 450*nm
+		0.75, // 440*nm
+		0.95, // 430*nm
+		1.00, // 425*nm, peak of distribution
+		0.90, // 420*nm
+		0.25, // 410*nm
+		0.00 // 200*nm
+	};
+
 	G4MaterialPropertiesTable* EJ254_MPT = new G4MaterialPropertiesTable();
-	EJ254_MPT->AddProperty("FASTCOMPONENT", photonEnergiesForEJ254,
-			fEJ254_ScintFast, 13);
-	EJ254_MPT->AddProperty("SLOWCOMPONENT", photonEnergiesForEJ254,
-			fEJ254_ScintSlow, 13);
-	EJ254_MPT->AddProperty("RINDEX", photonEnergiesForEJ254, fEJ254_RefIndex, 13);
-	EJ254_MPT->AddProperty("ABSLENGTH", photonEnergiesForEJ254, fEJ254_AbsLength,
-			13);
+	EJ254_MPT->AddProperty("FASTCOMPONENT", photonEnergies_Scint,
+			scintFast_EJ254, N_SPEC_POINTS_SCINT);
+	EJ254_MPT->AddProperty("SLOWCOMPONENT", photonEnergies_Scint,
+			scintSlow_EJ254, N_SPEC_POINTS_SCINT);
+	EJ254_MPT->AddProperty("RINDEX", photonEnergies_RIndex, rIndices,
+			N_SPEC_POINTS_RINDEX);
+	//EJ254_MPT->AddProperty("ABSLENGTH", photonEnergies_AbsLength,
+	//		absLengths_EJ254, N_SPEC_POINTS_ABS); // Now using WLSABSLENGTH.
+	EJ254_MPT->AddProperty("WLSABSLENGTH", photonEnergies_AbsLength,
+			absLengths_EJ254, N_SPEC_POINTS_ABS);
+	EJ254_MPT->AddProperty("WLSCOMPONENT", photonEnergies_Scint,
+			reemission_EJ254, N_SPEC_POINTS_SCINT);
+	EJ254_MPT->AddConstProperty("WLSTIMECONSTANT", 0.0*ns); // No WLS delay.
 	// The following scintillation yield numbers are taken from the
-	// fEJ254_OnePercentNaturalBoronDoped data sheet for the case of Boron doping
-	// only.  We will have to use these numbers for now until we can find those of
-	// the case for Lithium.
+	// EJ254 data sheet for the case of Boron
+	// doping only. We will have to use these numbers for now until we can find
+	// those of the case for Lithium.
 	static G4double scintillationYield;
-	if(fDopingFraction < 2.5*perCent)
+	if (fDopingFraction < 2.5*perCent) {
 		scintillationYield =
 			( (8600. - 9200.)/(2.5*perCent - 1.*perCent) *
 			 (fDopingFraction - 2.5*perCent) + 8600.) / MeV;
-	else if(fDopingFraction >= 2.5*perCent)
+	}
+	else if (fDopingFraction >= 2.5*perCent) {
 		scintillationYield =
 			( (7500. - 8600.)/(5.*perCent - 2.5*perCent) *
 				(fDopingFraction - 2.5*perCent) + 8600.) / MeV;
+	}
 	EJ254_MPT->AddConstProperty("SCINTILLATIONYIELD", scintillationYield);
 	EJ254_MPT->AddConstProperty("RESOLUTIONSCALE", 1.0); // Fix later.
 	EJ254_MPT->AddConstProperty("FASTTIMECONSTANT", 2.2*ns); // Fix later.
 	EJ254_MPT->AddConstProperty("SLOWTIMECONSTANT", 2.2*ns);
 	// Yield ratio is not needed for now when there is only one component.
-	// Yield ratio is the relative strength of the fast component as a fraction of
-	// total scintillation yield.
+	// Yield ratio is the relative strength of the fast component as a fraction
+	// of total scintillation yield.
 	EJ254_MPT->AddConstProperty("YIELDRATIO", 1.); // Fix later.
 	// Set Birks constant for scintillation photon quenching.
 	// This number was derived from simulation of the 7Li/alpha daughters
@@ -1645,30 +1780,54 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 	// used for the derivation of Birks constant.
 	G4double birksConst = 0.110*mm/MeV;
 	
-	fEJ254_OnePercentNaturalBoronDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_OnePercentNaturalBoronDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_TwoAndHalfPercentNaturalBoronDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_TwoAndHalfPercentNaturalBoronDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_FivePercentNaturalBoronDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_FivePercentNaturalBoronDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_OnePercentEnrichedBoronDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_OnePercentEnrichedBoronDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_FivePercentEnrichedBoronDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_FivePercentEnrichedBoronDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_OnePercentNaturalLithiumDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_OnePercentNaturalLithiumDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_FivePercentNaturalLithiumDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_FivePercentNaturalLithiumDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_OnePercentEnrichedLithiumDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_OnePercentEnrichedLithiumDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->GetIonisation()->SetBirksConstant(birksConst);
-	fEJ254_FivePercentEnrichedLithiumDoped->SetMaterialPropertiesTable(EJ254_MPT);
-	fEJ254_FivePercentEnrichedLithiumDoped->GetIonisation()->SetBirksConstant(birksConst);
+	fEJ254_OnePercentNaturalBoronDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_OnePercentNaturalBoronDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_TwoAndHalfPercentNaturalBoronDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_TwoAndHalfPercentNaturalBoronDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_FivePercentNaturalBoronDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_FivePercentNaturalBoronDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_OnePercentEnrichedBoronDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_OnePercentEnrichedBoronDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_TwoAndHalfPercentEnrichedBoronDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_FivePercentEnrichedBoronDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_FivePercentEnrichedBoronDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_OnePercentNaturalLithiumDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_OnePercentNaturalLithiumDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_TwoAndHalfPercentNaturalLithiumDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_FivePercentNaturalLithiumDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_FivePercentNaturalLithiumDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_OnePercentEnrichedLithiumDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_OnePercentEnrichedLithiumDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_TwoAndHalfPercentEnrichedLithiumDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
+	fEJ254_FivePercentEnrichedLithiumDoped->
+		SetMaterialPropertiesTable(EJ254_MPT);
+	fEJ254_FivePercentEnrichedLithiumDoped->GetIonisation()->
+		SetBirksConstant(birksConst);
 } // SetScintMaterialProperties()
 
 //
@@ -1676,8 +1835,9 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 //
 void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 {
+	const int kNSpecPointsVacuum = 8;
 	// Optical properties of PMT vacuum.
-	static G4double wavelengthsForVacuum[8] = {
+	const G4double wavelengthsForVacuum[kNSpecPointsVacuum] = {
 		800*nm,
 		700*nm,
 		600*nm,
@@ -1685,54 +1845,52 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 		400*nm,
 		300*nm,
 		200*nm,
-		100*nm
 	};
-	static G4double photonEnergiesForVacuum[8];
+	G4double photonEnergiesForVacuum[kNSpecPointsVacuum];
 	// Set order of photon energies for PMT vacuum in increasing order.
-	for(G4int i = 0; i < 8; i++)
+	for (G4int i = 0; i < kNSpecPointsVacuum; ++i) {
 		photonEnergiesForVacuum[i] =
-			CLHEP::h_Planck*CLHEP::c_light/wavelengthsForVacuum[i];
-	static G4double vacuumRindex[8] = {
+			h_Planck*c_light/wavelengthsForVacuum[i];
+	}
+	G4double vacuumRindex[kNSpecPointsVacuum] = {
 		1., // 800*nm
 		1., // 700*nm
 		1., // 600*nm
 		1., // 500*nm
 		1., // 400*nm
 		1., // 300*nm
-		1., // 200*nm
-		1. // 100*nm
+		1. // 200*nm
 	};
-	static G4double vacuumAbslength[8] = {
+	G4double vacuumAbslength[kNSpecPointsVacuum] = {
 		1.e99*km, // 800*nm
 		1.e99*km, // 700*nm
 		1.e99*km, // 600*nm
 		1.e99*km, // 500*nm
 		1.e99*km, // 400*nm
 		1.e99*km, // 300*nm
-		1.e99*km, // 200*nm
-		1.e99*km // 100*nm
+		1.e99*km // 200*nm
 	};
-	static G4double vacuumRayleighScatteringLength[8] = {
+	G4double vacuumRayleighScatteringLength[kNSpecPointsVacuum] = {
 		1.e99*km, // 800*nm
 		1.e99*km, // 700*nm
 		1.e99*km, // 600*nm
 		1.e99*km, // 500*nm
 		1.e99*km, // 400*nm
 		1.e99*km, // 300*nm
-		1.e99*km, // 200*nm
-		1.e99*km // 100*nm
+		1.e99*km // 200*nm
 	};
 	G4MaterialPropertiesTable* pmtVacuum_MPT = new G4MaterialPropertiesTable();
 	pmtVacuum_MPT->AddProperty("RINDEX", photonEnergiesForVacuum,
-			vacuumRindex, 8);
+			vacuumRindex, kNSpecPointsVacuum);
 	pmtVacuum_MPT->AddProperty("ABSLENGTH", photonEnergiesForVacuum,
-			vacuumAbslength, 8);
+			vacuumAbslength, kNSpecPointsVacuum);
 	pmtVacuum_MPT->AddProperty("RAYLEIGH", photonEnergiesForVacuum,
-			vacuumRayleighScatteringLength, 8);
+			vacuumRayleighScatteringLength, kNSpecPointsVacuum);
 	fPmtVacuum->SetMaterialPropertiesTable(pmtVacuum_MPT);
 
+	const int kNSpecPointsSchott8337B = 9;
 	// Optical properties of PMT glass SCHOTT 8337B.
-	const G4double wavelengthsForSchott8337B[9] = {
+	const G4double wavelengthsForSchott8337B[kNSpecPointsSchott8337B] = {
 		800*nm,
 		700*nm,
 		600*nm,
@@ -1744,10 +1902,11 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 		200*nm
 	};
 	// Set order of photon energies for SCHOTT 8337B in increasing order.
-	static G4double photonEnergiesForSchott8337B[9];
-	for(G4int i = 0; i < 9; i++)
+	G4double photonEnergiesForSchott8337B[kNSpecPointsSchott8337B];
+	for (G4int i = 0; i < kNSpecPointsSchott8337B; ++i) {
 		photonEnergiesForSchott8337B[i] =
-			CLHEP::h_Planck*CLHEP::c_light/wavelengthsForSchott8337B[i];
+			h_Planck*c_light/wavelengthsForSchott8337B[i];
+	}
 	// Following numbers were obtained from formula for Borosilicate crown glass
 	// (N-BK10) at http://refractiveindex.info/?group=SCHOTT&material=N-BK10:
 	// n^2 − 1 = (0.888308131*lambda^2)/(lambda^2 − 0.00516900822) +
@@ -1757,7 +1916,7 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 	// the dispersion curve for among the Borosilicate Crown glasses. It has an
 	// refractive index of n = 1.49782 at 587.6nm where as SCHOTT 8337B should
 	// have n = 1.476 at 587.6nm. Fix later.
-	static G4double schott8337BRindex[9] = {
+	G4double schott8337BRindex[kNSpecPointsSchott8337B] = {
 		1.49220, // 800*nm
 		1.49435, // 700*nm
 		1.49735, // 600*nm
@@ -1775,7 +1934,7 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 	// 28. The formula: absorption length = -(length)/ln(T) was used where length
 	// is the distance of light travel in mm and T is the transmission probability
 	// it %.
-	static G4double schott8337BAbslength[9] = {
+	G4double schott8337BAbslength[kNSpecPointsSchott8337B] = {
 		5.99653*mm, // 800*nm 92% constant extrapolation from 400nm.
 		5.99653*mm, // 700*nm 92% constant extrapolation from 400nm.
 		5.99653*mm, // 600*nm 92% constant extrapolation from 400nm.
@@ -1788,14 +1947,15 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 	};
 	G4MaterialPropertiesTable* schott_8337B_MPT = new G4MaterialPropertiesTable();
 	schott_8337B_MPT->AddProperty("RINDEX", photonEnergiesForSchott8337B,
-			schott8337BRindex, 9);
+			schott8337BRindex, kNSpecPointsSchott8337B);
 	schott_8337B_MPT->AddProperty("ABSLENGTH", photonEnergiesForSchott8337B,
-			schott8337BAbslength, 9);
+			schott8337BAbslength, kNSpecPointsSchott8337B);
 	fSchott8337B->SetMaterialPropertiesTable(schott_8337B_MPT);
 
-	static G4double wavelengthForBialkali[11] =
+	const int kNSpecPointsBialkali = 11;
+	const G4double wavelengthForBialkali[kNSpecPointsBialkali] =
 	{
-		700*nm,
+		800*nm,
 		650*nm,
 		600*nm,
 		550*nm,
@@ -1807,10 +1967,11 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 		250*nm,
 		200*nm
 	};
-	static G4double photonEnergiesForBialkali[11];
-	for(G4int i=0; i<11; i++)
+	G4double photonEnergiesForBialkali[kNSpecPointsBialkali];
+	for (G4int i=0; i<kNSpecPointsBialkali; ++i) {
 		photonEnergiesForBialkali[i] =
-			CLHEP::h_Planck*CLHEP::c_light/wavelengthForBialkali[i];
+			h_Planck*c_light/wavelengthForBialkali[i];
+	}
 	//
 	// There are two types of bialkali photocathodes simulated below; standard
 	// blue sensitive bialkali KCsSb, and green-enhanced bialkali and RbCsSb.
@@ -1826,9 +1987,9 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 	// Associated Equipment Volume 539, Issues 1-2, 21 February 2005. Optical
 	// properties of bialkali photocathodes Original Research
 	// Article Pages 217-235. D. Motta, S. Schönert
-	static G4double KCsSbRindex[11] =
+	G4double KCsSbRindex[kNSpecPointsBialkali] =
 	{
-		2.96, // 700*nm, simple constant extrapolation from 680nm.
+		2.96, // 800*nm, simple constant extrapolation from 680nm.
 		2.95, // 650*nm
 		2.99, // 600*nm
 		3.17333, // 550*nm
@@ -1840,9 +2001,9 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 		1.92, // 250*nm, simple constant extrapolation from 380nm.
 		1.92 // 200*nm, simple constant extrapolation from 380nm.
 	};
-	static G4double KCsSbKindex[11] =
+	G4double KCsSbKindex[kNSpecPointsBialkali] =
 	{
-		0.33, // 700*nm, simple constant extrapolation from 680nm.
+		0.33, // 800*nm, simple constant extrapolation from 680nm.
 		0.34, // 650*nm
 		0.39333, // 600*nm
 		0.59667, // 550*nm
@@ -1864,9 +2025,9 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 	// 217-235
 	//
 
-	//static G4double RbCsSbRindex[11] =
+	//const G4double RbCsSbRindex[kNSpecPointsBialkali] =
 	//{
-	//	3.13, // 700*nm, simple constant extrapolation from 680nm.
+	//	3.13, // 800*nm, simple constant extrapolation from 680nm.
 	//	3.14, // 650*nm
 	//	3.24, // 600*nm
 	//	3.26, // 550*nm
@@ -1878,9 +2039,9 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 	//	2.07, // 250*nm, simple constant extrapolation from 380nm.
 	//	2.07 // 200*nm, simple constant extrapolation from 380nm.
 	//};
-	//static G4double RbCsSbKindex[11] =
+	//const G4double RbCsSbKindex[kNSpecPointsBialkali] =
 	//{
-	//	0.35, // 700*nm, simple constant extrapolation from 680nm.
+	//	0.35, // 800*nm, simple constant extrapolation from 680nm.
 	//	0.37, // 650*nm
 	//	0.44, // 600*nm
 	//	0.82667, // 550*nm
@@ -1893,21 +2054,17 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 	//	1.22 // 200*nm, simple constant extrapolation from 380nm.
 	//};
 
-	static G4double*
-		photocathodeRindex = KCsSbRindex;
-	static G4double*
-		photocathodeKindex = KCsSbKindex;
-	//static G4double*
-	//	photocathodeRindex = RbCsSbRindex;
-	//static G4double*
-	//	photocathodeKindex = RbCsSbKindex;
+	G4double* photocathodeRindex = KCsSbRindex;
+	G4double* photocathodeKindex = KCsSbKindex;
+	//const G4double* photocathodeRindex = RbCsSbRindex;
+	//const G4double* photocathodeKindex = RbCsSbKindex;
 
 	// Quantum efficiency obtained from Planacon PMT spec-sheet for XP85012.
 	// Reference: http://www.photonis.com/en/ism/63-planacon.html. Rev10-Sept12.
 	// Quantum efficiency of photon detection at photocathode surface.
-	static G4double photocathodeQuatumEff[11] = 
+	G4double photocathodeQuatumEff[kNSpecPointsBialkali] = 
 	{
-		0.00, // 700nm
+		0.00, // 800nm
 		0.00, // 650nm
 		0.01, // 600nm
 		0.03, // 550nm
@@ -1919,23 +2076,23 @@ void MTCG4DetectorConstruction::SetPmtMaterialProperties()
 		0.14, // 250nm
 		0.06 // 200nm
 	};
-	static G4double photonhitLateralDimensionAlongPhotocathodeSurface[2] =
+	G4double photonhitLateralDimensionAlongPhotocathodeSurface[2] =
 	{
 		0.0*mm,
 		1.0*mm
 	};
-	static G4double photocathodeThickness[2] =
+	G4double photocathodeThickness[2] =
 	{
 		20.*nm,
 		20.*nm
 	};
 	G4MaterialPropertiesTable* photocathode_MPT = new G4MaterialPropertiesTable();
 	photocathode_MPT->AddProperty("EFFICIENCY", photonEnergiesForBialkali,
-			photocathodeQuatumEff, 11);
+			photocathodeQuatumEff, kNSpecPointsBialkali);
 	photocathode_MPT->AddProperty("RINDEX", photonEnergiesForBialkali,
-			photocathodeRindex, 11);
+			photocathodeRindex, kNSpecPointsBialkali);
 	photocathode_MPT->AddProperty("KINDEX", photonEnergiesForBialkali,
-			photocathodeKindex, 11);
+			photocathodeKindex, kNSpecPointsBialkali);
 	photocathode_MPT->AddProperty("THICKNESS",
 			photonhitLateralDimensionAlongPhotocathodeSurface,
 			photocathodeThickness, 2);
@@ -1983,16 +2140,16 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 	fWorldLogical->SetVisAttributes(G4VisAttributes::Invisible);
 
 	// Scintillator cube color.
-	if(fScintVisualization == scintVisColor)
+	if (fScintVisualization == scintVisColor)
 		fScintLogical->SetVisAttributes(new G4VisAttributes(cyan));
-	if(fScintVisualization == scintVisGray)
+	if (fScintVisualization == scintVisGray)
 		fScintLogical->SetVisAttributes(new G4VisAttributes(gray));
-	if(fScintVisualization == scintVisOff)
+	if (fScintVisualization == scintVisOff)
 		fScintLogical->SetVisAttributes(G4VisAttributes::Invisible);
 
 	// PMT color.
-	if(fPmtsArePlaced) {
-		if(fPmtVisualization == pmtVisColor) {
+	if (fPmtsArePlaced) {
+		if (fPmtVisualization == pmtVisColor) {
 			fPmtBoundingVolumeLogical->
 				SetVisAttributes(G4VisAttributes::Invisible);
 			fPmtGlassHousingLogical->
@@ -2005,7 +2162,7 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 			fPmtInnerVacuumLogical->SetVisAttributes(G4VisAttributes::Invisible);
 			fDynodeLogical->SetVisAttributes(new G4VisAttributes(red));
 		}
-		if(fPmtVisualization == pmtVisGray) {
+		if (fPmtVisualization == pmtVisGray) {
 			fPmtBoundingVolumeLogical->
 				SetVisAttributes(G4VisAttributes::Invisible);
 			fPmtGlassHousingLogical->SetVisAttributes(new G4VisAttributes(gray));
@@ -2017,7 +2174,7 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 			fPmtInnerVacuumLogical->SetVisAttributes(G4VisAttributes::Invisible);
 			fDynodeLogical->SetVisAttributes(new G4VisAttributes(gray));
 		}
-		if(fPmtVisualization == pmtVisOff) {
+		if (fPmtVisualization == pmtVisOff) {
 			fPmtBoundingVolumeLogical->
 				SetVisAttributes(G4VisAttributes::Invisible);
 			fPmtGlassHousingLogical->
@@ -2031,56 +2188,56 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 			fDynodeLogical->SetVisAttributes(G4VisAttributes::Invisible);
 		}
 	}
-	if(fFrameIsPlaced) {
+	if (fFrameIsPlaced) {
 		//// Peripheral structure color.
-		//if(fPeripheralGeometryVisualization == peripheralVisColor) {
-		//	for(unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
+		//if (fPeripheralGeometryVisualization == peripheralVisColor) {
+		//	for (unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
 		//		fFrameEndPlateLogical[iEndPlate]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate)
+		//	for (unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate)
 		//		fFrameSidePlateLogical[iSidePlate]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp)
+		//	for (unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp)
 		//		fFrameEndClampLogical[iEndClamp]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp)
+		//	for (unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp)
 		//		fFrameSideClampLogical[iSideClamp]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iLeg = 0; iLeg < 4; ++iLeg)
+		//	for (unsigned int iLeg = 0; iLeg < 4; ++iLeg)
 		//		fLegLogical[iLeg]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
 		//}
-		//if(fPeripheralGeometryVisualization == peripheralVisGray) {
-		//	for(unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
+		//if (fPeripheralGeometryVisualization == peripheralVisGray) {
+		//	for (unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
 		//		fFrameEndPlateLogical[iEndPlate]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate)
+		//	for (unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate)
 		//		fFrameSidePlateLogical[iSidePlate]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp)
+		//	for (unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp)
 		//		fFrameEndClampLogical[iEndClamp]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp)
+		//	for (unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp)
 		//		fFrameSideClampLogical[iSideClamp]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
-		//	for(unsigned int iLeg = 0; iLeg < 4; ++iLeg)
+		//	for (unsigned int iLeg = 0; iLeg < 4; ++iLeg)
 		//		fLegLogical[iLeg]->SetVisAttributes(new
 		//				G4VisAttributes(gray));
 		//}
-		//if(fPeripheralGeometryVisualization == peripheralVisOff) {
-		//	for(unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
+		//if (fPeripheralGeometryVisualization == peripheralVisOff) {
+		//	for (unsigned int iEndPlate = 0; iEndPlate < 2; ++iEndPlate)
 		//		fFrameEndPlateLogical[iEndPlate]->SetVisAttributes(
 		//				G4VisAttributes::Invisible);
-		//	for(unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate)
+		//	for (unsigned int iSidePlate = 0; iSidePlate < 4; ++iSidePlate)
 		//		fFrameSidePlateLogical[iSidePlate]->SetVisAttributes(
 		//				G4VisAttributes::Invisible);
-		//	for(unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp)
+		//	for (unsigned int iEndClamp = 0; iEndClamp < 8; ++iEndClamp)
 		//		fFrameEndClampLogical[iEndClamp]->SetVisAttributes(
 		//				G4VisAttributes::Invisible);
-		//	for(unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp)
+		//	for (unsigned int iSideClamp = 0; iSideClamp < 16; ++iSideClamp)
 		//		fFrameSideClampLogical[iSideClamp]->SetVisAttributes(
 		//				G4VisAttributes::Invisible);
-		//	for(unsigned int iLeg = 0; iLeg < 4; ++iLeg)
+		//	for (unsigned int iLeg = 0; iLeg < 4; ++iLeg)
 		//		fLegLogical[iLeg]->SetVisAttributes(
 		//				G4VisAttributes::Invisible);
 		//}
@@ -2097,13 +2254,13 @@ void MTCG4DetectorConstruction::SetVisualizationAttributes() {
 void MTCG4DetectorConstruction::UpdateGeometry()
 {
 	G4cout << "fWorldPhysical = " << fWorldPhysical << G4endl;
-	if(!fWorldPhysical) return;
+	if (!fWorldPhysical) return;
 
 	//
 	// Clean old geometry, if any.
 	//
 	G4GeometryManager::GetInstance()->OpenGeometry();
-	G4cout << "geometry is closed = " << G4GeometryManager::GetInstance() ->
+	G4cout << "geometry is closed = " << G4GeometryManager::GetInstance()->
 		IsGeometryClosed() << G4endl;
 
 	G4PhysicalVolumeStore::GetInstance()->Clean();
@@ -2114,85 +2271,85 @@ void MTCG4DetectorConstruction::UpdateGeometry()
 	G4LogicalBorderSurface::CleanSurfaceTable();
 	G4SurfaceProperty::CleanSurfacePropertyTable();
 	G4cout << "fAPmtSD: " << fAPmtSD << G4endl;
-	if(fAPmtSD) delete fAPmtSD;
-	//if(fSDManager) delete fSDManager;
+	if (fAPmtSD) delete fAPmtSD;
+	//if (fSDManager) delete fSDManager;
 
-	//if(fWorldSolid) delete fWorldSolid;
-	//if(fWorldLogical) delete fWorldLogical;
-	//if(fWorldPhysical) delete fWorldPhysical;
+	//if (fWorldSolid) delete fWorldSolid;
+	//if (fWorldLogical) delete fWorldLogical;
+	//if (fWorldPhysical) delete fWorldPhysical;
 
-	//if(fWorldSolid) {
+	//if (fWorldSolid) {
 	//	G4cout << "fWorldSolid exists.\n";
 	// 	delete fWorldSolid;
 	//}
-	//if(fWorldLogical) {
+	//if (fWorldLogical) {
 	//	G4cout << "fWorldLogical exists.\n";
 	// 	delete fWorldLogical;
 	//}
-	//if(fWorldPhysical) {
+	//if (fWorldPhysical) {
 	//	G4cout << "fWorldPhysical exists.\n";
 	// 	delete fWorldPhysical;
 	//}
 
 	// Delete left-over pointers? Is this really needed?
-	//if(fScintSolid) delete fScintSolid;
-	//if(fScintLogical) delete fScintLogical;
-	//if(fScintPhysical) delete fScintPhysical;
+	//if (fScintSolid) delete fScintSolid;
+	//if (fScintLogical) delete fScintLogical;
+	//if (fScintPhysical) delete fScintPhysical;
 
-	//if(fPmtBoundingVolumeSolid) delete fPmtBoundingVolumeSolid;
-	//if(fPmtBoundingVolumeLogical) delete fPmtBoundingVolumeLogical;
-	//if(fPmtBoundingVolume1Physical) delete fPmtBoundingVolume1Physical;
-	//if(fPmtBoundingVolume2Physical) delete fPmtBoundingVolume2Physical;
-	//if(fPmtBoundingVolume3Physical) delete fPmtBoundingVolume3Physical;
-	//if(fPmtBoundingVolume4Physical) delete fPmtBoundingVolume4Physical;
-	//if(fPmtBoundingVolume5Physical) delete fPmtBoundingVolume5Physical;
-	//if(fPmtBoundingVolume6Physical) delete fPmtBoundingVolume6Physical;
-	//if(fPmtBoundingVolume7Physical) delete fPmtBoundingVolume7Physical;
-	//if(fPmtBoundingVolume8Physical) delete fPmtBoundingVolume8Physical;
-	//if(fPmtBoundingVolume9Physical) delete fPmtBoundingVolume9Physical;
-	//if(fPmtBoundingVolume10Physical) delete fPmtBoundingVolume10Physical;
-	//if(fPmtBoundingVolume11Physical) delete fPmtBoundingVolume11Physical;
-	//if(fPmtBoundingVolume12Physical) delete fPmtBoundingVolume12Physical;
-	//if(fPmtBoundingVolume13Physical) delete fPmtBoundingVolume13Physical;
-	//if(fPmtBoundingVolume14Physical) delete fPmtBoundingVolume14Physical;
-	//if(fPmtBoundingVolume15Physical) delete fPmtBoundingVolume15Physical;
-	//if(fPmtBoundingVolume16Physical) delete fPmtBoundingVolume16Physical;
-	//if(fPmtBoundingVolume17Physical) delete fPmtBoundingVolume17Physical;
-	//if(fPmtBoundingVolume18Physical) delete fPmtBoundingVolume18Physical;
-	//if(fPmtBoundingVolume19Physical) delete fPmtBoundingVolume19Physical;
-	//if(fPmtBoundingVolume20Physical) delete fPmtBoundingVolume20Physical;
-	//if(fPmtBoundingVolume21Physical) delete fPmtBoundingVolume21Physical;
-	//if(fPmtBoundingVolume22Physical) delete fPmtBoundingVolume22Physical;
-	//if(fPmtBoundingVolume23Physical) delete fPmtBoundingVolume23Physical;
-	//if(fPmtBoundingVolume24Physical) delete fPmtBoundingVolume24Physical;
+	//if (fPmtBoundingVolumeSolid) delete fPmtBoundingVolumeSolid;
+	//if (fPmtBoundingVolumeLogical) delete fPmtBoundingVolumeLogical;
+	//if (fPmtBoundingVolume1Physical) delete fPmtBoundingVolume1Physical;
+	//if (fPmtBoundingVolume2Physical) delete fPmtBoundingVolume2Physical;
+	//if (fPmtBoundingVolume3Physical) delete fPmtBoundingVolume3Physical;
+	//if (fPmtBoundingVolume4Physical) delete fPmtBoundingVolume4Physical;
+	//if (fPmtBoundingVolume5Physical) delete fPmtBoundingVolume5Physical;
+	//if (fPmtBoundingVolume6Physical) delete fPmtBoundingVolume6Physical;
+	//if (fPmtBoundingVolume7Physical) delete fPmtBoundingVolume7Physical;
+	//if (fPmtBoundingVolume8Physical) delete fPmtBoundingVolume8Physical;
+	//if (fPmtBoundingVolume9Physical) delete fPmtBoundingVolume9Physical;
+	//if (fPmtBoundingVolume10Physical) delete fPmtBoundingVolume10Physical;
+	//if (fPmtBoundingVolume11Physical) delete fPmtBoundingVolume11Physical;
+	//if (fPmtBoundingVolume12Physical) delete fPmtBoundingVolume12Physical;
+	//if (fPmtBoundingVolume13Physical) delete fPmtBoundingVolume13Physical;
+	//if (fPmtBoundingVolume14Physical) delete fPmtBoundingVolume14Physical;
+	//if (fPmtBoundingVolume15Physical) delete fPmtBoundingVolume15Physical;
+	//if (fPmtBoundingVolume16Physical) delete fPmtBoundingVolume16Physical;
+	//if (fPmtBoundingVolume17Physical) delete fPmtBoundingVolume17Physical;
+	//if (fPmtBoundingVolume18Physical) delete fPmtBoundingVolume18Physical;
+	//if (fPmtBoundingVolume19Physical) delete fPmtBoundingVolume19Physical;
+	//if (fPmtBoundingVolume20Physical) delete fPmtBoundingVolume20Physical;
+	//if (fPmtBoundingVolume21Physical) delete fPmtBoundingVolume21Physical;
+	//if (fPmtBoundingVolume22Physical) delete fPmtBoundingVolume22Physical;
+	//if (fPmtBoundingVolume23Physical) delete fPmtBoundingVolume23Physical;
+	//if (fPmtBoundingVolume24Physical) delete fPmtBoundingVolume24Physical;
 
-	//if(fPmtGlassHousingSolid) delete fPmtGlassHousingSolid;
-	//if(fPmtGlassHousingLogical) delete fPmtGlassHousingLogical;
-	//if(fPmtGlassHousingPhysical) delete fPmtGlassHousingPhysical;
+	//if (fPmtGlassHousingSolid) delete fPmtGlassHousingSolid;
+	//if (fPmtGlassHousingLogical) delete fPmtGlassHousingLogical;
+	//if (fPmtGlassHousingPhysical) delete fPmtGlassHousingPhysical;
 
-	//if(fPmtGlassWindowSolid) delete fPmtGlassWindowSolid;
-	//if(fPmtGlassWindowLogical) delete fPmtGlassWindowLogical;
-	//if(fPmtGlassWindowPhysical) delete fPmtGlassWindowPhysical;
+	//if (fPmtGlassWindowSolid) delete fPmtGlassWindowSolid;
+	//if (fPmtGlassWindowLogical) delete fPmtGlassWindowLogical;
+	//if (fPmtGlassWindowPhysical) delete fPmtGlassWindowPhysical;
 
-	//if(fPmtRearBoardSolid) delete fPmtRearBoardSolid;
-	//if(fPmtRearBoardLogical) delete fPmtRearBoardLogical;
-	//if(fPmtRearBoardPhysical) delete fPmtRearBoardPhysical;
+	//if (fPmtRearBoardSolid) delete fPmtRearBoardSolid;
+	//if (fPmtRearBoardLogical) delete fPmtRearBoardLogical;
+	//if (fPmtRearBoardPhysical) delete fPmtRearBoardPhysical;
 
-	//if(fPmtBlackWrappingSolid) delete fPmtBlackWrappingSolid;
-	//if(fPmtBlackWrappingLogical) delete fPmtBlackWrappingLogical;
-	//if(fPmtBlackWrappingPhysical) delete fPmtBlackWrappingPhysical;
+	//if (fPmtBlackWrappingSolid) delete fPmtBlackWrappingSolid;
+	//if (fPmtBlackWrappingLogical) delete fPmtBlackWrappingLogical;
+	//if (fPmtBlackWrappingPhysical) delete fPmtBlackWrappingPhysical;
 
-	//if(fPmtInnerVacuumSolid) delete fPmtInnerVacuumSolid;
-	//if(fPmtInnerVacuumLogical) delete fPmtInnerVacuumLogical;
-	//if(fPmtInnerVacuumPhysical) delete fPmtInnerVacuumPhysical;
+	//if (fPmtInnerVacuumSolid) delete fPmtInnerVacuumSolid;
+	//if (fPmtInnerVacuumLogical) delete fPmtInnerVacuumLogical;
+	//if (fPmtInnerVacuumPhysical) delete fPmtInnerVacuumPhysical;
 
-	//if(fDynodeSolid) delete fDynodeSolid;
-	//if(fDynodeLogical) delete fDynodeLogical;
-	//if(fDynodePhysical) delete fDynodePhysical;
+	//if (fDynodeSolid) delete fDynodeSolid;
+	//if (fDynodeLogical) delete fDynodeLogical;
+	//if (fDynodePhysical) delete fDynodePhysical;
 
-	//if(fPmtOuterVacuumSolid) delete fPmtOuterVacuumSolid;
-	//if(fPmtOuterVacuumLogical) delete fPmtOuterVacuumLogical;
-	//if(fPmtOuterVacuumPhysical) delete fPmtOuterVacuumPhysical;
+	//if (fPmtOuterVacuumSolid) delete fPmtOuterVacuumSolid;
+	//if (fPmtOuterVacuumLogical) delete fPmtOuterVacuumLogical;
+	//if (fPmtOuterVacuumPhysical) delete fPmtOuterVacuumPhysical;
 
 	// Define new ones.
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
@@ -2208,31 +2365,31 @@ void MTCG4DetectorConstruction::SetScintMaterial()
 		neutronCaptureMaterialString,
 		dopingFractionString,
 		enrichmentString;
-	if(fNeutronCaptureMaterial == "boron")
+	if (fNeutronCaptureMaterial == "boron")
 		neutronCaptureMaterialString = "Boron";
-	else if(fNeutronCaptureMaterial == "lithium")
+	else if (fNeutronCaptureMaterial == "lithium")
 		neutronCaptureMaterialString = "Lithium";
 	else
 		G4Exception("MTCG4DetectorConstruction::SetScintMaterial()",
 			 	"",
 				FatalErrorInArgument,
 				"Scintillator material was not correctly specified.");
-	if(fDopingFraction == 0.*perCent)
+	if (fDopingFraction == 0.*perCent)
 		dopingFractionString = "Zero";
-	else if(fDopingFraction == 1.*perCent)
+	else if (fDopingFraction == 1.*perCent)
 		dopingFractionString = "One";
-	else if(fDopingFraction == 2.5*perCent)
+	else if (fDopingFraction == 2.5*perCent)
 		dopingFractionString = "TwoAndHalf";
-	else if(fDopingFraction == 5.*perCent)
+	else if (fDopingFraction == 5.*perCent)
 		dopingFractionString = "Five";
 	else
 		G4Exception("MTCG4DetectorConstruction::SetScintMaterial()",
 			 	"",
 				FatalErrorInArgument,
 				"Scintillator material was not correctly specified.");
-	if(fDopantIsEnriched == true)
+	if (fDopantIsEnriched == true)
 		enrichmentString = "Enriched";
-	else if(fDopantIsEnriched == false)
+	else if (fDopantIsEnriched == false)
 		enrichmentString = "Natural";
 	else
 		G4Exception("MTCG4DetectorConstruction::SetScintMaterial()",
@@ -2253,7 +2410,7 @@ void MTCG4DetectorConstruction::SetScintMaterial()
 	// Set material.
 	fScintMaterial =
 		G4NistManager::Instance()->FindOrBuildMaterial(materialChoice);
-	if(fScintLogical) {
+	if (fScintLogical) {
 		assert(fScintMaterial != NULL);
 		fScintLogical->SetMaterial(fScintMaterial);
 		G4RunManager::GetRunManager()->PhysicsHasBeenModified();
@@ -2274,40 +2431,13 @@ G4double MTCG4DetectorConstruction::GetEJ254Density
 (G4double dopingFraction) const
 {
 	G4double ej254Density = 0;
-	if(dopingFraction < 2.5*perCent)
+	if (dopingFraction < 2.5*perCent)
 		ej254Density =
 			( (1.023 - 1.021)/(2.5*perCent - 1.*perCent) *
 				(dopingFraction	- 2.5*perCent) + 1.023) * g/cm3;
- 	else if(dopingFraction >= 2.5*perCent)
+ 	else if (dopingFraction >= 2.5*perCent)
 		ej254Density =
 			( (1.026 - 1.023)/(5.*perCent - 2.5*perCent) *
 				(dopingFraction	- 2.5*perCent) + 1.023) * g/cm3;
  	return ej254Density;
-}
-
-// Set doping dependent fractional content of Anthracene
-// according to extrapolation of EJ254 data sheet by Eljen Technology.
-G4double MTCG4DetectorConstruction::GetAnthraceneFraction
-(G4double dopingFraction) const
-{
-	G4double anthraceneFraction = 0;
-	if(dopingFraction < 2.5*perCent)
-		anthraceneFraction =
-			(.56 - .60)/(2.5*perCent - 1.*perCent)*
-			(dopingFraction - 2.5*perCent)
-			+ .56;
-	else
-		anthraceneFraction =
-			(.48 - .56)/(5.*perCent - 2.5*perCent)*
-		   	(dopingFraction - 2.5*perCent)
-			+ .56;
- 	return anthraceneFraction;
-}
-
-G4double MTCG4DetectorConstruction::GetPolyvinyltolueneFraction
-(G4double dopingFraction, G4double anthraceneFraction) const
-{
-	G4double polyvinyltolueneFraction = 0;
-	polyvinyltolueneFraction = 1. - dopingFraction - anthraceneFraction;
-	return polyvinyltolueneFraction;
 }

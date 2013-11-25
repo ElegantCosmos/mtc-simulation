@@ -85,32 +85,36 @@ void MTCG4HitPmt::DetectPhoton(MTCG4HitPhoton* new_photon) {
 		it2= lower_bound(fPhotons.begin(), fPhotons.end(), new_photon,
 				Compare_HitPhotonPtr_TimeAscending);
 		it1= it2;
-		if ( it1 == fPhotons.begin() ) {
+		if ( it1 == fPhotons.begin() ) { // New photon time <= it1 == it2.
 			// photon is earlier than any recorded so far -- always insert!
 			fPhotons.insert(it1, new_photon);
 		}
 		else {
-			it1--; // it1 photon should be earlier than photon to be added
-			if ( (new_photon->GetTime() - (*it1)->GetTime() < kMergeTime)
-					// Added extra condition for anode row and column to be same for
-					// merging photon hits. --Mich
-					&& (new_photon->GetAnodeRow() == (*it1)->GetAnodeRow())
-					&& (new_photon->GetAnodeColumn() == (*it1)->GetAnodeColumn()) ) {
+			it1--; // it1 < new photon time <= it2. it2 could be iterator end.
+			if ( (new_photon->GetTime() - (*it1)->GetTime() < kMergeTime) &&
+					// Added extra condition for anode row and column to be same
+					// for merging photon hits. --Mich
+					(new_photon->GetAnodeRow() == (*it1)->GetAnodeRow()) &&
+					(new_photon->GetAnodeColumn() == (*it1)->GetAnodeColumn()) )
+			{
 				// close to earlier photon -- merge with earlier photon
 				IFDEBUG(if (new_photon->GetTime() - (*it1)->GetTime() < 0.0) G4cerr << "MTCG4HitPmt STRANGE merge " << new_photon->GetTime() << " with non-earlier photon " << (*it1)->GetTime() << G4endl );
 				(*it1)->AddCount( new_photon->GetCount() );
+				(*it1)->AddKineticEnergy( new_photon->GetKineticEnergy() );
 				delete new_photon;
 				new_photon= 0;
 			}
-			else if ( it2 != fPhotons.end()
-					&& (*it2)->GetTime() - new_photon->GetTime() < kMergeTime
-					// Added extra condition for anode row and column to be same for
-					// merging photon hits. -- Mich
-					&& ((*it2)->GetAnodeRow() == new_photon->GetAnodeRow())
-					&& ((*it2)->GetAnodeColumn() == new_photon->GetAnodeColumn()) ) {
+			else if ( it2 != fPhotons.end() &&
+					((*it2)->GetTime() - new_photon->GetTime() < kMergeTime) &&
+					// Added extra condition for anode row and column to be same
+					// for merging photon hits. -- Mich
+					((*it2)->GetAnodeRow() == new_photon->GetAnodeRow()) &&
+					((*it2)->GetAnodeColumn() == new_photon->GetAnodeColumn()) )
+			{
 				// not after last photon, and close to later photon
 				IFDEBUG(if ((*it2)->GetTime() - new_photon->GetTime() < 0.0) G4cerr << "MTCG4HitPmt STRANGE merge " << new_photon->GetTime() << " with non-later photon " << (*it2)->GetTime() << G4endl);
 				(*it2)->AddCount( new_photon->GetCount() );
+				(*it2)->AddKineticEnergy( new_photon->GetKineticEnergy() );
 				(*it2)->SetTime( new_photon->GetTime() );
 				delete new_photon;
 				new_photon= 0;

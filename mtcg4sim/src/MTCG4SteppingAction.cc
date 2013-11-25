@@ -51,7 +51,7 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 	//G4ParticleDefinition* particleDefinition = theTrack->GetDefinition();
 	G4VPhysicalVolume* postStepPointPhysicalVolume =
 		theStep->GetPostStepPoint()->GetPhysicalVolume();
-	if(!postStepPointPhysicalVolume){
+	if (!postStepPointPhysicalVolume) {
 		// If the post-step point is not available,
 		// the particle is out of the world volume.
 		// Do not do anything with it and just return.
@@ -59,24 +59,26 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 		return;
 	}
 	
-	if(fOutputOnlyFirstNEvents >= 0) // Do output for only first n events.
-		if(G4EventManager::GetEventManager()-> GetConstCurrentEvent() ->
+	if (fOutputOnlyFirstNEvents >= 0) // Do output for only first n events.
+		if (G4EventManager::GetEventManager()-> GetConstCurrentEvent() ->
 				GetEventID() >= fOutputOnlyFirstNEvents)
 			return;
 
 	DoStepOutputToRootFile(theStep);
 	//DoStepOutputToTextFile(theStep);
+
+	fPhotonDetectedAtEndOfStep = false; // Reset photon detection flag.
 }
 
 // Optical Photon and Gamma Detection postStepProcess at Sensitive Pixel //
 //
-//void MTCG4SteppingAction::DetectPhotonOfSteppingAction(const G4Step* theStep, G4String& _boundary_status_name, G4String& isBetweenScintillatorAndSensitivePixel){
+//void MTCG4SteppingAction::DetectPhotonOfSteppingAction(const G4Step* theStep, G4String& _boundary_status_name, G4String& isBetweenScintillatorAndSensitivePixel) {
 //	G4StepPoint* preStepPoint = theStep->GetPreStepPoint();
 //	G4VPhysicalVolume* preStepPointPhysicalVolume = preStepPoint->GetPhysicalVolume();
 //	G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
 //	G4VPhysicalVolume* postStepPointPhysicalVolume = postStepPoint->GetPhysicalVolume();
 //	G4ParticleDefinition* particleDefinition = theStep->GetTrack()->GetDefinition();
-//	if(particleDefinition == G4OpticalPhoton::OpticalPhotonDefinition() || particleDefinition == G4Gamma::GammaDefinition()){ // If the particle is an optical photon or a gamma, we want it to go through the detection postStepProcess at the surface of the sensitive pixel geometry.
+//	if (particleDefinition == G4OpticalPhoton::OpticalPhotonDefinition() || particleDefinition == G4Gamma::GammaDefinition()) { // If the particle is an optical photon or a gamma, we want it to go through the detection postStepProcess at the surface of the sensitive pixel geometry.
 //		G4String preStepPointPhysicalVolumeName = preStepPointPhysicalVolume->GetName(); // Get the names of the volumes.
 //		G4String postStepPointPhysicalVolumeName = postStepPointPhysicalVolume->GetName();
 //		// If the particle is at a boundary between two geometries, the pre-step
@@ -87,24 +89,24 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 //				preStepPointPhysicalVolumeName << G4endl;
 //			G4cout << "postStepPointPhysicalVolumeName = " <<
 //				postStepPointPhysicalVolumeName << G4endl;
-//		if(postStepPoint->GetStepStatus() == fGeomBoundary &&
-//				postStepPointPhysicalVolumeName == "photocathode_physical"){
+//		if (postStepPoint->GetStepStatus() == fGeomBoundary &&
+//				postStepPointPhysicalVolumeName == "photocathode_physical") {
 //			G4String particleName = particleDefinition->GetParticleName();
 //			//G4cout << particleName << " is at the boundary between scintillator and pixel.\n";
 //			isBetweenScintillatorAndSensitivePixel = "betweenScintillatorAndPixel";
-//			if((dynamic_cast<MTCG4DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction()))->GetOpticalSurfaceProperties()
-//					== true){
+//			if ((dynamic_cast<MTCG4DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction()))->GetOpticalSurfaceProperties()
+//					== true) {
 //				G4OpBoundaryProcessStatus boundaryStatus = Undefined;
 //				G4OpBoundaryProcess* boundary = NULL;
-//				if(!boundary){
+//				if (!boundary) {
 //					G4ProcessManager* pm 
 //						= theStep->GetTrack()->GetDefinition()->GetProcessManager();
 //					G4int nprocesses = pm->GetProcessListLength();
 //					G4ProcessVector* pv = pm->GetProcessList(); // Get a pointer to the list of processes available for this particle.
 //					//G4cout << "postStepProcess Manager instantiated.\n"; // Of debugging.
 //					G4int i;
-//					for(i = 0; i < nprocesses; i++){
-//						if((*pv)[i]->GetProcessName() == "OpBoundary"){ // If the optical boundary postStepProcess is found in the list of available processes, set it to boundaryStatus.
+//					for(i = 0; i < nprocesses; i++) {
+//						if ((*pv)[i]->GetProcessName() == "OpBoundary") { // If the optical boundary postStepProcess is found in the list of available processes, set it to boundaryStatus.
 //							//G4cout << "boundary postStepProcess found!\n";
 //							boundary = (G4OpBoundaryProcess*)(*pv)[i];
 //							boundaryStatus = boundary->GetStatus();
@@ -113,7 +115,7 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 //						}
 //					}
 //				}
-//				switch(boundaryStatus){ // Depending on the status of the particle at the geometrical boundary, the particle will be handled differently.
+//				switch(boundaryStatus) { // Depending on the status of the particle at the geometrical boundary, the particle will be handled differently.
 //					case Absorption:
 //						//G4cout << particleName << " is absorbed by sensitive pixel!\n";
 //						_boundary_status_name = "absorbedByPixel";
@@ -128,7 +130,7 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 //							G4String sdName = "/MTCG4Photocathode/MTCG4PmtSD";
 //							MTCG4PmtSD* pmtSD = (MTCG4PmtSD*)SDman
 //								->FindSensitiveDetector(sdName);
-//							if(pmtSD)
+//							if (pmtSD)
 //								pmtSD->ProcessHits_constStep(theStep, NULL);
 //							//			MTCG4PmtSD* pmtSD = new MTCG4PmtSD(sdName);
 //							//			SDman->AddNewDetector(pmtSD);
@@ -158,13 +160,13 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 //						break;
 //				}
 //			}
-//			else{
+//			else {
 //				G4Track* theTrack = theStep->GetTrack();
 //				// Manual Photon Detection postStepProcess Not Using Quantum Efficiency Feature Provided By Geant //
 //				//G4double photonEnergy = postStepPoint->GetTotalEnergy();
 //				const G4double quantumEfficiency = CONSTANT_QUANTUM_EFFICIENCY;
 //				G4double randomFlat = G4UniformRand();
-//				if(randomFlat > quantumEfficiency){
+//				if (randomFlat > quantumEfficiency) {
 //					//G4cout << particleName << " is not detected by sensitive pixel due to quantum efficiency.\n";
 //					theTrack->SetTrackStatus(fStopAndKill);
 //					//G4cout << "Killed " << particleName << ".\n";
@@ -175,7 +177,7 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 //				G4String sdName="/MTCG4Photocathode/MTCG4PmtSD";
 //				MTCG4PmtSD* pmtSD = (MTCG4PmtSD*)SDman
 //					->FindSensitiveDetector(sdName);
-//				if(pmtSD)
+//				if (pmtSD)
 //					pmtSD->ProcessHits_constStep(theStep, NULL);
 //				theTrack->SetTrackStatus(fStopAndKill);
 //				//G4cout << "Killed " << particleName << ".\n";
@@ -191,7 +193,7 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step* theStep)
 //
 // Do output for all events.
 //
-void MTCG4SteppingAction::DoStepOutputToTextFile(const G4Step* theStep){
+void MTCG4SteppingAction::DoStepOutputToTextFile(const G4Step* theStep) {
 	const G4Event* theEvent = G4EventManager::GetEventManager() -> GetConstCurrentEvent();
 	G4Track* theTrack = theStep->GetTrack();
 	G4StepPoint* preStepPoint = theStep->GetPreStepPoint();
@@ -239,24 +241,24 @@ void MTCG4SteppingAction::DoStepOutputToTextFile(const G4Step* theStep){
 	G4double	stepLength = theStep->GetStepLength()/mm;
 	G4double	trackLength = theTrack->GetTrackLength()/mm;
 	G4String creatorProcessName;
-	if(theTrack->GetParentID() > 0){
+	if (theTrack->GetParentID() > 0) {
 		creatorProcessName =
 			/*const_cast<char*>(*/theTrack->GetCreatorProcess()->GetProcessName()/*.c_str())*/;
 	}
-	else{
+	else {
 		//strcpy(creatorProcessName, "primaryParticle");
 		creatorProcessName = "primaryParticle";
 	}
 	G4String processName;
 	G4int processType;
 	G4int processSubType;
-	if(postStepProcess != NULL){
+	if (postStepProcess != NULL) {
 		processName =
 			/*const_cast<char*>(*/postStepProcess->GetProcessName()/*.c_str())*/;
 		processType = postStepProcess->GetProcessType();
 		processSubType = postStepProcess->GetProcessSubType();
 	}
-	else{
+	else {
 		//strcpy(processName, "nullProcess");
 		processName = "nullProcess";
 		processType = -100;
@@ -265,7 +267,7 @@ void MTCG4SteppingAction::DoStepOutputToTextFile(const G4Step* theStep){
 	G4int trackStatus = theTrack->GetTrackStatus();
 	G4bool postStepPointInDetector;
 	// Find if the post step point ended in the scintillator volume.
-	if(postStepPointPhysicalVolumeName == "scint_physical")
+	if (postStepPointPhysicalVolumeName == "scint_physical")
 		postStepPointInDetector = true;
 	else
 		postStepPointInDetector = false;
@@ -302,10 +304,11 @@ void MTCG4SteppingAction::DoStepOutputToTextFile(const G4Step* theStep){
 	fText->SetProcessSubType(processSubType);
 	fText->SetTrackStatus(trackStatus);
 	fText->SetPostStepPointInDetector(postStepPointInDetector);
+	fText->SetPhotonDetectedAtEndOfStep(fPhotonDetectedAtEndOfStep);
 	fText->Write();
 }
 
-void MTCG4SteppingAction::DoStepOutputToRootFile(const G4Step* theStep){
+void MTCG4SteppingAction::DoStepOutputToRootFile(const G4Step* theStep) {
 	const G4Event* theEvent = G4EventManager::GetEventManager() -> GetConstCurrentEvent();
 	G4Track* theTrack = theStep->GetTrack();
 	G4StepPoint* preStepPoint = theStep->GetPreStepPoint();
@@ -353,24 +356,24 @@ void MTCG4SteppingAction::DoStepOutputToRootFile(const G4Step* theStep){
 	G4double	stepLength = theStep->GetStepLength()/mm;
 	G4double	trackLength = theTrack->GetTrackLength()/mm;
 	G4String creatorProcessName;
-	if(theTrack->GetParentID() > 0){
+	if (theTrack->GetParentID() > 0) {
 		creatorProcessName =
 			/*const_cast<char*>(*/theTrack->GetCreatorProcess()->GetProcessName()/*.c_str())*/;
 	}
-	else{
+	else {
 		//strcpy(creatorProcessName, "primaryParticle");
 		creatorProcessName = "primaryParticle";
 	}
 	G4String processName;
 	G4int processType;
 	G4int processSubType;
-	if(postStepProcess != NULL){
+	if (postStepProcess != NULL) {
 		processName =
 			/*const_cast<char*>(*/postStepProcess->GetProcessName()/*.c_str())*/;
 		processType = postStepProcess->GetProcessType();
 		processSubType = postStepProcess->GetProcessSubType();
 	}
-	else{
+	else {
 		//strcpy(processName, "nullProcess");
 		processName = "nullProcess";
 		processType = -100;
@@ -379,10 +382,12 @@ void MTCG4SteppingAction::DoStepOutputToRootFile(const G4Step* theStep){
 	G4int trackStatus = theTrack->GetTrackStatus();
 	G4bool postStepPointInDetector;
 	// Find if the post step point ended in the scintillator volume.
-	if(postStepPointPhysicalVolumeName == "scint_physical")
+	if (postStepPointPhysicalVolumeName == "scint_physical") {
 		postStepPointInDetector = true;
-	else
+	}
+	else {
 		postStepPointInDetector = false;
+	}
 
 	//// Fill TTree.
 	StepRootIO* fRoot = StepRootIO::GetInstance();
@@ -416,5 +421,6 @@ void MTCG4SteppingAction::DoStepOutputToRootFile(const G4Step* theStep){
 	fRoot->SetProcessSubType(processSubType);
 	fRoot->SetTrackStatus(trackStatus);
 	fRoot->SetPostStepPointInDetector(postStepPointInDetector);
+	fRoot->SetPhotonDetectedAtEndOfStep(fPhotonDetectedAtEndOfStep);
 	fRoot->Fill();
 }

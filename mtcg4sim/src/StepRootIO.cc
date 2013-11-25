@@ -71,7 +71,8 @@ StepRootIO::StepRootIO() :
 	fProcessType(-1),
 	fProcessSubType(-1),
 	fTrackStatus(-1),
-	fPostStepPointInDetector(false)
+	fPostStepPointInDetector(false),
+	fPhotonDetectedAtEndOfStep(false)
 {
 	fHe8WasFound = false;
 	fLi9WasFound = false;
@@ -167,6 +168,8 @@ void StepRootIO::SetTreeBranches()
 	fStepTree->Branch("trackStatus", &fTrackStatus, "fTrackStatus/I");
 	fStepTree->Branch("postStepPointInDetector", &fPostStepPointInDetector,
 			"fPostStepPointInDetector/O");
+	fStepTree->Branch("photonDetectedAtEndOfStep", &fPhotonDetectedAtEndOfStep,
+			"fPhotonDetectedAtEndOfStep/O");
 }
 
 void StepRootIO::Fill()
@@ -178,7 +181,8 @@ void StepRootIO::Fill()
 
 void StepRootIO::Write()
 {
-	if (fLi9WasFound || fHe8WasFound) { // Write event if 8He/9Li was found.
+	if (true) { // Write event always.
+	//if (fLi9WasFound || fHe8WasFound) { // Write event if 8He/9Li was found.
 		struct stat buffer;
 		if ( stat(fFileName.c_str(), &buffer) ) // If output file doesn't exist.
 			fRootFile = new TFile(fFileName.c_str(), "RECREATE");

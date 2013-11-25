@@ -61,9 +61,12 @@ public:
 	inline void SetEventID(G4int val) { fEventID = val; }
 	inline G4int GetEventID() const { return fEventID; }
 	inline void SetNuKineticEnergy(G4double val) { fNuKineticEnergy = val; }
-	inline void SetNuMomentumUnitVectorX(G4double val) { fNuMomentumUnitVectorX = val; }
-	inline void SetNuMomentumUnitVectorY(G4double val) { fNuMomentumUnitVectorY = val; }
-	inline void SetNuMomentumUnitVectorZ(G4double val) { fNuMomentumUnitVectorZ = val; }
+	inline void SetNuMomentumUnitVectorX(G4double val)
+		{ fNuMomentumUnitVectorX = val; }
+	inline void SetNuMomentumUnitVectorY(G4double val)
+		{ fNuMomentumUnitVectorY = val; }
+	inline void SetNuMomentumUnitVectorZ(G4double val)
+		{ fNuMomentumUnitVectorZ = val; }
 	inline void SetStepID(G4int val) { fStepID = val; }
 	inline void SetParticleName(G4String/*char**/ val)
 		{ strcpy(fParticleName, val.c_str()); }
@@ -77,10 +80,14 @@ public:
 	inline void SetPostStepPositionY(G4double val) { fPostStepPositionY = val; }
 	inline void SetPostStepPositionZ(G4double val) { fPostStepPositionZ = val; }
 	inline void SetPreStepGlobalTime(G4double val) { fPreStepGlobalTime = val; }
-	inline void SetPostStepGlobalTime(G4double val) { fPostStepGlobalTime = val; }
-	inline void SetPreStepKineticEnergy(G4double val) { fPreStepKineticEnergy = val; }
-	inline void SetPostStepKineticEnergy(G4double val) { fPostStepKineticEnergy = val; }
-	inline void SetTotalEnergyDeposit(G4double val) { fTotalEnergyDeposit = val; }
+	inline void SetPostStepGlobalTime(G4double val)
+		{ fPostStepGlobalTime = val; }
+	inline void SetPreStepKineticEnergy(G4double val)
+		{ fPreStepKineticEnergy = val; }
+	inline void SetPostStepKineticEnergy(G4double val)
+		{ fPostStepKineticEnergy = val; }
+	inline void SetTotalEnergyDeposit(G4double val)
+		{ fTotalEnergyDeposit = val; }
 	inline void SetStepLength(G4double val) { fStepLength = val; }
 	inline void SetTrackLength(G4double val) { fTrackLength = val; }
 	inline void SetCreatorProcessName(G4String/*char**/ val)
@@ -90,7 +97,10 @@ public:
 	inline void SetProcessType(G4int val) { fProcessType = val; }
 	inline void SetProcessSubType(G4int val) { fProcessSubType = val; }
 	inline void SetTrackStatus(G4int val) { fTrackStatus = val; }
-	inline void SetPostStepPointInDetector(G4bool val) { fPostStepPointInDetector = val; }
+	inline void SetPostStepPointInDetector(G4bool val)
+		{ fPostStepPointInDetector = val; }
+	inline void SetPhotonDetectedAtEndOfStep(G4bool val)
+		{ fPhotonDetectedAtEndOfStep = val; }
 
 protected:
 	StepRootIO(); 
@@ -141,5 +151,6 @@ private:
 	int		fProcessSubType;
 	int		fTrackStatus;
 	bool	fPostStepPointInDetector;
+	bool	fPhotonDetectedAtEndOfStep;
 };
 #endif // INCLUDE_STEP_ROOT_IO_HH

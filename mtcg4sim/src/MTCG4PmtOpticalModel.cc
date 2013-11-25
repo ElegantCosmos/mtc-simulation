@@ -10,8 +10,6 @@
     @author Dario Motta, Feb. 23 2005: Formalism light interaction with photocathode.
 */
 
-#include <CLHEP/Units/SystemOfUnits.h>
-
 //#include "local_g4compat.hh"
 #include "G4RunManager.hh"
 #include "G4GeometryTolerance.hh"
@@ -29,6 +27,7 @@
 #include "MTCG4PmtOpticalModel.hh"
 #include "MTCG4PmtSD.hh"
 #include "MTCG4DetectorConstruction.hh"
+#include "MTCG4SteppingAction.hh"
 
 
 G4UIdirectory* MTCG4PmtOpticalModel::fgCmdDir = NULL;
@@ -563,10 +562,16 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 		G4double mean_N_pe = weight*A*collection_eff;
 		G4double ranno_absorb = G4UniformRand();
 		G4int N_pe = (G4int)( mean_N_pe + (1.0-ranno_absorb) );
-		if (N_pe > 0) {
+		if (N_pe > 0) { // Photon creates PEs.
 			//G4cout << "N_pe > 0" << G4endl;
 			//G4cout << "detector = " << detector << G4endl;
 			//G4cout << "detector->isActive() = " << detector->isActive() << G4endl;
+
+			// Set flag to indicate photon was detected to user step.
+			((MTCG4SteppingAction*)
+					G4RunManager::GetRunManager()->GetUserSteppingAction())->
+				SetPhotonDetectedAtEndOfStep(true);
+
 			if ( detector != NULL && detector->isActive() ) {
 				// Get pixel row/column ID number.
 				G4double row_id = static_cast<G4int>(
@@ -575,7 +580,7 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 				G4double column_id = static_cast<G4int>(
 						(0.5*fPhotocathodeFaceDimension + pos.x()) /
 						fPixelPitch); // Column ID increases with X of hit pos.
-				row_id++; column_id++;
+				row_id++; column_id++; // Make sure row/column are 1~8.
 
 				//G4cout << "ipmt = " << ipmt << G4endl;
 				//G4cout << "row_id = " << row_id << G4endl;

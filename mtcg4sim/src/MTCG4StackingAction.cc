@@ -145,14 +145,14 @@ MTCG4StackingAction::ClassifyNewTrack(const G4Track* aTrack)
 		switch(stage)
 		{
 			case 0:
-				//classification = fUrgent;
+				classification = fUrgent;
 				//classification = fWaiting;
-				classification = fKill;
+				//classification = fKill;
 				break;
 
 			default:
-				//classification = fUrgent;
-				classification = fKill;
+				classification = fUrgent;
+				//classification = fKill;
 				//G4int parentID = aTrack->GetParentID();
 				//// As long as particle is a secondary particle.
 				//while(parentID > 0)

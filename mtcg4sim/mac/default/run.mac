@@ -36,7 +36,7 @@
 /physics_engine/tailor/GammaNuclear on
 /physics_engine/tailor/SyncRadiation off
 /physics_engine/neutron/energyLimit 0. eV
-/physics_engine/neutron/timeLimit 1. s
+/physics_engine/neutron/timeLimit 100. s
 
 ######################################################################
 # Commands to change output settings of output file containing particle
@@ -103,7 +103,7 @@
 ######################################################################
 
 # Set flag to shoot particle gun.
-/gun/shootParticleGun true
+/gun/shootParticleGun false
 # Settings for particle.
 #/gun/particle e+
 /gun/particle mu-
@@ -134,7 +134,7 @@
 ######################################################################
 
 # Set flag to shoot cosmic ray muon.
-/gun/shootCosmicRayMuon false
+/gun/shootCosmicRayMuon true
 
 ######################################################################
 # Commands to use the General Particle Source commands.

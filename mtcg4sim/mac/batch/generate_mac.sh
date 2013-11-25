@@ -8,8 +8,8 @@
 # -- Mich 2013/02/01 --
 
 ###### User variables #######
-TRUNK_DIR=/home/mich/research/mtc/mtc-sim/mtcg4sim/trunk
-WORK_DIR=$TRUNK_DIR/../trunk-build
+TRUNK_DIR=/home/mich/research/mtc/mtc-sim/mtcg4sim
+WORK_DIR=$TRUNK_DIR/../mtcg4sim-build
 MAC_DIR=$WORK_DIR/mac/batch
 N_RUNS=100
 #############################
