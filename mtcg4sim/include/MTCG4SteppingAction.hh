@@ -30,9 +30,9 @@
 #include "globals.hh"
 #include "G4UserSteppingAction.hh"
 
-class TFile;
-class TTree;
 class MTCG4SteppingMessenger;
+class StepTextIO;
+class StepRootIO;
 
 class MTCG4SteppingAction : public G4UserSteppingAction
 {
@@ -43,21 +43,28 @@ public:
 public:
 	void UserSteppingAction(const G4Step*);
 	//void DetectPhotonOfSteppingAction(const G4Step*, G4String&, G4String&);
-	void DoStepOutputToTextFile(const G4Step*);
-	void DoStepOutputToRootFile(const G4Step*);
 	void SetOutputOnlyFirstNEvents(G4int n)
 		{ fOutputOnlyFirstNEvents = n; }
 	inline G4int GetOutputOnlyFirstNEvents() const
 		{ return fOutputOnlyFirstNEvents; }
 	inline void SetPhotonDetectedAtEndOfStep(G4bool flag)
 		{ fPhotonDetectedAtEndOfStep = flag; }
+	G4bool GetPhotonDetectedAtEndOfStep()
+		{ return fPhotonDetectedAtEndOfStep; }
+
+private:
+	void DoStepOutputToTextFile(const G4Step*);
+	void DoStepOutputToRootFile(const G4Step*);
 
 private:
 	G4int	fOutputOnlyFirstNEvents;
 	G4bool	fPhotonDetectedAtEndOfStep;
 
 private:
-	MTCG4SteppingMessenger* fMessenger;
+	MTCG4SteppingMessenger*	fMessenger;
+
+	StepTextIO*				fStepOutToText;
+	StepRootIO*				fStepOutToRoot;
 };
 
 #endif

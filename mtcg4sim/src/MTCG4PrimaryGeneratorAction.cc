@@ -429,23 +429,27 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		// 0.5*d(rho^2)*d(phi). So sampling uniformly and randomly over [0, 1]
 		// for rho^2 is what we want to do. Then we can take the sqrt to find
 		// rho. Phi can be sampled as is over [0, 2pi].
-		const G4double muonInitPosRho =
-			0.5*sqrt(
-					scintDimensionX*scintDimensionX +
-					scintDimensionY*scintDimensionY +
-					scintDimensionZ*scintDimensionZ)*
-			sqrt(G4UniformRand());
-		const G4double muonInitPosPhi = twopi*G4UniformRand()*rad;
+		const G4double muonInitPosRho = 0.;
+		//const G4double muonInitPosRho =
+		//	0.5*sqrt(
+		//			scintDimensionX*scintDimensionX +
+		//			scintDimensionY*scintDimensionY +
+		//			scintDimensionZ*scintDimensionZ)*
+		//	sqrt(G4UniformRand());
+		//const G4double muonInitPosPhi = twopi*G4UniformRand()*rad;
+		const G4double muonInitPosPhi = 0*rad;
 		const G4double muonInitPosZ = // Initial muon Z coordinate.
 			fabs(2*scintDimensionZ);
 		muonInitPos = G4ThreeVector( // Muon initial vertex.
-				muonInitPosRho*sin(muonInitPosPhi/rad),
 				muonInitPosRho*cos(muonInitPosPhi/rad),
+				muonInitPosRho*sin(muonInitPosPhi/rad),
 				muonInitPosZ);
 		G4cout << "muonInitPos before rotation: " << muonInitPos << G4endl;
 		G4double muonMomAnglePhi = 0*rad, // Muon momentum angles.
 				 muonMomAngleTheta = 0*rad;
 		GetMuonMomentumAngles(muonMomAngleTheta, muonMomAnglePhi);
+		muonMomAnglePhi = 5*pi/4*rad;
+		muonMomAngleTheta = 3/4.*pi*rad;
 		G4cout << "muonMomAnglePhi: " << muonMomAnglePhi << G4endl;
 		G4cout << "muonMomAngleTheta: " << muonMomAngleTheta << G4endl;
 
@@ -455,8 +459,8 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		// so we can save computing time. The disk will be placed on the
 		// opposite side of the muon momentum direction wrt the center of the
 		// cube.
-		muonInitPos.rotateY(pi - muonMomAngleTheta/rad);
-		muonInitPos.rotateZ(pi + muonMomAnglePhi/rad);
+		muonInitPos.setTheta(pi - muonMomAngleTheta/rad);
+		muonInitPos.setPhi(pi + muonMomAnglePhi/rad);
 		G4cout << "muonInitPos after rotation: " << muonInitPos << G4endl;
 
 		// Muon momentum direction.
@@ -471,9 +475,8 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		muonMomentumDir = G4ThreeVector(0, 0, -1);
 	}
 	else {
-		// Set default behavior to be same as above. Fix later.
-		muonInitPos = G4ThreeVector(0*mm, 0*mm, 2*scintDimensionZ);
-		muonMomentumDir = G4ThreeVector(0, 0, -1);
+		G4Exception("MTCG4PrimaryGeneratorAction.cc", "1", FatalErrorInArgument,
+				"fCosmicRayMuonDirectionDescription was not recognized.");
 	}
 
 	// Get muon kinetic energy.

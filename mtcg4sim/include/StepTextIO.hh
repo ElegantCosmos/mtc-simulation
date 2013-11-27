@@ -43,6 +43,8 @@
 /// Root IO implementation for the persistency example
 class TFile;
 class TTree;
+class G4Track;
+class G4Step;
 
 class StepTextIO 
 {
@@ -51,53 +53,13 @@ public:
 
 	static void CreateInstance(G4String fileName);
 	static void ResetInstance();
-	static StepTextIO* GetInstance();
+	static StepTextIO *GetInstance();
+	// We include both track and step pointers here as input so that we can tell
+	// if current step number is 0 or not, i.e. if the particle is being tracked
+	// yet or not.
+	void Fill(const G4Track *theTrack, const G4Step *theStep);
 	void Write();
 	void Close();
-	inline void SetFileName(G4String name)
-	{ fFileName = name; }
-
-	inline void SetRunID(G4int val) { fRunID = val; }
-	inline void SetEventID(G4int val) { fEventID = val; }
-	inline void SetNuKineticEnergy(G4double val) { fNuKineticEnergy = val; }
-	inline void SetNuMomentumUnitVectorX(G4double val)
-		{ fNuMomentumUnitVectorX = val; }
-	inline void SetNuMomentumUnitVectorY(G4double val)
-		{ fNuMomentumUnitVectorY = val; }
-	inline void SetNuMomentumUnitVectorZ(G4double val)
-		{ fNuMomentumUnitVectorZ = val; }
-	inline void SetStepID(G4int val) { fStepID = val; }
-	inline void SetParticleName(G4String/*char**/ val) { fParticleName = val; }
-	inline void SetPdgEncoding(G4int val) { fPdgEncoding = val; }
-	inline void SetTrackID(G4int val) { fTrackID = val; }
-	inline void SetParentID(G4int val) { fParentID = val; }
-	inline void SetPreStepPositionX(G4double val) { fPreStepPositionX = val; }
-	inline void SetPreStepPositionY(G4double val) { fPreStepPositionY = val; }
-	inline void SetPreStepPositionZ(G4double val) { fPreStepPositionZ = val; }
-	inline void SetPostStepPositionX(G4double val) { fPostStepPositionX = val; }
-	inline void SetPostStepPositionY(G4double val) { fPostStepPositionY = val; }
-	inline void SetPostStepPositionZ(G4double val) { fPostStepPositionZ = val; }
-	inline void SetPreStepGlobalTime(G4double val) { fPreStepGlobalTime = val; }
-	inline void SetPostStepGlobalTime(G4double val)
-		{ fPostStepGlobalTime = val; }
-	inline void SetPreStepKineticEnergy(G4double val)
-		{ fPreStepKineticEnergy = val; }
-	inline void SetPostStepKineticEnergy(G4double val)
-		{ fPostStepKineticEnergy = val; }
-	inline void SetTotalEnergyDeposit(G4double val)
-		{ fTotalEnergyDeposit = val; }
-	inline void SetStepLength(G4double val) { fStepLength = val; }
-	inline void SetTrackLength(G4double val) { fTrackLength = val; }
-	inline void SetCreatorProcessName(G4String/*char**/ val)
-		{ fCreatorProcessName = val; }
-	inline void SetProcessName(G4String/*char**/ val) { fProcessName = val; }
-	inline void SetProcessType(G4int val) { fProcessType = val; }
-	inline void SetProcessSubType(G4int val) { fProcessSubType = val; }
-	inline void SetTrackStatus(G4int val) { fTrackStatus = val; }
-	inline void SetPostStepPointInDetector(G4bool val)
-		{ fPostStepPointInDetector = val; }
-	inline void SetPhotonDetectedAtEndOfStep(G4bool val)
-		{ fPhotonDetectedAtEndOfStep = val; }
 
 protected:
 	StepTextIO(); 
@@ -117,33 +79,30 @@ private:
 	G4int		fRunID;
 	G4int       fEventID;
 	G4double    fNuKineticEnergy;
-	G4double    fNuMomentumUnitVectorX;
-	G4double    fNuMomentumUnitVectorY;
-	G4double    fNuMomentumUnitVectorZ;
+	G4double    fNuMomUnitVectorX;
+	G4double    fNuMomUnitVectorY;
+	G4double    fNuMomUnitVectorZ;
 	G4int       fStepID;
-	G4String/*char**/       fParticleName;
+	G4String	fParticleName;
 	G4int       fPdgEncoding;
 	G4int       fTrackID;
 	G4int       fParentID;
-	G4double    fPreStepPositionX;
-	G4double    fPreStepPositionY;
-	G4double    fPreStepPositionZ;
-	G4double    fPostStepPositionX;
-	G4double    fPostStepPositionY;
-	G4double    fPostStepPositionZ;
-	G4double    fPreStepGlobalTime;
+	G4double    fPostStepPosX;
+	G4double    fPostStepPosY;
+	G4double    fPostStepPosZ;
+	G4double	fPostStepMomX;
+	G4double	fPostStepMomY;
+	G4double	fPostStepMomZ;
 	G4double    fPostStepGlobalTime;
-	G4double    fPreStepKineticEnergy;
 	G4double    fPostStepKineticEnergy;
 	G4double    fTotalEnergyDeposit;
 	G4double    fStepLength;
 	G4double    fTrackLength;
-	G4String/*char**/       fCreatorProcessName;
-	G4String/*char**/       fProcessName;
+	G4String	fProcessName;
 	G4int       fProcessType;
 	G4int       fProcessSubType;
 	G4int       fTrackStatus;
-	G4bool      fPostStepPointInDetector;
+	G4String	fPostStepPhysVolumeName;
 	G4bool		fPhotonDetectedAtEndOfStep;
 };
 #endif // INCLUDE_ROOTIO_HH

@@ -1741,13 +1741,13 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 			scintSlow_EJ254, N_SPEC_POINTS_SCINT);
 	EJ254_MPT->AddProperty("RINDEX", photonEnergies_RIndex, rIndices,
 			N_SPEC_POINTS_RINDEX);
-	//EJ254_MPT->AddProperty("ABSLENGTH", photonEnergies_AbsLength,
-	//		absLengths_EJ254, N_SPEC_POINTS_ABS); // Now using WLSABSLENGTH.
-	EJ254_MPT->AddProperty("WLSABSLENGTH", photonEnergies_AbsLength,
-			absLengths_EJ254, N_SPEC_POINTS_ABS);
-	EJ254_MPT->AddProperty("WLSCOMPONENT", photonEnergies_Scint,
-			reemission_EJ254, N_SPEC_POINTS_SCINT);
-	EJ254_MPT->AddConstProperty("WLSTIMECONSTANT", 0.0*ns); // No WLS delay.
+	EJ254_MPT->AddProperty("ABSLENGTH", photonEnergies_AbsLength,
+			absLengths_EJ254, N_SPEC_POINTS_ABS); // Now using WLSABSLENGTH.
+	//EJ254_MPT->AddProperty("WLSABSLENGTH", photonEnergies_AbsLength,
+	//		absLengths_EJ254, N_SPEC_POINTS_ABS);
+	//EJ254_MPT->AddProperty("WLSCOMPONENT", photonEnergies_Scint,
+	//		reemission_EJ254, N_SPEC_POINTS_SCINT);
+	//EJ254_MPT->AddConstProperty("WLSTIMECONSTANT", 0.0*ns); // No WLS delay.
 	// The following scintillation yield numbers are taken from the
 	// EJ254 data sheet for the case of Boron
 	// doping only. We will have to use these numbers for now until we can find

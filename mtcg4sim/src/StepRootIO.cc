@@ -32,6 +32,13 @@
 #include <cassert>
 #include <sstream>
 
+#include "G4RunManager.hh"
+#include "G4EventManager.hh"
+#include "G4Event.hh"
+
+#include "MTCG4RunAction.hh"
+#include "MTCG4EventAction.hh"
+#include "MTCG4SteppingAction.hh"
 #include "StepRootIO.hh"
 
 #include "TROOT.h"
@@ -48,22 +55,20 @@ StepRootIO::StepRootIO() :
 	fRunID(-1),
 	fEventID(-1),
 	fNuKineticEnergy(-1),
-	fNuMomentumUnitVectorX(0),
-	fNuMomentumUnitVectorY(0),
-	fNuMomentumUnitVectorZ(0),
+	fNuMomUnitVectorX(0),
+	fNuMomUnitVectorY(0),
+	fNuMomUnitVectorZ(0),
 	fStepID(-1),
 	fPdgEncoding(0),
 	fTrackID(-1),
 	fParentID(-1),
-	fPreStepPositionX(0),
-	fPreStepPositionY(0),
-	fPreStepPositionZ(0),
-	fPostStepPositionX(0),
-	fPostStepPositionY(0),
-	fPostStepPositionZ(0),
-	fPreStepGlobalTime(-1),
+	fPostStepPosX(0),
+	fPostStepPosY(0),
+	fPostStepPosZ(0),
+	fPostStepMomX(0),
+	fPostStepMomY(0),
+	fPostStepMomZ(0),
 	fPostStepGlobalTime(-1),
-	fPreStepKineticEnergy(-1),
 	fPostStepKineticEnergy(-1),
 	fTotalEnergyDeposit(-1),
 	fStepLength(-1),
@@ -71,7 +76,6 @@ StepRootIO::StepRootIO() :
 	fProcessType(-1),
 	fProcessSubType(-1),
 	fTrackStatus(-1),
-	fPostStepPointInDetector(false),
 	fPhotonDetectedAtEndOfStep(false)
 {
 	fHe8WasFound = false;
@@ -121,61 +125,131 @@ void StepRootIO::SetTreeBranches()
 	fStepTree->SetDirectory(0); // Make tree memory-resident.
 
 	// Create branches.
-	fStepTree->Branch("runID", &fRunID, "fRunID/I");
-	fStepTree->Branch("eventID", &fEventID, "fEventID/I");
+	fStepTree->Branch("runID", &fRunID, "runID/I");
+	fStepTree->Branch("eventID", &fEventID, "eventID/I");
 	fStepTree->Branch("nuKineticEnergy", &fNuKineticEnergy,
-			"fNuKineticEnergy/D");
+			"nuKineticEnergy/D");
 	fStepTree->Branch("nuMomentumUnitVectorX",
-			&fNuMomentumUnitVectorX, "fNuMomentumUnitVectorX/D");
+			&fNuMomUnitVectorX, "nuMomentumUnitVectorX/D");
 	fStepTree->Branch("nuMomentumUnitVectorY",
-			&fNuMomentumUnitVectorY, "fNuMomentumUnitVectorY/D");
+			&fNuMomUnitVectorY, "nuMomentumUnitVectorY/D");
 	fStepTree->Branch("nuMomentumUnitVectorZ",
-			&fNuMomentumUnitVectorZ, "fNuMomentumUnitVectorZ/D");
-	fStepTree->Branch("stepID", &fStepID, "fStepID/I");
-	fStepTree->Branch("particleName", fParticleName, "fParticleName[80]/C");
-	fStepTree->Branch("pdgEncoding", &fPdgEncoding, "fPdgEncoding/I");
-	fStepTree->Branch("trackID", &fTrackID, "fTrackID/I");
-	fStepTree->Branch("parentID", &fParentID, "fParentID/I");
-	fStepTree->Branch("preStepPositionX", &fPreStepPositionX,
-			"fPreStepPositionX/D");
-	fStepTree->Branch("preStepPositionY", &fPreStepPositionY,
-			"fPreStepPositionY/D");
-	fStepTree->Branch("preStepPositionZ", &fPreStepPositionZ,
-			"fPreStepPositionZ/D");
-	fStepTree->Branch("postStepPositionX", &fPostStepPositionX,
-			"fPostStepPositionX/D");
-	fStepTree->Branch("postStepPositionY", &fPostStepPositionY,
-			"fPostStepPositionY/D");
-	fStepTree->Branch("postStepPositionZ", &fPostStepPositionZ,
-			"fPostStepPositionZ/D");
-	fStepTree->Branch("preStepGlobalTime", &fPreStepGlobalTime,
-			"fPreStepGlobalTime/D");
+			&fNuMomUnitVectorZ, "nuMomentumUnitVectorZ/D");
+	fStepTree->Branch("stepID", &fStepID, "stepID/I");
+	fStepTree->Branch("particleName", fParticleName, "particleName[256]/C");
+	fStepTree->Branch("pdgEncoding", &fPdgEncoding, "pdgEncoding/I");
+	fStepTree->Branch("trackID", &fTrackID, "trackID/I");
+	fStepTree->Branch("parentID", &fParentID, "parentID/I");
+	fStepTree->Branch("postStepMomX", &fPostStepMomX, "postStepMomX/D");
+	fStepTree->Branch("postStepMomY", &fPostStepMomY, "postStepMomY/D");
+	fStepTree->Branch("postStepMomZ", &fPostStepMomZ, "postStepMomZ/D");
+	fStepTree->Branch("postStepMomX", &fPostStepMomX, "postStepMomX/D");
+	fStepTree->Branch("postStepMomY", &fPostStepMomY, "postStepMomY/D");
+	fStepTree->Branch("postStepMomZ", &fPostStepMomZ, "postStepMomZ/D");
 	fStepTree->Branch("postStepGlobalTime", &fPostStepGlobalTime,
-			"fPostStepGlobalTime/D");
-	fStepTree->Branch("preStepKineticEnergy", &fPreStepKineticEnergy,
-			"fPreStepKineticEnergy/D");
+			"postStepGlobalTime/D");
 	fStepTree->Branch("postStepKineticEnergy", &fPostStepKineticEnergy,
-			"fPostStepKineticEnergy/D");
+			"postStepKineticEnergy/D");
 	fStepTree->Branch("totalEnergyDeposit", &fTotalEnergyDeposit,
-			"fTotalEnergyDeposit/D");
-	fStepTree->Branch("stepLength", &fStepLength, "fStepLength/D");
-	fStepTree->Branch("trackLength", &fTrackLength, "fTrackLength/D");
-	fStepTree->Branch("creatorProcessName", fCreatorProcessName,
-	      "fCreatorProcessName[80]/C");
-	fStepTree->Branch("processName", fProcessName, "fProcessName[80]/C");
-	fStepTree->Branch("processType", &fProcessType, "fProcessType/I");
-	fStepTree->Branch("processSubType", &fProcessSubType, "fProcessSubType/I");
-	fStepTree->Branch("trackStatus", &fTrackStatus, "fTrackStatus/I");
-	fStepTree->Branch("postStepPointInDetector", &fPostStepPointInDetector,
-			"fPostStepPointInDetector/O");
+			"totalEnergyDeposit/D");
+	fStepTree->Branch("stepLength", &fStepLength, "stepLength/D");
+	fStepTree->Branch("trackLength", &fTrackLength, "trackLength/D");
+	fStepTree->Branch("processName", fProcessName, "processName[256]/C");
+	fStepTree->Branch("processType", &fProcessType, "processType/I");
+	fStepTree->Branch("processSubType", &fProcessSubType, "processSubType/I");
+	fStepTree->Branch("trackStatus", &fTrackStatus, "trackStatus/I");
+	fStepTree->Branch("postStepPhysVolumeName", fPostStepPhysVolumeName,
+			"postStepPhysVolumeName[256]/C");
 	fStepTree->Branch("photonDetectedAtEndOfStep", &fPhotonDetectedAtEndOfStep,
-			"fPhotonDetectedAtEndOfStep/O");
+			"photonDetectedAtEndOfStep/O");
 }
 
-void StepRootIO::Fill()
+void StepRootIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 {
+	const G4Event *theEvent = G4EventManager::GetEventManager()->GetConstCurrentEvent();
+	G4ThreeVector postStepPos;
+	G4ThreeVector postStepMom;
+	if (theStep) {// If step exists, tracking is underway. Get info from step.
+		G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
+		postStepPos = postStepPoint->GetPosition();
+		postStepMom = postStepPoint->GetMomentum();
+		fPostStepGlobalTime = postStepPoint->GetGlobalTime()/ns;
+		fPostStepKineticEnergy = postStepPoint->GetKineticEnergy()/MeV;
+		strcpy(fPostStepPhysVolumeName,
+				postStepPoint->GetPhysicalVolume()->GetName());
+		const G4VProcess *postStepProcess =
+		   	postStepPoint->GetProcessDefinedStep();
+		if (postStepProcess != NULL) {
+			strcpy(fProcessName, postStepProcess->GetProcessName());
+			fProcessType = postStepProcess->GetProcessType();
+			fProcessSubType = postStepProcess->GetProcessSubType();
+		}
+		else {
+			strcpy(fProcessName, "nullProcess");
+			fProcessType = -100;
+			fProcessSubType = -100;
+		}
+		fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
+		fStepLength = theStep->GetStepLength()/mm;
+	}
+	else { // If step doesn't exist, particle is not yet tracked, ie 0th step.
+		postStepPos = theTrack->GetPosition(); // Use track position info.
+		postStepMom = theTrack->GetMomentum();
+		fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
+		fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
+		strcpy(fPostStepPhysVolumeName, theTrack->GetVolume()->GetName());
+		const G4VProcess *postStepProcess = theTrack->GetCreatorProcess();
+		if (postStepProcess != NULL) {
+			strcpy(fProcessName, postStepProcess->GetProcessName());
+			fProcessType = postStepProcess->GetProcessType();
+			fProcessSubType = postStepProcess->GetProcessSubType();
+		}
+		else {//If step nor creator process exists, it is 0th step of primary.
+			strcpy(fProcessName, "primaryParticle");
+			fProcessType = -100;
+			fProcessSubType = -100;
+		}
+		fTotalEnergyDeposit = 0;
+		fStepLength = theTrack->GetStepLength()/mm;
+	}
+	G4ParticleDefinition *particleDef = theTrack->GetDefinition();
+	G4ThreeVector nuMomUnitVector =
+		dynamic_cast<MTCG4EventAction*>(G4EventManager::GetEventManager()->GetUserEventAction())->GetNeutrinoMomentumUnitVector();
+
+	// Variables to output.
+	const MTCG4RunAction *runAction = dynamic_cast<const MTCG4RunAction*>(
+				G4RunManager::GetRunManager()->GetUserRunAction());
+	assert(runAction);
+	fRunID = runAction->GetRunID();
+	fEventID = theEvent->GetEventID();
+	fNuKineticEnergy = (
+			(MTCG4EventAction*)
+			G4EventManager::GetEventManager()->GetUserEventAction()
+			)->GetNeutrinoKineticEnergyOfEventAction()/MeV;
+	fNuMomUnitVectorX = nuMomUnitVector.x();
+	fNuMomUnitVectorY = nuMomUnitVector.y();
+	fNuMomUnitVectorZ = nuMomUnitVector.z();
+	fStepID = theTrack->GetCurrentStepNumber();
+	strcpy(fParticleName, particleDef->GetParticleName().c_str());
+	fPdgEncoding = particleDef->GetPDGEncoding(); 
+	fTrackID = theTrack->GetTrackID();
+	fParentID = theTrack->GetParentID();
+	fPostStepPosX = postStepPos.x()/mm;
+	fPostStepPosY = postStepPos.y()/mm;
+	fPostStepPosZ = postStepPos.z()/mm;
+	fPostStepMomX = postStepMom.x();
+	fPostStepMomY = postStepMom.y();
+	fPostStepMomZ = postStepMom.z();
+	fTrackLength = theTrack->GetTrackLength()/mm;
+	fTrackStatus = theTrack->GetTrackStatus();
+	fPhotonDetectedAtEndOfStep = (
+			(MTCG4SteppingAction*)
+			G4RunManager::GetRunManager()->GetUserSteppingAction()
+			)->GetPhotonDetectedAtEndOfStep();
+
 	if (fPdgEncoding == 1000030090) fLi9WasFound = true; // 9Li found in step.
 	if (fPdgEncoding == 1000020080) fHe8WasFound = true; // 8He found in step.
+
 	fStepTree->Fill();
 }
 

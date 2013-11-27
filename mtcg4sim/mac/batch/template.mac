@@ -55,9 +55,9 @@
 ######################################################################
 
 # Options: killImmediately, trackImmediately, saveAndTrack, saveAndKill.
-# Not specifying any option will default to killImmediately.
-/mtcg4/stackingAction/trackOpticalPhotons killImmediately
-#/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
+# Not specifying any option will default to trackImmediately.
+#/mtcg4/stackingAction/trackOpticalPhotons killImmediately
+/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
 #/mtcg4/stackingAction/trackOpticalPhotons saveAndTrack
 
 
@@ -136,7 +136,7 @@
 # Set flag to shoot cosmic ray muon.
 /gun/shootCosmicRayMuon true
 # Set energy of muon. Set <= 0 to specify sea level energy spectrum.
-/gun/setCosmicRayMuonEnergy 10 MeV
+/gun/setCosmicRayMuonEnergy -10 MeV
 # Set muon direction. Choose "sea-level" or "-z".
 # sea-level: random direction with zenith angle distribution at sea level.
 # -z: Straight down from top of cube.
