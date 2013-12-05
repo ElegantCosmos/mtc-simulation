@@ -21,14 +21,28 @@ public:
 	virtual void SetCuts();
 
 	void AddParameterisation();
-	void SetBuilderList1(G4bool flag = false);
 
 private:
-	G4VPhysicsConstructor *fEmPhysicsList;
-	G4VPhysicsConstructor *fParticleList;
-	std::vector<G4VPhysicsConstructor*> fHadronPhysics;
+	void ConstructHadronPhysics(G4bool flag = false);
+	void ConstructDecayPhysics();
+	void ConstructEMPhysics();
+	void ConstructOpticalPhysics();
+	void ConstructMuonNuclearProcess();
 
-	MTCG4PhysicsMessenger *physicsMessenger;   
+private:
+	std::vector<G4VPhysicsConstructor*> fEMPhysics;
+	std::vector<G4VPhysicsConstructor*> fHadronPhysics;
+	std::vector<G4VPhysicsConstructor*> fDecayPhysics;
+	std::vector<G4VPhysicsConstructor*> fOpticalPhysics;
+
+	MTCG4PhysicsMessenger *fMessenger;   
+
+private:
+	G4int fVerbose;
+	G4double fCutForGamma;
+	G4double fCutForElectron;
+	G4double fCutForPositron;
+	G4double fCutForProton;
 };
 
 #endif

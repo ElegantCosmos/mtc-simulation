@@ -57,8 +57,8 @@
 
 # Options: killImmediately, trackImmediately, saveAndTrack, saveAndKill.
 # Not specifying any option will default to trackImmediately.
-/mtcg4/stackingAction/trackOpticalPhotons killImmediately
-#/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
+#/mtcg4/stackingAction/trackOpticalPhotons killImmediately
+/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
 #/mtcg4/stackingAction/trackOpticalPhotons saveAndTrack
 
 
@@ -70,11 +70,11 @@
 
 # Flag to shoot or omit primary positron.
 # True: shoot, false: do not shoot.
-/mtcg4/primary/shootPrimaryPositron false
+/mtcg4/primary/shootPrimaryPositron true
 
 # Flag to shoot or omit primary neutron.
 # True: shoot, false: do not shoot.
-/mtcg4/primary/shootPrimaryNeutron false
+/mtcg4/primary/shootPrimaryNeutron true
 
 # Set incoming neutrino direction.
 # Options:
@@ -105,9 +105,9 @@
 /mtcg4/primary/setPrimaryParticleDataFile primaryParticleData.dat
 
 # Set the initial kinetic energies (same value for both particles) of positron
-# and neutron in units of eV.  This command is overridden when the command
-# readInPrimaryParticleDataFile is set to true.
-/mtcg4/primary/setInverseBetaDecayDaughterParticleKineticEnergy 5000000
+# and neutron with units (default of eV).  This command is overridden when the
+# command readInPrimaryParticleDataFile is set to true.
+/mtcg4/primary/setInverseBetaDecayDaughterParticleKineticEnergy 1 MeV
 
 
 
@@ -146,14 +146,14 @@
 ######################################################################
 
 # Set flag to shoot cosmic ray muon.
-/gun/shootCosmicRayMuon true
+/gun/shootCosmicRayMuon false
 # Set energy of muon. Set <= 0 to specify sea level energy spectrum.
-/gun/setCosmicRayMuonEnergy -10 MeV
+/gun/setCosmicRayMuonEnergy 1 GeV
 # Set muon direction. Choose "sea-level" or "-z".
 # sea-level: random direction with zenith angle distribution at sea level.
 # -z: Straight down from top of cube.
-/gun/setCosmicRayMuonDirection sea-level
-#/gun/setCosmicRayMuonDirection -z
+#/gun/setCosmicRayMuonDirection sea-level
+/gun/setCosmicRayMuonDirection -z
 
 
 
@@ -237,9 +237,9 @@
 /generator/seed 0
 
 # Set some verbose settings.
-/control/verbose 0
+/control/verbose 1
 /tracking/verbose 1
-/run/verbose 0
+/run/verbose 1
 
 
 
@@ -258,11 +258,11 @@
 #/tracking/storeTrajectory 1
 
 # Set number of events for this run.
-/run/beamOn 2
+#/run/beamOn 1
 #/run/beamOn 3 
 #/run/beamOn 5
 #/run/beamOn 10
-#/run/beamOn 100
+/run/beamOn 100
 #/run/beamOn 500
 #/run/beamOn 1000
 #/run/beamOn 10000

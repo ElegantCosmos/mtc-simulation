@@ -56,8 +56,8 @@
 
 # Options: killImmediately, trackImmediately, saveAndTrack, saveAndKill.
 # Not specifying any option will default to trackImmediately.
-#/mtcg4/stackingAction/trackOpticalPhotons killImmediately
-/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
+/mtcg4/stackingAction/trackOpticalPhotons killImmediately
+#/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
 #/mtcg4/stackingAction/trackOpticalPhotons saveAndTrack
 
 
@@ -136,11 +136,11 @@
 # Set flag to shoot cosmic ray muon.
 /gun/shootCosmicRayMuon true
 # Set energy of muon. Set <= 0 to specify sea level energy spectrum.
-/gun/setCosmicRayMuonEnergy -10 MeV
+/gun/setCosmicRayMuonEnergy -1 GeV
 # Set muon direction. Choose "sea-level" or "-z".
 # sea-level: random direction with zenith angle distribution at sea level.
 # -z: Straight down from top of cube.
-/gun/setCosmicRayMuonDirection sea-level
+/gun/setCosmicRayMuonDirection -z
 
 
 
@@ -207,9 +207,12 @@
 #/mtcg4/io/setOutputPath /data/mtc-sim/cosmicray_mu/
 #/mtcg4/io/setOutputPath /data/mtc-sim/283gev_mu/
 #/mtcg4/io/setOutputPath /data/mtc-sim/2gev_mu/
-/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_without_wls/
+#/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_without_wls/
 #/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_with_wls/
 #/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_with_wls_straight_down/
+#/mtcg4/io/setOutputPath /data/mtc-sim/1gev_-z_mu_only_cerenkov/
+#/mtcg4/io/setOutputPath /data/mtc-sim/1gev_-z_mu_only_scintillation/
+/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1Mevt_with_wls_straight_down/
 
 
 # Set output file name for all particle steps.
@@ -259,7 +262,7 @@
 #/run/beamOn 50
 #/run/beamOn 100
 #/run/beamOn 500
-/run/beamOn 10
+/run/beamOn 10000
 #/run/beamOn 10000
 #/run/beamOn 10000000
 #/run/beamOn 3 

@@ -70,9 +70,9 @@ StepTextIO::StepTextIO()
 	fAllParticleStepHeader += "PostStepPositionX(mm) ";
 	fAllParticleStepHeader += "PostStepPositionY(mm) ";
 	fAllParticleStepHeader += "PostStepPositionZ(mm) ";
-	fAllParticleStepHeader += "PostStepMomentumX ";
-	fAllParticleStepHeader += "PostStepMomentumY ";
-	fAllParticleStepHeader += "PostStepMomentumZ ";
+	fAllParticleStepHeader += "PostStepMomentumX(MeV) ";
+	fAllParticleStepHeader += "PostStepMomentumY(MeV) ";
+	fAllParticleStepHeader += "PostStepMomentumZ(MeV) ";
 	fAllParticleStepHeader += "PostStepGlobalTime(ns) ";
 	fAllParticleStepHeader += "PostStepKineticEnergy(MeV) ";
 	fAllParticleStepHeader += "TotalEnergyDeposit(MeV) ";
@@ -183,9 +183,9 @@ void StepTextIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 	fPostStepPosX = postStepPos.x()/mm;
 	fPostStepPosY = postStepPos.y()/mm;
 	fPostStepPosZ = postStepPos.z()/mm;
-	fPostStepMomX = postStepMom.x();
-	fPostStepMomY = postStepMom.y();
-	fPostStepMomZ = postStepMom.z();
+	fPostStepMomX = postStepMom.x()/MeV;
+	fPostStepMomY = postStepMom.y()/MeV;
+	fPostStepMomZ = postStepMom.z()/MeV;
 	fTrackLength = theTrack->GetTrackLength()/mm;
 	fTrackStatus = theTrack->GetTrackStatus();
 	fPhotonDetectedAtEndOfStep = (
@@ -198,7 +198,7 @@ void StepTextIO::Write()
 {
 	// Text file output.
 	fOut.setf(std::ios::fixed, std::ios::floatfield);
-	fOut.precision(7);
+	fOut.precision(5);
 	const G4int s=5;
 	const G4int m=10;
 	const G4int l=15;

@@ -429,29 +429,27 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		// 0.5*d(rho^2)*d(phi). So sampling uniformly and randomly over [0, 1]
 		// for rho^2 is what we want to do. Then we can take the sqrt to find
 		// rho. Phi can be sampled as is over [0, 2pi].
-		const G4double muonInitPosRho = 0.;
-		//const G4double muonInitPosRho =
-		//	0.5*sqrt(
-		//			scintDimensionX*scintDimensionX +
-		//			scintDimensionY*scintDimensionY +
-		//			scintDimensionZ*scintDimensionZ)*
-		//	sqrt(G4UniformRand());
-		//const G4double muonInitPosPhi = twopi*G4UniformRand()*rad;
-		const G4double muonInitPosPhi = 0*rad;
+		//const G4double muonInitPosRho = 0.;
+		//const G4double muonInitPosPhi = 0*rad;
+		const G4double muonInitPosRho =
+			0.5*sqrt(
+					scintDimensionX*scintDimensionX +
+					scintDimensionY*scintDimensionY +
+					scintDimensionZ*scintDimensionZ)*
+			sqrt(G4UniformRand());
+		const G4double muonInitPosPhi = twopi*G4UniformRand()*rad;
 		const G4double muonInitPosZ = // Initial muon Z coordinate.
 			fabs(2*scintDimensionZ);
 		muonInitPos = G4ThreeVector( // Muon initial vertex.
 				muonInitPosRho*cos(muonInitPosPhi/rad),
 				muonInitPosRho*sin(muonInitPosPhi/rad),
 				muonInitPosZ);
-		G4cout << "muonInitPos before rotation: " << muonInitPos << G4endl;
+		//G4cout << "muonInitPos before rotation: " << muonInitPos << G4endl;
 		G4double muonMomAnglePhi = 0*rad, // Muon momentum angles.
 				 muonMomAngleTheta = 0*rad;
 		GetMuonMomentumAngles(muonMomAngleTheta, muonMomAnglePhi);
-		muonMomAnglePhi = 5*pi/4*rad;
-		muonMomAngleTheta = 3/4.*pi*rad;
-		G4cout << "muonMomAnglePhi: " << muonMomAnglePhi << G4endl;
-		G4cout << "muonMomAngleTheta: " << muonMomAngleTheta << G4endl;
+		//G4cout << "muonMomAnglePhi: " << muonMomAnglePhi << G4endl;
+		//G4cout << "muonMomAngleTheta: " << muonMomAngleTheta << G4endl;
 
 		// Rotate circular disk of muon initial positions such that it is
 		// perpendicular to the muon momentum. This way we maximize the
@@ -461,7 +459,7 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		// cube.
 		muonInitPos.setTheta(pi - muonMomAngleTheta/rad);
 		muonInitPos.setPhi(pi + muonMomAnglePhi/rad);
-		G4cout << "muonInitPos after rotation: " << muonInitPos << G4endl;
+		//G4cout << "muonInitPos after rotation: " << muonInitPos << G4endl;
 
 		// Muon momentum direction.
 		muonMomentumDir = G4ThreeVector(0, 0, 1);
@@ -481,7 +479,7 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 
 	// Get muon kinetic energy.
 	muonEnergy = GetMuonEnergy();
-	//G4cout << "muonEnergy: " << muonEnergy << G4endl;
+	G4cout << "muonEnergy: " << muonEnergy << G4endl;
 
 	// Set primary particle properties.
 	if (G4UniformRand() < muonPlusRatioToAllMuons) // Muon is mu+.
@@ -537,13 +535,21 @@ G4double MTCG4PrimaryGeneratorAction::GetMuonEnergy()
 		G4double momentum; // Momentum of muon in GeV/c, c = 1.
 		do {
 			momentum = 1000*G4UniformRand()*GeV; // Momentum 0~1000GeV/c, c=1.
-			// Ignore momentum below 0.1 GeV (spectrum minimum of muons).
-			if (momentum < 0.1*GeV) continue;
-		} while (G4UniformRand() >
-				400*GetCosmicRayMuonDifferentialIntensity(momentum));
-		const G4double mass =
+		} while (
+				// Mulitply factor of 200.to get PDF(x = 0.1GeV) ~ 1.
+				// Sample randomly from muon spectrum.
+				!(G4UniformRand() <
+				200.*GetCosmicRayMuonDifferentialIntensity(momentum))
+				||
+				// Ignore momentum below 0.1 GeV (spectrum fit minimum of
+				// muons).
+				momentum < 0.1*GeV);
+		const G4double mass = // Default value in MeV.
 		   	G4MuonMinus::MuonMinusDefinition()->GetPDGMass();
+		G4cout << "muon mass: " << mass << G4endl;
+		G4cout << "muon mom: " << momentum << G4endl;
 		energy = sqrt(momentum*momentum + mass*mass) - mass;
+		G4cout << "muon energy: " << energy << std::endl;
 	}
 	else { // Assign mono-energetic muon energy.
 		energy = fCosmicRayMuonEnergy;

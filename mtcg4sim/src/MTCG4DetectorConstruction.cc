@@ -129,7 +129,7 @@ MTCG4PmtSD* MTCG4DetectorConstruction::fAPmtSD;
 
 MTCG4DetectorConstruction::MTCG4DetectorConstruction()
 	// Intialize some pointers. I don't know if this is really necessary.
-	:fWorldSolid(0), fWorldLogical(0), fWorldPhysical(0), fScintSolid(0),
+	: fWorldSolid(0), fWorldLogical(0), fWorldPhysical(0), fScintSolid(0),
 	fScintLogical(0), fScintPhysical(0), fPmtBoundingVolumeSolid(0),
 	fPmtBoundingVolumeLogical(0),
 	fPmtBoundingVolume1Physical(0), fPmtBoundingVolume2Physical(0),
@@ -1587,7 +1587,7 @@ void MTCG4DetectorConstruction::SetAirMaterialProperties()
 //
 void MTCG4DetectorConstruction::SetScintMaterialProperties()
 {
-	const int N_SPEC_POINTS_SCINT = 13;
+	const int N_SPEC_POINTS_SCINT = 14;
 	// Set different photon wavelengths that will be referenced in calculating
 	// scintillator properties, e.g. decay time constant.
 	const G4double WAVELENGTHS_SCINT[N_SPEC_POINTS_SCINT] =
@@ -1604,6 +1604,7 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 		425*nm,
 		420*nm,
 		410*nm,
+		400*nm,
 		200*nm
 	};
 	// Set order of photon energies for EJ254 in increasing order.
@@ -1625,6 +1626,7 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 		1.00, // 425*nm, peak of distribution
 		0.90, // 420*nm
 		0.25, // 410*nm
+		0.02, // 400*nm
 		0.00 // 200*nm
 	};
 	G4double scintSlow_EJ254[N_SPEC_POINTS_SCINT] = // Identical. Fix later.
@@ -1641,6 +1643,7 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 		1.00, // 425*nm, peak of distribution
 		0.90, // 420*nm
 		0.25, // 410*nm
+		0.02, // 400*nm
 		0.00 // 200*nm
 	};
 
@@ -1731,6 +1734,7 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 		1.00, // 425*nm, peak of distribution
 		0.90, // 420*nm
 		0.25, // 410*nm
+		0.02, // 400*nm
 		0.00 // 200*nm
 	};
 
@@ -1741,13 +1745,13 @@ void MTCG4DetectorConstruction::SetScintMaterialProperties()
 			scintSlow_EJ254, N_SPEC_POINTS_SCINT);
 	EJ254_MPT->AddProperty("RINDEX", photonEnergies_RIndex, rIndices,
 			N_SPEC_POINTS_RINDEX);
-	EJ254_MPT->AddProperty("ABSLENGTH", photonEnergies_AbsLength,
-			absLengths_EJ254, N_SPEC_POINTS_ABS); // Now using WLSABSLENGTH.
-	//EJ254_MPT->AddProperty("WLSABSLENGTH", photonEnergies_AbsLength,
-	//		absLengths_EJ254, N_SPEC_POINTS_ABS);
-	//EJ254_MPT->AddProperty("WLSCOMPONENT", photonEnergies_Scint,
-	//		reemission_EJ254, N_SPEC_POINTS_SCINT);
-	//EJ254_MPT->AddConstProperty("WLSTIMECONSTANT", 0.0*ns); // No WLS delay.
+	//EJ254_MPT->AddProperty("ABSLENGTH", photonEnergies_AbsLength,
+	//		absLengths_EJ254, N_SPEC_POINTS_ABS); // Now using WLSABSLENGTH.
+	EJ254_MPT->AddProperty("WLSABSLENGTH", photonEnergies_AbsLength,
+			absLengths_EJ254, N_SPEC_POINTS_ABS);
+	EJ254_MPT->AddProperty("WLSCOMPONENT", photonEnergies_Scint,
+			reemission_EJ254, N_SPEC_POINTS_SCINT);
+	EJ254_MPT->AddConstProperty("WLSTIMECONSTANT", 0.0*ns); // No WLS delay.
 	// The following scintillation yield numbers are taken from the
 	// EJ254 data sheet for the case of Boron
 	// doping only. We will have to use these numbers for now until we can find

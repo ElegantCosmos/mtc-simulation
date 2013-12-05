@@ -237,9 +237,9 @@ void StepRootIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 	fPostStepPosX = postStepPos.x()/mm;
 	fPostStepPosY = postStepPos.y()/mm;
 	fPostStepPosZ = postStepPos.z()/mm;
-	fPostStepMomX = postStepMom.x();
-	fPostStepMomY = postStepMom.y();
-	fPostStepMomZ = postStepMom.z();
+	fPostStepMomX = postStepMom.x()/MeV;
+	fPostStepMomY = postStepMom.y()/MeV;
+	fPostStepMomZ = postStepMom.z()/MeV;
 	fTrackLength = theTrack->GetTrackLength()/mm;
 	fTrackStatus = theTrack->GetTrackStatus();
 	fPhotonDetectedAtEndOfStep = (
@@ -255,8 +255,8 @@ void StepRootIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 
 void StepRootIO::Write()
 {
-	if (true) { // Write event always.
-	//if (fLi9WasFound || fHe8WasFound) { // Write event if 8He/9Li was found.
+	//if (true) { // Write event always.
+	if (fLi9WasFound || fHe8WasFound) { // Write event if 8He/9Li was found.
 		struct stat buffer;
 		if ( stat(fFileName.c_str(), &buffer) ) // If output file doesn't exist.
 			fRootFile = new TFile(fFileName.c_str(), "RECREATE");
