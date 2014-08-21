@@ -55,6 +55,7 @@ void MTCG4RunAction::EndOfRunAction(const G4Run* theRun)
 	fStepTextOut->ResetInstance();
 
 	fStepRootOut = StepRootIO::GetInstance();
+	fStepRootOut->Write();
 	fStepRootOut->ResetInstance();
 
 	// Stop timer and print info.

@@ -63,8 +63,9 @@ MTCG4PmtOpticalModel::MTCG4PmtOpticalModel(
 	fPhotonEnergy = -1.0;
 
 	// Save a few geometry values for later use.
-	G4LogicalVolume* envelope_log = envelope_phys->GetLogicalVolume();
-	//G4cout << "envelope name = " << envelope_log->GetName() << G4endl;
+	fEnvelopePhys = envelope_phys;
+	fEnvelopeLog = envelope_phys->GetLogicalVolume();
+	//G4cout << "envelope name = " << fEnvelopeLog->GetName() << G4endl;
 	fPixelPitch =
 		((MTCG4DetectorConstruction*)G4RunManager::GetRunManager()->
 		 GetUserDetectorConstruction())->GetPixelPitch();
@@ -78,14 +79,52 @@ MTCG4PmtOpticalModel::MTCG4PmtOpticalModel(
 		 GetUserDetectorConstruction())->GetBottomOfPmtInnerVacuumExtentInZ();
 	fGeometricTolerance = G4GeometryTolerance::GetInstance()->
 		GetSurfaceTolerance();
-	G4VPhysicalVolume *pmtOuterVacuum = envelope_log->GetDaughter(1); // Use 1.
-	assert(pmtOuterVacuum); // Pointer must exist.
-	fPmtInnerVacuumPhys = pmtOuterVacuum->GetLogicalVolume()->GetDaughter(0);
-	//G4cout << "_inner_phys name = " << fPmtInnerVacuumPhys->GetName() << G4endl;
+
+	// Get PMT outer vacuum.
+	G4VPhysicalVolume *pmtOuterVacuumPhys = NULL;
+	for (G4int iDaughter = 0; iDaughter < fEnvelopeLog->GetNoDaughters();
+			++iDaughter)
+	{
+		G4VPhysicalVolume* daughter = fEnvelopeLog->GetDaughter(iDaughter);
+		std::string name = daughter->GetName();
+		if (name == "pmtOuterVacuumPhysical") {
+			pmtOuterVacuumPhys = daughter;
+			break;
+		}
+	}
+	assert(pmtOuterVacuumPhys); // Pointer must exist.
+	G4LogicalVolume* pmtOuterVacuumLog = pmtOuterVacuumPhys->GetLogicalVolume();
+	assert(pmtOuterVacuumLog);
+
+	// Get PMT inner vacuum.
+	fPmtInnerVacuumPhys = NULL;
+	for (G4int iDaughter = 0; iDaughter < pmtOuterVacuumLog->GetNoDaughters();
+			++iDaughter)
+	{
+		G4VPhysicalVolume* daughter = pmtOuterVacuumLog->GetDaughter(iDaughter);
+		std::string name = daughter->GetName();
+		if (name == "pmtInnerVacuumPhysical") {
+			fPmtInnerVacuumPhys = daughter;
+			break;
+		}
+	}
+	assert(fPmtInnerVacuumPhys); // Inner vacuum phys pointer must exist.
 	fPmtInnerVacuumSolid =
 		fPmtInnerVacuumPhys->GetLogicalVolume()->GetSolid();
-	fPmtGlassWindowPhys =
-		envelope_phys->GetLogicalVolume()->GetDaughter(0);
+
+	// Get PMT glass window.
+	fPmtGlassWindowPhys = NULL;
+	for (G4int iDaughter = 0; iDaughter < fEnvelopeLog->GetNoDaughters();
+			++iDaughter)
+	{
+		G4VPhysicalVolume* daughter = fEnvelopeLog->GetDaughter(iDaughter);
+		std::string name = daughter->GetName();
+		if (name == "pmtGlassWindowPhysical") {
+			fPmtGlassWindowPhys = daughter;
+			break;
+		}
+	}
+	assert(fPmtGlassWindowPhys);
 	fPmtGlassWindowSolid =
 		fPmtGlassWindowPhys->GetLogicalVolume()->GetSolid();
 
@@ -279,6 +318,10 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 	G4int weight;
 	G4double energy;
 	G4double n_glass;
+	// Get sensitive detector.
+	// Not a very good way to get from envelope daughters by index number but
+	// we'll keep it this the way for the sake of speed, as this has to be done
+	// for every photon.
 	G4VSensitiveDetector* detector =
 		fastTrack.GetEnvelopeLogicalVolume()->GetDaughter(0)
 		->GetLogicalVolume()->GetSensitiveDetector();
@@ -582,11 +625,71 @@ MTCG4PmtOpticalModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
 						fPixelPitch); // Column ID increases with X of hit pos.
 				row_id++; column_id++; // Make sure row/column are 1~8.
 
+				// Get actual hit pixel coordinates in world coordinate system.
+				G4double pixel_x =
+					floor(pos.x()/PMT_PIXEL_FACE_PITCH)*
+					PMT_PIXEL_FACE_PITCH + 0.5*PMT_PIXEL_FACE_PITCH;
+				pos.setX(pixel_x);
+				G4double pixel_y =
+					floor(pos.y()/PMT_PIXEL_FACE_PITCH)*
+					PMT_PIXEL_FACE_PITCH + 0.5*PMT_PIXEL_FACE_PITCH;
+				pos.setY(pixel_y);
+				//G4cout << "before rot/trans x: " << pos.getX()
+				//	<< ", y: " << pos.getY()
+				//	<< ", z: " << pos.getZ() << G4endl;
+				const G4VTouchable* touch =
+				   	fastTrack.GetPrimaryTrack()->GetTouchable();
+				// Get max history depth index.
+				const G4int maxHistoryDepth = touch->GetHistoryDepth();
+				// Get starting history depth index.
+				G4int startHistoryDepth = 0;
+				for (G4int iDepth = 0; iDepth <= maxHistoryDepth; ++iDepth) {
+					G4VPhysicalVolume* phys = touch->GetVolume(iDepth);
+					if (phys == fEnvelopePhys) {
+						startHistoryDepth = iDepth; // Envelope volume is start.
+						break;
+					}
+				}
+				// Get net translation/rotation and apply to pixel starting from
+				// the history depth of the Physical Envelope volume for which
+				// the pixel's initial (x, y, z) coordinates are with respect
+				// to.
+				G4ThreeVector netTransWrtWorld(0, 0, 0);
+				G4RotationMatrix netRotationWrtWorld;
+				for (G4int iDepth = startHistoryDepth;
+						iDepth <= maxHistoryDepth; ++iDepth)
+			   	{
+					G4VPhysicalVolume* physVol = touch->GetVolume(iDepth);
+					//G4cout << "iDepth: " << iDepth;
+					//G4cout << ", physName: " << physVol->GetName();
+					//G4cout << ", trans: "
+					//	<< physVol->GetTranslation().getX() << ", "
+					//	<< physVol->GetTranslation().getY() << ", "
+					//	<< physVol->GetTranslation().getZ() << "\n";
+
+					// Rotate pixels according to nested nth mother rotation.
+					G4RotationMatrix rot = physVol->GetObjectRotationValue();
+					netRotationWrtWorld *= rot;
+					pos = pos.transform(rot);
+
+					// Translate pixels according to nested nth mother
+					// translation.
+					G4ThreeVector trans = physVol->GetObjectTranslation();
+					netTransWrtWorld += trans;
+					pos += trans;
+				}
+				//G4cout << "net trans.x: " << netTransWrtWorld.getX()
+				//	<< ", y: " << netTransWrtWorld.getY()
+				//	<< ", z: " << netTransWrtWorld.getZ() << G4endl;
+
 				//G4cout << "ipmt = " << ipmt << G4endl;
 				//G4cout << "row_id = " << row_id << G4endl;
 				//G4cout << "column_id = " << column_id << G4endl;
 				//G4cout << "time = " << time << G4endl;
 				//G4cout << "PE is recorded" << G4endl; // Mich's comment.
+				//G4cout << "after rot/trans x: " << pos.getX()
+				//	<< ", y: " << pos.getY()
+				//	<< ", z: " << pos.getZ() << G4endl;
 
 				// Create photon hit.
 				((MTCG4PmtSD *)detector)->SimpleHit(

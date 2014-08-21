@@ -143,13 +143,13 @@ void MTCG4HitPmt::Print(std::ostream &os, bool /*fullDetailsMode*/)
 	//G4cout << "fPhotons.size() = " << fPhotons.size() << G4endl;
 	for(size_t i = 0; i < fPhotons.size(); i++){
 	os
-		<< event_id << " "
-	 	<< fID << " "
-	 	<< fPhotons[i]->GetAnodeRow() << " "
+		<< std::setw(3) << event_id << " "
+	 	<< std::setw(2) << fID
+	 	<< fPhotons[i]->GetAnodeRow()
 	 	<< fPhotons[i]->GetAnodeColumn() << " "
-		<< fPhotons.size() << " "
-	 	<< fPhotons[i]->GetTime()/ns << " "
-	 	<< fPhotons[i]->GetCount() << G4endl;
+		<< std::setw(3) << fPhotons.size() << " "
+	 	<< std::setw(10) << fPhotons[i]->GetTime()/ns << " "
+	 	<< std::setw(4) << fPhotons[i]->GetCount() << G4endl;
 	}
 	// End of added by Mich.
 
@@ -176,15 +176,26 @@ void MTCG4HitPmt::Print(std::ostream &os, bool /*fullDetailsMode*/)
   //}    
 }
 
-G4int MTCG4HitPmt::GetEntriesInAnode(G4int anode)
+G4int MTCG4HitPmt::GetEntriesInAnode(G4int anode) const
 {
 	// Anode number anode is expressed in the format:
 	// <row_number>*10 + <column_number>.
 	G4int ret = 0;
-	for(std::vector<MTCG4HitPhoton*>::iterator it = fPhotons.begin(); it !=
-			fPhotons.end(); it++)
+	for(std::vector<MTCG4HitPhoton*>::const_iterator it = fPhotons.begin();
+			it != fPhotons.end(); it++)
 		if( (*it)->GetAnodeRow() == (G4int(anode/10))%10
 				&& (*it)->GetAnodeColumn() == (G4int(anode/1))%10 )
+		 	ret++;
+	return ret;
+}
+
+G4int MTCG4HitPmt::GetTotalEntries() const
+{
+	// Anode number anode is expressed in the format:
+	// <row_number>*10 + <column_number>.
+	G4int ret = 0;
+	for(std::vector<MTCG4HitPhoton*>::const_iterator it = fPhotons.begin();
+			it != fPhotons.end(); it++)
 		 	ret++;
 	return ret;
 }

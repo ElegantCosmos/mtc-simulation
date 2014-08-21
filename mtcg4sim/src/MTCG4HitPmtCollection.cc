@@ -71,6 +71,14 @@ int MTCG4HitPmtCollection::GetEntries() const
   return fPmt.size();
 }
 
+int MTCG4HitPmtCollection::GetTotalPE() const
+{
+	int ret = 0;
+	for (size_t i = 0; i < fPmt.size(); ++i)
+		ret += fPmt.at(i)->GetTotalEntries();
+	return ret;
+}
+
 /** return the i-th HitPmt in internal collection */
 MTCG4HitPmt* MTCG4HitPmtCollection::GetPmt(int i) const
 {

@@ -43,21 +43,6 @@ MTCG4SteppingAction::~MTCG4SteppingAction()
 // Method Called During a Step //
 void MTCG4SteppingAction::UserSteppingAction(const G4Step *theStep)
 {
-	//const G4Event *theEvent = G4EventManager::GetEventManager()->
-	//	GetConstCurrentEvent();
-	//G4Track *theTrack = theStep->GetTrack();
-	//G4ParticleDefinition *particleDef = theTrack->GetDefinition();
-	G4VPhysicalVolume *postStepPointPhysicalVolume =
-		theStep->GetPostStepPoint()->GetPhysicalVolume();
-	if (!postStepPointPhysicalVolume) {
-		// If the post-step point is not available,
-		// the particle is out of the world volume.
-		// Do not do anything with it and just return.
-		//G4cout << particleDef->GetParticleName()
-		//	<< " post step point is out of world!\n";
-		return;
-	}
-	
 	if (fOutputOnlyFirstNEvents >= 0) {// Do output for only first n events.
 		if (G4EventManager::GetEventManager()->GetConstCurrentEvent()->
 				GetEventID() >= fOutputOnlyFirstNEvents)

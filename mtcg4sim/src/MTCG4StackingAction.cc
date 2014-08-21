@@ -130,16 +130,18 @@ MTCG4StackingAction::ClassifyNewTrack(const G4Track* aTrack)
 	//	return fKill;
 	//}
 
-	//// If particle is secondary gamma.
-	//if (aTrack->GetDefinition() == G4Gamma::GammaDefinition()) {
-	//	//return fKill;
-	// 	return fUrgent;
-	//}
-	//if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
-	//{
-	//	//return fKill;
-	//	return fUrgent;
-	//}
+	// If particle is secondary gamma.
+	if (aTrack->GetDefinition() == G4Gamma::GammaDefinition()) {
+		++fNPhotons;
+		//return fKill;
+	 	//return fUrgent;
+	}
+	if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())
+	{
+		++fNPhotons;
+		//return fKill;
+		//return fUrgent;
+	}
 	
 	// If particle is secondary photon.
 	if (aTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
@@ -376,4 +378,5 @@ void MTCG4StackingAction::NewStage()
 void MTCG4StackingAction::PrepareNewEvent()
 {
 	fStage = 0;
+	fNPhotons = 0;
 }

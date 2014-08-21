@@ -121,6 +121,10 @@ private:
 	G4double fFastSimulationVolumeExtentInZBottom;
 	G4double fGeometricTolerance;
 
+	// Pointers to Envelope volumes.
+	G4VPhysicalVolume* fEnvelopePhys;
+	G4LogicalVolume* fEnvelopeLog;
+
 	// Translation vectors of physical volumes wrt the fast simulation envelope
 	// volume. In our case this is the physical volume named
 	// "fPmtGlassHousingPhysical".

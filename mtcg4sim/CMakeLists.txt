@@ -45,7 +45,7 @@ set(CMAKE_PREFIX_PATH $ENV{MTCSDS_INSTALL_DIR} ${CMAKE_PREFIX_PATH})
 #----------------------------------------------------------------------------
 # Add g++ flags.
 #
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -Wl,-V")
 
 # Setup include directory for this project
@@ -159,5 +159,5 @@ ${CMAKE_SOURCE_DIR}/tools/ ${CMAKE_BINARY_DIR}/tools/)
 #----------------------------------------------------------------------------
 # Specify build type for specific compiler flags.
 # E.g. "Release" build type will set compiler optimization flags.
-set(CMAKE_BUILD_TYPE Release)
-#set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)

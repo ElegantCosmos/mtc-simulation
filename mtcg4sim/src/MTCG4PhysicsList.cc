@@ -66,9 +66,9 @@
 MTCG4PhysicsList::MTCG4PhysicsList() : G4VModularPhysicsList(),
 	fMessenger(NULL)
 {
-	fVerbose = 1;
-	defaultCutValue = 1.*mm; // Taken from original KLG4sim code
-	//defaultCutValue = 0.001*mm; // Taken from KLG4sim modifications by D. Motoki
+	fVerbose = 0;
+	//defaultCutValue = 1.*mm; // Taken from original KLG4sim code
+	defaultCutValue = 0.001*mm; // Taken from KLG4sim modifications by D. Motoki
 	fCutForGamma     = defaultCutValue;
 	fCutForElectron  = defaultCutValue;
 	fCutForPositron  = defaultCutValue;
@@ -182,8 +182,8 @@ void MTCG4PhysicsList::ConstructHadronPhysics(G4bool flagHP)
 void MTCG4PhysicsList::ConstructOpticalPhysics()
 {
 	G4OpticalPhysics *opticalPhysics = new G4OpticalPhysics(fVerbose);
-	opticalPhysics->SetMaxNumPhotonsPerStep(10);
-	//opticalPhysics->SetMaxBetaChangePerStep(0.10); // % change in beta per step.
+	opticalPhysics->SetMaxNumPhotonsPerStep(100); // #of photons per step.
+	//opticalPhysics->SetMaxBetaChangePerStep(0.10); //%change in beta per step.
 	opticalPhysics->SetTrackSecondariesFirst(kCerenkov, true);
 	opticalPhysics->SetTrackSecondariesFirst(kScintillation, true);
 
@@ -247,5 +247,5 @@ void MTCG4PhysicsList::SetCuts()
 	//   the default cut value for all particle types
 	// 
 	SetCutsWithDefault();
-	if (fVerbose>0) DumpCutValuesTable();   
+	if (fVerbose > 0) DumpCutValuesTable();   
 }

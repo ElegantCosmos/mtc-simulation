@@ -39,10 +39,10 @@ MTCG4DetectorMessenger::MTCG4DetectorMessenger(MTCG4DetectorConstruction* det)
 	fSetDopantEnrichmentCmd->SetParameterName("dopantEnrichment", false);
 	fSetDopantEnrichmentCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-	fSetPmtPlacementCmd = new G4UIcmdWithABool("/mtcg4/detector/setPMTPlacement", this);
+	fSetPmtPlacementCmd = new G4UIcmdWithABool("/mtcg4/detector/setPmtPlacement", this);
 	fSetPmtPlacementCmd->SetGuidance("Place PMTs on all faces of scintillator.");
 	fSetPmtPlacementCmd->SetGuidance("true: place, false: do not place.");
-	fSetPmtPlacementCmd->SetParameterName("PMTsArePlaced", false);
+	fSetPmtPlacementCmd->SetParameterName("PmtsArePlaced", false);
 	fSetPmtPlacementCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
 	//fSetThermalScatteringWithChemicallyBoundAtomsCmd = new
@@ -77,12 +77,12 @@ MTCG4DetectorMessenger::MTCG4DetectorMessenger(MTCG4DetectorConstruction* det)
 	fSetScintillatorVisCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
 	fSetPmtVisCmd = new
-		G4UIcmdWithAnInteger("/mtcg4/detector/visualization/setPMTModuleVis", this);
+		G4UIcmdWithAnInteger("/mtcg4/detector/visualization/setPmtModuleVis", this);
 	fSetPmtVisCmd->
 		SetGuidance("Set visualization attributes for PMT modules.");
 	fSetPmtVisCmd->
 		SetGuidance("0: no visualization, 1: uniform gray, 2: color by part.");
-	fSetPmtVisCmd->SetParameterName("PMTModulesAreVisible", false);
+	fSetPmtVisCmd->SetParameterName("PmtModulesAreVisible", false);
 	fSetPmtVisCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
 	fUpdateDetectorGeometryCmd = new
@@ -130,7 +130,7 @@ void MTCG4DetectorMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
 	}
 
  	else if(cmd == fSetPmtPlacementCmd)
-		fDetector->SetPMTPlacement(fSetPmtPlacementCmd->
+		fDetector->SetPmtPlacement(fSetPmtPlacementCmd->
 				GetNewBoolValue(newValue));
 
 	//else if(cmd == fSetThermalScatteringWithChemicallyBoundAtomsCmd)
@@ -139,12 +139,10 @@ void MTCG4DetectorMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue)
 
 	else if(cmd == fSetScintillatorVisCmd)
 		fDetector->
-			SetScintVis(fSetScintillatorVisCmd->
-					GetNewIntValue(newValue));
+			SetScintVis(fSetScintillatorVisCmd->GetNewIntValue(newValue));
 
 	else if(cmd == fSetPmtVisCmd)
-		fDetector->SetPMTModuleVis(fSetPmtVisCmd
-				->GetNewIntValue(newValue));
+		fDetector->SetPmtModuleVis(fSetPmtVisCmd->GetNewIntValue(newValue));
 
 	else if(cmd == fUpdateDetectorGeometryCmd)
 		fDetector->UpdateGeometry();
@@ -166,7 +164,7 @@ G4String MTCG4DetectorMessenger::GetCurrentValue(G4UIcommand* cmd)
 	else if(cmd == fSetPmtPlacementCmd)
 		answer =
 			fSetPmtPlacementCmd->ConvertToString(fDetector->
-					GetPMTPlacement());
+					GetPmtPlacement());
 	else if(cmd == fSetScintillatorVisCmd)
 		answer =
 			fSetScintillatorVisCmd->
@@ -174,6 +172,6 @@ G4String MTCG4DetectorMessenger::GetCurrentValue(G4UIcommand* cmd)
 	else if(cmd == fSetPmtVisCmd)
 		answer =
 			fSetPmtVisCmd->ConvertToString(fDetector->
-					GetPMTModuleVis());
+					GetPmtModuleVis());
 	return answer;
 }

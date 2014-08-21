@@ -7,7 +7,7 @@
 # Mich 2013/07/30
 
 # User parameter space.
-WORK_DIR=/home/mich/research/mtc/mtc-sim/mtcg4sim/trunk-build
+WORK_DIR=/home/mich/research/mtc/mtc-sim/mtcg4sim-build
 MACRO_DIR=$WORK_DIR/mac/batch
 MAX_PROCESSES=3
 N_RUNS=100

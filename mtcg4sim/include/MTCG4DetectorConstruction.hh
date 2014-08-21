@@ -12,6 +12,16 @@
 #include "G4VUserDetectorConstruction.hh"
 
 #include "globals.hh"
+
+extern const G4double SCINT_DIMENSION;
+extern const G4double SCINT_BUFFER_THICKNESS;
+extern const G4double PHOTOCATHODE_FACE_DIMENSION;
+extern const G4double PMT_PIXEL_FACE_PITCH;
+extern const G4double PMT_GLASS_HOUSING_DEPTH;
+extern const G4double PMT_GLASS_THICKNESS_AT_FACE_AND_REAR;
+extern const G4double PMT_INNER_VACUUM_DEPTH;
+extern const G4double PMT_PIXEL_FACE_PITCH;
+
 //
 // Class definitions.
 //
@@ -25,10 +35,11 @@ class G4VPVParameterisation;
 class G4UnionSolid;
 class G4SubtractionSolid;
 
-enum ScintVis {scintVisOff, scintVisGray, scintVisColor};
-enum PmtVis {pmtVisOff, pmtVisGray, pmtVisColor};
-enum PeripheralGeomeotryVis {peripheralVisOff, peripheralVisGray,
-	peripheralVisColor};
+enum ScintVisualizationAttribute {scintVisOff, scintVisGray, scintVisColor};
+enum PmtVisualizationAttribute {pmtVisOff, pmtVisGray, pmtVisColor};
+enum PeripheralGeomeotryVisualizationAttribute
+	{peripheralVisOff, peripheralVisGray, peripheralVisColor};
+enum Dopant {boron, lithium};
 
 class MTCG4DetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -37,16 +48,17 @@ public:
 	~MTCG4DetectorConstruction();
 
 public:
-	inline G4double GetWorldHight() const
-	{ return fWorldHight; }
-	inline G4double GetWorldWidthX() const
-	{ return fWorldWidthX; }
-	inline G4double GetWorldWidthY() const
-	{ return fWorldWidthY; }
 	void SetNeutronCaptureDopantMaterial(G4String material)
-	{ fNeutronCaptureMaterial = material; }
+	{
+		if (material == "boron") fDopant = boron;
+		else if (material == "lithium") fDopant = lithium;
+		else G4Exception(
+				"MTCG4DetectorConstruction::SetNeutronCaptureDopantMaterial",
+				"", FatalErrorInArgument,
+				"Dopant option not recognized.");
+	}
 	inline G4String GetNeutronCaptureDopantMaterial() const
-	{ return fNeutronCaptureMaterial; }
+	{ return fDopant; }
 	void SetDopantEnrichment(G4bool value)
 	{ fDopantIsEnriched = value; }
 	inline G4bool GetDopantEnrichment() const
@@ -54,7 +66,7 @@ public:
 	void SetDopingFraction(G4double value)
 	{ fDopingFraction = value; }
 	inline G4double GetDopingFraction() const
-	{	return fDopingFraction; }
+	{ return fDopingFraction; }
 	inline G4double GetScintDimensionX() const
 	{ return fScintDimensionX; }
 	inline G4double GetScintDimensionY() const
@@ -63,17 +75,42 @@ public:
 	{ return fScintDimensionZ; }
 	inline G4double GetScintBufferThickness() const
 	{ return fScintBufferThickness; }
-	void SetScintVis(G4int value)
-	{ fScintVis = static_cast<ScintVis>(value); }
-	inline ScintVis GetScintVis() const
+	void SetScintVis(G4String value)
+	{
+		if (value == "off") fScintVis = scintVisOff;
+		else if (value == "gray") fScintVis = scintVisGray;
+		else if (value == "color") fScintVis = scintVisColor;
+		else G4Exception("MTCG4DetectorConstruction::SetScintVis", "",
+				FatalErrorInArgument,
+				"Scintillator visualization option not recognized.");
+	}
+	inline ScintVisualizationAttribute GetScintVis() const
 	{ return fScintVis; }
-	void SetPMTModuleVis(G4int value)
-	{ fPmtVis = static_cast<PmtVis>(value); }
-	inline PmtVis GetPMTModuleVis() const
+	void SetPmtModuleVis(G4String value)
+	{
+		if (value == "off") fPmtVis = pmtVisOff;
+		else if (value == "gray") fPmtVis = pmtVisGray;
+		else if (value == "color") fPmtVis = pmtVisColor;
+		else G4Exception("MTCG4DetectorConstruction::SetPmtModuleVis", "",
+				FatalErrorInArgument,
+				"PMT visualization option not recognized.");
+	}
+	inline PmtVisualizationAttribute GetPmtModuleVis() const
 	{ return fPmtVis; }
-	void SetPMTPlacement(G4bool value)
+	void SetPeripheralVis(G4String value)
+	{
+		if (value == "off") fPeripheralGeometryVis = peripheralVisOff;
+		else if (value == "gray") fPeripheralGeometryVis = peripheralVisGray;
+		else if (value == "color") fPeripheralGeometryVis = peripheralVisColor;
+		else G4Exception("MTCG4DetectorConstruction::SetPeripheralVis", "",
+				FatalErrorInArgument,
+				"Peripheral geometry visualization option not recognized.");
+	}
+	inline PeripheralGeomeotryVisualizationAttribute GetPeripheralGeometryVis()
+	{ return fPeripheralGeometryVis; }
+	void SetPmtPlacement(G4bool value)
 	{ fPmtsArePlaced = value; }
-	inline G4bool GetPMTPlacement() const
+	inline G4bool GetPmtPlacement() const
 	{ return fPmtsArePlaced; }
 	inline G4double GetPixelPitch() const
 	{ return fPixelPitch; }
@@ -86,28 +123,30 @@ public:
 
 public:
 	G4VPhysicalVolume* Construct();
-	void DefineMaterials();
 	void SetScintMaterial();
-	void SetupGeometry();
-	void SetupPMTGeometries();
-	void SetupPeripheralGeometries();
-	void CreatePMTs();
-	void SetVisAttributes();
-	void SetMaterialProperties();
-	void SetAirMaterialProperties();
-	void SetScintMaterialProperties();
-	void SetPmtMaterialProperties();
 	void UpdateGeometry();
+
+private:
+	void CreatePMTs();
+	void DefineMaterials();
+	void SetAirMaterialProperties();
+	void SetMaterialProperties();
+	void SetPmtMaterialProperties();
+	void SetScintMaterialProperties();
+	void SetVisAttributes();
+	void SetupGeometry();
+	void SetupPeripheralGeometries();
+	void SetupPmtGeometries();
+	void SetupScintillator();
+	void SetupWorld();
+	G4int GetHydrogenCarbonMassFractions(
+			G4double dopingFraction,
+			G4double &hydrogenMassFraction,
+			G4double &carbonMassFraction) const;
 	G4double GetEJ254Density(G4double dopingFraction) const;
 
 private:
-	// World dimensions.
-	G4double fWorldHight;
-	G4double fWorldWidthX;
-	G4double fWorldWidthY;
-
 	// Detector dimensions.
-	G4double fPmtGlassThicknessAtFaceAndRear;
 	G4double fPmtInnerVacuumDepth;
 	G4double fPhotocathodeFaceDimension;
 	G4double fPixelPitch;
@@ -126,26 +165,30 @@ private:
 	G4String	fCadFilesPath;	// directory path where CAD files are located.
 	G4bool		fPmtsArePlaced; // Flag to place PMTs on scintillator surfaces.
 	G4bool		fFrameIsPlaced; // Flag to place support frame/clamps.
-	G4String	fNeutronCaptureMaterial;
+	Dopant		fDopant;
 	G4bool		fDopantIsEnriched;
 	G4double	fDopingFraction;
-	ScintVis	fScintVis;
-	PmtVis		fPmtVis;
-	PeripheralGeomeotryVis fPeripheralGeometryVis;
 	G4bool		fNeutronHpThermalScatteringUsed;		
+	PmtVisualizationAttribute					fPmtVis;
+	ScintVisualizationAttribute					fScintVis;
+	PeripheralGeomeotryVisualizationAttribute	fPeripheralGeometryVis;
 
 	//
 	// Choices of scint types.
 	//
+	G4Material* fEJ254_ZeroPercentNaturalBoronDoped;
 	G4Material* fEJ254_OnePercentNaturalBoronDoped;
 	G4Material* fEJ254_TwoAndHalfPercentNaturalBoronDoped;
 	G4Material* fEJ254_FivePercentNaturalBoronDoped;
+	G4Material* fEJ254_ZeroPercentEnrichedBoronDoped;
 	G4Material* fEJ254_OnePercentEnrichedBoronDoped;
 	G4Material* fEJ254_TwoAndHalfPercentEnrichedBoronDoped;
 	G4Material* fEJ254_FivePercentEnrichedBoronDoped;
+	G4Material* fEJ254_ZeroPercentNaturalLithiumDoped;
 	G4Material* fEJ254_OnePercentNaturalLithiumDoped;
 	G4Material* fEJ254_TwoAndHalfPercentNaturalLithiumDoped;
 	G4Material* fEJ254_FivePercentNaturalLithiumDoped;
+	G4Material* fEJ254_ZeroPercentEnrichedLithiumDoped;
 	G4Material* fEJ254_OnePercentEnrichedLithiumDoped;
 	G4Material* fEJ254_TwoAndHalfPercentEnrichedLithiumDoped;
 	G4Material* fEJ254_FivePercentEnrichedLithiumDoped;

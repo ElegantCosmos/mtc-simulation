@@ -55,6 +55,7 @@ private:
 
 	//G4int					fKillSecondary;
 	G4int					fStage;
+	G4int					fNPhotons;
 
 	enum HOW_TO_TRACK_OPTICAL_PHOTON {
 		killImmediately,

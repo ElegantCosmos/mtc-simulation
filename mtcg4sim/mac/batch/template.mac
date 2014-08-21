@@ -4,6 +4,42 @@
 
 
 ######################################################################
+# Commands to set scintillator doping properties.
+# Not used for now. Broken.
+######################################################################
+
+# Select dopant material of the scintillator for neutron capture enhancement.
+# Choose "lithium" or "boron" or "none".
+#/mtcg4/detector/setNeutronCaptureDopantMaterial boron
+
+# Set enrichment fraction of dopant material in scintillator to be 100% or that of
+# what is found in natural abundance.
+# true: 100%, false: natural abundance.
+#/mtcg4/detector/setDopantErichment false
+
+# Set the fraction of dopant material for neutron capture in the scintillator.
+# Available options are those given by Eljen Technology: 0.01, 0.025, 0.05.
+#/mtcg4/detector/setDopingFraction 0.01
+#/mtcg4/detector/setDopingFraction 0.
+
+
+
+######################################################################
+# Commands to change detector geometry.
+# Not used for now.
+######################################################################
+
+# Place PMTs on all faces of scintillator.
+# true: place, false: do not place.
+#/mtcg4/detector/setPMTPlacement true
+
+# Place support frame/clams around detector.
+# true: place, false: do not place
+#/mtcg4/detector/setFramePlacement true
+
+
+
+######################################################################
 # Commands to change physics settings.
 ######################################################################
 
@@ -134,13 +170,14 @@
 ######################################################################
 
 # Set flag to shoot cosmic ray muon.
-/gun/shootCosmicRayMuon true
+/gun/shootCosmicRayMuon false
 # Set energy of muon. Set <= 0 to specify sea level energy spectrum.
+#/gun/setCosmicRayMuonEnergy 283 GeV
 /gun/setCosmicRayMuonEnergy -1 GeV
 # Set muon direction. Choose "sea-level" or "-z".
 # sea-level: random direction with zenith angle distribution at sea level.
 # -z: Straight down from top of cube.
-/gun/setCosmicRayMuonDirection -z
+/gun/setCosmicRayMuonDirection sea-level
 
 
 
@@ -153,48 +190,15 @@
 ######################################################################
 
 # Set flag to shoot general particle source.
-/gps/shootGeneralParticleSource false
+/gps/shootGeneralParticleSource true
 # Settings for particle.
-/gps/particle gamma
+#/gps/particle gamma
+/gps/particle neutron
 /gps/pos/type Point
 /gps/pos/centre 0 0 0 cm
 /gps/ang/type iso
-/gps/energy 1 MeV
-
-
-
-######################################################################
-# Commands to set scintillator doping properties.
-######################################################################
-
-# Select dopant material of the scintillator for neutron capture enhancement.
-# Choose "lithium" or "boron" or "none".
-/mtcg4/detector/setNeutronCaptureDopantMaterial boron
-
-# Set enrichment fraction of dopant material in scintillator to be 100% or that of
-# what is found in natural abundance.
-# true: 100%, false: natural abundance.
-/mtcg4/detector/setDopantErichment false
-
-# Set the fraction of dopant material for neutron capture in the scintillator.
-# Available options are those given by Eljen Technology: 0.01, 0.025, 0.05.
-/mtcg4/detector/setDopingFraction 0.01
-#/mtcg4/detector/setDopingFraction 0.
-
-
-
-######################################################################
-# Commands to change detector geometry.
-# Not used for now.
-######################################################################
-
-# Place PMTs on all faces of scintillator.
-# true: place, false: do not place.
-#/mtcg4/detector/setPMTPlacement true
-
-# Place support frame/clams around detector.
-# true: place, false: do not place
-#/mtcg4/detector/setFramePlacement true
+#/gps/energy 1 MeV
+/gps/energy 2.5 MeV
 
 
 
@@ -203,17 +207,7 @@
 ######################################################################
 
 # Set output path for simulation results.
-#/mtcg4/io/setOutputPath 283gev_mu/
-#/mtcg4/io/setOutputPath /data/mtc-sim/cosmicray_mu/
-#/mtcg4/io/setOutputPath /data/mtc-sim/283gev_mu/
-#/mtcg4/io/setOutputPath /data/mtc-sim/2gev_mu/
-#/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_without_wls/
-#/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_with_wls/
-#/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1000evt_with_wls_straight_down/
-#/mtcg4/io/setOutputPath /data/mtc-sim/1gev_-z_mu_only_cerenkov/
-#/mtcg4/io/setOutputPath /data/mtc-sim/1gev_-z_mu_only_scintillation/
-/mtcg4/io/setOutputPath /data/mtc-sim/sea_level_spectrum_mu_1Mevt_with_wls_straight_down/
-
+/mtcg4/io/setOutputPath CONDOR_OUTPUT_DIR
 
 # Set output file name for all particle steps.
 /mtcg4/io/setStepOutputFile all_particle_step_runJOB_SUBMIT_NO
@@ -230,9 +224,9 @@
 # Check for geometry overlaps.
 /geometry/test/grid_test true
 
-# Set random seed for run.
 # Deprecated seed setting. Now we use runID and eventID to create a seed unique
 # for given run and event.
+# Set random seed for run.
 #/generator/seed SEED_NO
 
 # Set some verbose settings.
@@ -257,14 +251,6 @@
 #/tracking/storeTrajectory 1
 
 # Set number of events for this run.
-#/run/beamOn 1
-#/run/beamOn 10
-#/run/beamOn 50
-#/run/beamOn 100
-#/run/beamOn 500
-/run/beamOn 10000
-#/run/beamOn 10000
-#/run/beamOn 10000000
-#/run/beamOn 3 
+/run/beamOn N_EVENTS
 
 exit

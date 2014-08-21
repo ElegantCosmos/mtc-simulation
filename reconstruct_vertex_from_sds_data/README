@@ -1,0 +1,14 @@
+This package was created as a sampler to show a quick example of how a program
+to convert the proposed MTC ROOT data format to a generic text file might be
+written.
+The root file is called "pe_for_run_0.root" and the converted text file is
+called "pe_converted_from_root_file_to_text_file.txt".
+The program is compiled by running "make" on the command line, and then executed
+by specifying the executable and at least one root file as its argument.
+E.g. "./read_mtc_root_data pe_for_run_0.root".
+
+In order to correctly compile the executable, one needs to install the mtc-sds
+(Mini-Time Cube Shared Data Structure) headers and libraries. This is provided
+in a seperate package that was written by Serge.
+
+Email any questions to michinar@hawaii.edu.

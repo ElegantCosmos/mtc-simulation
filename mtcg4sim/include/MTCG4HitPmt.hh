@@ -54,7 +54,10 @@ public:
 
 	// Get number of photon hits at specifice anode.
 	// anode is in format row_id*10 + column_id.
-	G4int GetEntriesInAnode(G4int anode);
+	G4int GetEntriesInAnode(G4int anode) const;
+
+	// Get total number of photon hits at this PMT.
+	G4int GetTotalEntries() const;
 
 	MTCG4HitPhoton* GetPhoton(G4int i) const { return fPhotons[i]; }
 

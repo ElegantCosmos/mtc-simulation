@@ -34,6 +34,7 @@ void MTCG4EventAction::BeginOfEventAction(const G4Event*)
 // Method Called At End Of Action //
 void MTCG4EventAction::EndOfEventAction(const G4Event* theEvent)
 {
+	fTheHitPmtCollection.Print(G4cout);
 	G4int eventNo = theEvent->GetEventID();
 	G4cout << "Event " << eventNo << " done!" << G4endl << G4endl;
 
@@ -41,8 +42,14 @@ void MTCG4EventAction::EndOfEventAction(const G4Event* theEvent)
 	fPEOut = PESdsIO::GetInstance();
 	fPEOut->Write(theEvent);
 
-	fStepOutToRoot = StepRootIO::GetInstance();
-	fStepOutToRoot->Write();
+	// Writing step info to TTree at end of every event is probably time
+	// consuming b/c we have to read out pre-existing tree and append new tree
+	// for current event step info and resave. This is okay when runs take a
+	// long time to process and we want to save relatively few events such as
+	// those that only include long-lived isotopes of muon spallation products.
+	// But in general we should do this at the end of the run.
+	//fStepOutToRoot = StepRootIO::GetInstance();
+	//fStepOutToRoot->Write();
 
 	//// Print stored trajectories of this event.
 	//G4TrajectoryContainer* trajectoryContainer = theEvent->GetTrajectoryContainer();

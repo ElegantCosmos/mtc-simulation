@@ -431,12 +431,12 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 		// rho. Phi can be sampled as is over [0, 2pi].
 		//const G4double muonInitPosRho = 0.;
 		//const G4double muonInitPosPhi = 0*rad;
-		const G4double muonInitPosRho =
-			0.5*sqrt(
-					scintDimensionX*scintDimensionX +
-					scintDimensionY*scintDimensionY +
-					scintDimensionZ*scintDimensionZ)*
-			sqrt(G4UniformRand());
+		const G4double muonInitPosRho = 0.5*sqrt(
+				G4UniformRand()*	
+				(scintDimensionX*scintDimensionX +
+				 scintDimensionY*scintDimensionY +
+				 scintDimensionZ*scintDimensionZ)
+				);
 		const G4double muonInitPosPhi = twopi*G4UniformRand()*rad;
 		const G4double muonInitPosZ = // Initial muon Z coordinate.
 			fabs(2*scintDimensionZ);
@@ -469,7 +469,7 @@ void MTCG4PrimaryGeneratorAction::GenerateCosmicRayMuons(G4Event *theEvent)
 	}
 	else if (fCosmicRayMuonDirectionDescription == "-z") {
 		// Set downward going muon direction through center of cube.
-		muonInitPos = G4ThreeVector(0*mm, 0*mm, 2*scintDimensionZ);
+		muonInitPos = G4ThreeVector(0*mm, 0*mm, 0.5*scintDimensionZ + 0.1*mm);
 		muonMomentumDir = G4ThreeVector(0, 0, -1);
 	}
 	else {
@@ -520,6 +520,9 @@ void GetMuonMomentumAngles(G4double &theta, G4double &phi)
 
 G4double GetCosmicRayMuonDifferentialIntensity(G4double momentum) 
 {
+	// Following momentum spectrum for cosmic ray muons from "The absolute
+	// cosmic ray muon spectrum at sea level" - Allkofer, O.C. et al. Phys.Lett.
+	// B36 (1971) 425-427.
 	// Use momentum in GeV/c, c = 1.
 	const G4double a = 0.147698;
 	const G4double b = -3.15792;

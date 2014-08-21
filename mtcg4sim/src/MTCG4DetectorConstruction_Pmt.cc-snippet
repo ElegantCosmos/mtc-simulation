@@ -1,0 +1,446 @@
+	// Here we create a template logical volume for the PMT bounding volume that
+	// we can "copy-and-paste" to replicate all the PMTs deployed in the detector.
+	// "pmt" means one Planacon multi-channel plate photomultiplier tube XP85012
+	// by Photonis.
+	fPmtBoundingVolumeSolid = new G4Box(
+			"pmtBoundingVolumeSolid",
+			.5*PMT_BOUNDING_VOLUME_FACE_DIMENSION,
+			.5*PMT_BOUNDING_VOLUME_FACE_DIMENSION,
+			.5*PMT_BOUNDING_VOLUME_DEPTH);
+ 	fPmtBoundingVolumeLogical = new G4LogicalVolume(
+			fPmtBoundingVolumeSolid,
+			worldMaterial,
+			"pmtBoundingVolumeLogical");
+
+	// Actual physical volumes of PMT bounding volumes replicated here. The PMT
+	// numbering and their order for placement follows Shige's proposed
+	// convention. Please refer to his diagram for details. Names given to each
+	// PMT follow the format "pmtNPhysical_S_A_B", where N is the PMT ID number
+	// ranging from 1 through 24, S is an integer ranging from 1 through 6
+	// identifying the surface number of the scintillating cube, and A and B stand
+	// for two coordinate numbers each being either a 1 or a 2. A and B are the
+	// two meaningful coordinate numbers for the x, y, or z coordinates in this
+	// order. For more details please see file PMTsDatabase.ods in
+	// hanohano@hanohano-pc2:~/mTC/ directory.
+
+	// PMT 1.
+	G4RotationMatrix pmt1RotationMatrix;
+	pmt1RotationMatrix.rotateZ(pi*rad);
+	G4ThreeVector pmt1TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume1Physical = new G4PVPlacement(
+			G4Transform3D(pmt1RotationMatrix,	pmt1TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt1Physical_1_1_1",
+			fWorldLogical,
+			false,
+			0
+			);
+
+	// PMT 2.
+	G4RotationMatrix pmt2RotationMatrix;
+	pmt2RotationMatrix.rotateZ(pi*rad);
+	G4ThreeVector pmt2TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume2Physical = new G4PVPlacement(
+			G4Transform3D(pmt2RotationMatrix,	pmt2TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt2Physical_1_2_1",
+			fWorldLogical,
+			false,
+			1
+			);
+
+	// PMT 3.
+	G4RotationMatrix pmt3RotationMatrix; // No rotation.
+	G4ThreeVector pmt3TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume3Physical = new G4PVPlacement(
+			G4Transform3D(pmt3RotationMatrix,	pmt3TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt3Physical_1_1_2",
+			fWorldLogical,
+			false,
+			2
+			);
+
+	// PMT 4.
+	G4RotationMatrix pmt4RotationMatrix; // No rotation.
+	G4ThreeVector pmt4TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume4Physical = new G4PVPlacement(
+			G4Transform3D(pmt4RotationMatrix,	pmt4TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt4Physical_1_2_2",
+			fWorldLogical,
+			false,
+			3
+			);
+
+	// PMT 5.
+	G4RotationMatrix pmt5RotationMatrix;
+	pmt5RotationMatrix.rotateX(-.5*pi*rad);
+	G4ThreeVector pmt5TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume5Physical = new G4PVPlacement(
+			G4Transform3D(pmt5RotationMatrix,	pmt5TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt5Physical_2_1_1",
+			fWorldLogical,
+			false,
+			4
+			);
+
+	// PMT 6.
+	G4RotationMatrix pmt6RotationMatrix;
+	pmt6RotationMatrix.rotateX(-.5*pi*rad);
+	G4ThreeVector pmt6TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume6Physical = new G4PVPlacement(
+			G4Transform3D(pmt6RotationMatrix,	pmt6TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt6Physical_2_2_1",
+			fWorldLogical,
+			false,
+			5
+			);
+
+	// PMT 7.
+	G4RotationMatrix pmt7RotationMatrix;
+	pmt7RotationMatrix.rotateZ(pi*rad);
+	pmt7RotationMatrix.rotateX(-.5*pi*rad);
+	G4ThreeVector pmt7TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume7Physical = new G4PVPlacement(
+			G4Transform3D(pmt7RotationMatrix,	pmt7TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt7Physical_2_1_2",
+			fWorldLogical,
+			false,
+			6
+			);
+
+	// PMT 8.
+	G4RotationMatrix pmt8RotationMatrix;
+	pmt8RotationMatrix.rotateZ(pi*rad);
+	pmt8RotationMatrix.rotateX(-.5*pi*rad);
+	G4ThreeVector pmt8TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume8Physical = new G4PVPlacement(
+			G4Transform3D(pmt8RotationMatrix,	pmt8TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt8Physical_2_2_2",
+			fWorldLogical,
+			false,
+			7
+			);
+
+	// PMT 9.
+	G4RotationMatrix pmt9RotationMatrix;
+	pmt9RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt9RotationMatrix.rotateY(.5*pi*rad);
+	G4ThreeVector pmt9TranslationVector(
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume9Physical = new G4PVPlacement(
+			G4Transform3D(pmt9RotationMatrix,	pmt9TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt9Physical_3_1_1",
+			fWorldLogical,
+			false,
+			8
+			);
+
+	// PMT 10.
+	G4RotationMatrix pmt10RotationMatrix;
+	pmt10RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt10RotationMatrix.rotateY(.5*pi*rad);
+	G4ThreeVector pmt10TranslationVector(
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume10Physical = new G4PVPlacement(
+			G4Transform3D(pmt10RotationMatrix,	pmt10TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt10Physical_3_2_1",
+			fWorldLogical,
+			false,
+			9
+			);
+
+	// PMT 11.
+	G4RotationMatrix pmt11RotationMatrix;
+	pmt11RotationMatrix.rotateZ(.5*pi*rad);
+	pmt11RotationMatrix.rotateY(.5*pi*rad);
+	G4ThreeVector pmt11TranslationVector(
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume11Physical = new G4PVPlacement(
+			G4Transform3D(pmt11RotationMatrix,	pmt11TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt11Physical_3_1_2",
+			fWorldLogical,
+			false,
+			10
+			);
+
+	// PMT 12.
+	G4RotationMatrix pmt12RotationMatrix;
+	pmt12RotationMatrix.rotateZ(.5*pi*rad);
+	pmt12RotationMatrix.rotateY(.5*pi*rad);
+	G4ThreeVector pmt12TranslationVector(
+			-PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume12Physical = new G4PVPlacement(
+			G4Transform3D(pmt12RotationMatrix,	pmt12TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt12Physical_3_2_2",
+			fWorldLogical,
+			false,
+			11
+			);
+
+	// PMT 13.
+	G4RotationMatrix pmt13RotationMatrix;
+	pmt13RotationMatrix.rotateZ(.5*pi*rad);
+	pmt13RotationMatrix.rotateY(-.5*pi*rad);
+	G4ThreeVector pmt13TranslationVector(
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume13Physical = new G4PVPlacement(
+			G4Transform3D(pmt13RotationMatrix,	pmt13TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt13Physical_4_1_1",
+			fWorldLogical,
+			false,
+			12
+			);
+
+	// PMT 14.
+	G4RotationMatrix pmt14RotationMatrix;
+	pmt14RotationMatrix.rotateZ(.5*pi*rad);
+	pmt14RotationMatrix.rotateY(-.5*pi*rad);
+	G4ThreeVector pmt14TranslationVector(
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume14Physical = new G4PVPlacement(
+			G4Transform3D(pmt14RotationMatrix,	pmt14TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt14Physical_4_2_1",
+			fWorldLogical,
+			false,
+			13
+			);
+
+	// PMT 15.
+	G4RotationMatrix pmt15RotationMatrix;
+	pmt15RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt15RotationMatrix.rotateY(-.5*pi*rad);
+	G4ThreeVector pmt15TranslationVector(
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume15Physical = new G4PVPlacement(
+			G4Transform3D(pmt15RotationMatrix,	pmt15TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt15Physical_4_1_2",
+			fWorldLogical,
+			false,
+			14
+			);
+
+	// PMT 16.
+	G4RotationMatrix pmt16RotationMatrix;
+	pmt16RotationMatrix.rotateZ(-.5*pi*rad);
+	pmt16RotationMatrix.rotateY(-.5*pi*rad);
+	G4ThreeVector pmt16TranslationVector(
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume16Physical = new G4PVPlacement(
+			G4Transform3D(pmt16RotationMatrix,	pmt16TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt16Physical_4_2_2",
+			fWorldLogical,
+			false,
+			15
+			);
+
+	// PMT 17.
+	G4RotationMatrix pmt17RotationMatrix;
+	pmt17RotationMatrix.rotateZ(pi*rad);
+	pmt17RotationMatrix.rotateX(.5*pi*rad);
+	G4ThreeVector pmt17TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume17Physical = new G4PVPlacement(
+			G4Transform3D(pmt17RotationMatrix,	pmt17TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt17Physical_5_1_1",
+			fWorldLogical,
+			false,
+			16
+			);
+
+	// PMT 18.
+	G4RotationMatrix pmt18RotationMatrix;
+	pmt18RotationMatrix.rotateZ(pi*rad);
+	pmt18RotationMatrix.rotateX(.5*pi*rad);
+	G4ThreeVector pmt18TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume18Physical = new G4PVPlacement(
+			G4Transform3D(pmt18RotationMatrix,	pmt18TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt18Physical_5_2_1",
+			fWorldLogical,
+			false,
+			17
+			);
+
+	// PMT 19.
+	G4RotationMatrix pmt19RotationMatrix;
+	pmt19RotationMatrix.rotateX(.5*pi*rad);
+	G4ThreeVector pmt19TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume19Physical = new G4PVPlacement(
+			G4Transform3D(pmt19RotationMatrix,	pmt19TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt19Physical_5_1_2",
+			fWorldLogical,
+			false,
+			18
+			);
+
+	// PMT 20.
+	G4RotationMatrix pmt20RotationMatrix;
+	pmt20RotationMatrix.rotateX(.5*pi*rad);
+	G4ThreeVector pmt20TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume20Physical = new G4PVPlacement(
+			G4Transform3D(pmt20RotationMatrix,	pmt20TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt20Physical_5_2_2",
+			fWorldLogical,
+			false,
+			19
+			);
+
+	// PMT 21.
+	G4RotationMatrix pmt21RotationMatrix;
+	pmt21RotationMatrix.rotateX(pi*rad);
+	G4ThreeVector pmt21TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume21Physical = new G4PVPlacement(
+			G4Transform3D(pmt21RotationMatrix,	pmt21TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt21Physical_6_1_1",
+			fWorldLogical,
+			false,
+			20
+			);
+
+	// PMT 22.
+	G4RotationMatrix pmt22RotationMatrix;
+	pmt22RotationMatrix.rotateX(pi*rad);
+	G4ThreeVector pmt22TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume22Physical = new G4PVPlacement(
+			G4Transform3D(pmt22RotationMatrix,	pmt22TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt22Physical_6_2_1",
+			fWorldLogical,
+			false,
+			21
+			);
+
+	// PMT 23.
+	G4RotationMatrix pmt23RotationMatrix;
+	pmt23RotationMatrix.rotateZ(pi*rad);
+	pmt23RotationMatrix.rotateX(pi*rad);
+	G4ThreeVector pmt23TranslationVector(
+			-PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume23Physical = new G4PVPlacement(
+			G4Transform3D(pmt23RotationMatrix,	pmt23TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt23Physical_6_1_2",
+			fWorldLogical,
+			false,
+			22
+			);
+
+	// PMT 24.
+	G4RotationMatrix pmt24RotationMatrix;
+	pmt24RotationMatrix.rotateZ(pi*rad);
+	pmt24RotationMatrix.rotateX(pi*rad);
+	G4ThreeVector pmt24TranslationVector(
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_PARALLEL_TO_CUBEFACE,
+			+PMT_PLACEMENT_NORMAL_TO_CUBEFACE
+			);
+	fPmtBoundingVolume24Physical = new G4PVPlacement(
+			G4Transform3D(pmt24RotationMatrix,	pmt24TranslationVector),
+			fPmtBoundingVolumeLogical,
+			"pmt24Physical_6_2_2",
+			fWorldLogical,
+			false,
+			23
+			);
+
+

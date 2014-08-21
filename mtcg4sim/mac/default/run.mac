@@ -1,7 +1,48 @@
-#
 # ----------------
 # Run settings for new physics list created for simulating cosmogenic isotopes.
 # ----------------
+
+
+######################################################################
+# Commands to set scintillator doping properties.
+# Not used for now. Broken.
+######################################################################
+
+# Select dopant material of the scintillator for neutron capture enhancement.
+# Choose "lithium" or "boron" or "none".
+#/mtcg4/detector/setNeutronCaptureDopantMaterial boron
+
+# Set enrichment fraction of dopant material in scintillator to be 100% or that of
+# what is found in natural abundance.
+# true: 100%, false: natural abundance.
+#/mtcg4/detector/setDopantErichment false
+
+# Set the fraction of dopant material for neutron capture in the scintillator.
+# Available options are those given by Eljen Technology: 0.01, 0.025, 0.05.
+#/mtcg4/detector/setDopingFraction 0.01
+#/mtcg4/detector/setDopingFraction 0.05
+#/mtcg4/detector/setDopingFraction 0.
+
+
+
+######################################################################
+# Commands to change detector geometry.
+# Not used for now.
+######################################################################
+
+# Place PMTs on all faces of scintillator.
+# true: place, false: do not place.
+#/mtcg4/detector/setPMTPlacement true
+
+# Place support frame/clams around detector.
+# true: place, false: do not place
+#/mtcg4/detector/setFramePlacement true
+
+# Update any modified geometries and optimize.
+#/mtcg4/detector/update
+#/run/geometryModified
+#/run/physicsModified
+
 
 
 ######################################################################
@@ -70,11 +111,11 @@
 
 # Flag to shoot or omit primary positron.
 # True: shoot, false: do not shoot.
-/mtcg4/primary/shootPrimaryPositron true
+/mtcg4/primary/shootPrimaryPositron false
 
 # Flag to shoot or omit primary neutron.
 # True: shoot, false: do not shoot.
-/mtcg4/primary/shootPrimaryNeutron true
+/mtcg4/primary/shootPrimaryNeutron false
 
 # Set incoming neutrino direction.
 # Options:
@@ -166,48 +207,35 @@
 ######################################################################
 
 # Set flag to shoot general particle source.
-/gps/shootGeneralParticleSource false
+/gps/shootGeneralParticleSource true
 # Settings for particle.
-/gps/particle gamma
+
+#/gps/particle gamma
+/gps/particle neutron
+#/gps/particle e-
+
+#/gps/position 0 0 -65 mm
 /gps/pos/type Point
+#/gps/pos/type Plane
+#/gps/pos/shape Rectangle
+#/gps/pos/rot1 1 0 0
+#/gps/pos/rot2 0 1 0
+#/gps/pos/halfx 65 mm
+#/gps/pos/halfy 65 mm
 /gps/pos/centre 0 0 0 cm
+#/gps/pos/centre 0 0 -65 mm
+
+#/gps/direction 0 0 1
+#/gps/ang/type cos
+#/gps/ang/rot1 1 0 0
+#/gps/ang/rot2 0 1 0
+#/gps/ang/mintheta 0 deg
+#/gps/ang/maxtheta 90 deg
+
 /gps/ang/type iso
-/gps/energy 1 MeV
-
-
-
-######################################################################
-# Commands to set scintillator doping properties.
-######################################################################
-
-# Select dopant material of the scintillator for neutron capture enhancement.
-# Choose "lithium" or "boron" or "none".
-/mtcg4/detector/setNeutronCaptureDopantMaterial boron
-
-# Set enrichment fraction of dopant material in scintillator to be 100% or that of
-# what is found in natural abundance.
-# true: 100%, false: natural abundance.
-/mtcg4/detector/setDopantErichment false
-
-# Set the fraction of dopant material for neutron capture in the scintillator.
-# Available options are those given by Eljen Technology: 0.01, 0.025, 0.05.
-/mtcg4/detector/setDopingFraction 0.01
-#/mtcg4/detector/setDopingFraction 0.
-
-
-
-######################################################################
-# Commands to change detector geometry.
-# Not used for now.
-######################################################################
-
-# Place PMTs on all faces of scintillator.
-# true: place, false: do not place.
-#/mtcg4/detector/setPMTPlacement true
-
-# Place support frame/clams around detector.
-# true: place, false: do not place
-#/mtcg4/detector/setFramePlacement true
+#/gps/energy 1 MeV
+#/gps/energy 100 keV
+#/gps/energy 1 GeV
 
 
 
@@ -237,20 +265,15 @@
 /generator/seed 0
 
 # Set some verbose settings.
-/control/verbose 1
-/tracking/verbose 1
-/run/verbose 1
+/control/verbose 0
+/tracking/verbose 0
+/run/verbose 0
 
 
 
 ######################################################################
 # Initialization and beamOn.
 ######################################################################
-
-# Update any modified geometries and optimize.
-#/mtcg4/detector/update
-#/run/geometryModified
-#/run/physicsModified
 
 # Initialize run.
 /run/initialize
@@ -261,8 +284,8 @@
 #/run/beamOn 1
 #/run/beamOn 3 
 #/run/beamOn 5
-#/run/beamOn 10
-/run/beamOn 100
+/run/beamOn 10
+#/run/beamOn 100
 #/run/beamOn 500
 #/run/beamOn 1000
 #/run/beamOn 10000

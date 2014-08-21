@@ -1,0 +1,41 @@
+		if (N_pe > 0) { // Photon creates PEs.
+			//G4cout << "N_pe > 0" << G4endl;
+			//G4cout << "detector = " << detector << G4endl;
+			//G4cout << "detector->isActive() = " << detector->isActive() << G4endl;
+
+			// Set flag to indicate photon was detected to user step.
+			((MTCG4SteppingAction*)
+			 G4RunManager::GetRunManager()->GetUserSteppingAction())->
+				SetPhotonDetectedAtEndOfStep(true);
+
+			if ( detector != NULL && detector->isActive() ) {
+				// Get pixel row/column ID number.
+				G4double row_id = static_cast<G4int>(
+						(0.5*fPhotocathodeFaceDimension - pos.y()) /
+						fPixelPitch); // Row ID decreases with Y of photon hit.
+				G4double column_id = static_cast<G4int>(
+						(0.5*fPhotocathodeFaceDimension + pos.x()) /
+						fPixelPitch); // Column ID increases with X of hit pos.
+				row_id++; column_id++; // Make sure row/column are 1~8.
+
+				//G4cout << "ipmt = " << ipmt << G4endl;
+				//G4cout << "row_id = " << row_id << G4endl;
+				//G4cout << "column_id = " << column_id << G4endl;
+				//G4cout << "time = " << time << G4endl;
+				//G4cout << "PE is recorded" << G4endl; // Mich's comment.
+
+				// Create photon hit.
+				((MTCG4PmtSD *)detector)->SimpleHit(
+					ipmt,
+					(G4int)row_id,
+					(G4int)column_id,
+					time,
+					energy,
+					pos,
+					dir,
+					pol,
+					0,
+					N_pe );
+			}
+		}
+

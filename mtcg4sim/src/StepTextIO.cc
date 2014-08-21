@@ -114,41 +114,73 @@ void StepTextIO::ResetInstance()
 void StepTextIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 {
 	const G4Event* theEvent = G4EventManager::GetEventManager()->GetConstCurrentEvent();
-	G4ThreeVector postStepPos;
-	G4ThreeVector postStepMom;
-	if (theStep) {// If step exists, tracking is underway. Get info from step.
-		G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
-		postStepPos = postStepPoint->GetPosition();
-		postStepMom = postStepPoint->GetMomentum();
-		fPostStepGlobalTime = postStepPoint->GetGlobalTime()/ns;
-		fPostStepKineticEnergy = postStepPoint->GetKineticEnergy()/MeV;
-		fPostStepPhysVolumeName = postStepPoint->GetPhysicalVolume()->GetName();
-		const G4VProcess *postStepProcess =
-		   	postStepPoint->GetProcessDefinedStep();
-		if (postStepProcess != NULL) {
-			fProcessName = postStepProcess->GetProcessName();
-			fProcessType = postStepProcess->GetProcessType();
-			fProcessSubType = postStepProcess->GetProcessSubType();
-		}
-		else {
-			fProcessName = "nullProcess";
-			fProcessType = -100;
-			fProcessSubType = -100;
-		}
-		fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
-		fStepLength = theStep->GetStepLength()/mm;
+	//G4ThreeVector postStepPos;
+	//G4ThreeVector postStepMom;
+	//if (theStep) {// If step exists, tracking is underway. Get info from step.
+	//	G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
+	//	postStepPos = postStepPoint->GetPosition();
+	//	postStepMom = postStepPoint->GetMomentum();
+	//	fPostStepGlobalTime = postStepPoint->GetGlobalTime()/ns;
+	//	fPostStepKineticEnergy = postStepPoint->GetKineticEnergy()/MeV;
+	//	fPostStepPhysVolumeName = postStepPoint->GetPhysicalVolume()->GetName();
+	//	const G4VProcess *postStepProcess =
+	//	   	postStepPoint->GetProcessDefinedStep();
+	//	if (postStepProcess != NULL) {
+	//		fProcessName = postStepProcess->GetProcessName();
+	//		fProcessType = postStepProcess->GetProcessType();
+	//		fProcessSubType = postStepProcess->GetProcessSubType();
+	//	}
+	//	else {
+	//		fProcessName = "nullProcess";
+	//		fProcessType = -100;
+	//		fProcessSubType = -100;
+	//	}
+	//	fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
+	//	fStepLength = theStep->GetStepLength()/mm;
+	//}
+	//else { // If step doesn't exist, particle is not yet tracked, ie 0th step.
+	//	postStepPos = theTrack->GetPosition(); // Use track position info.
+	//	postStepMom = theTrack->GetMomentum();
+	//	fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
+	//	fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
+	//	fPostStepPhysVolumeName = theTrack->GetVolume()->GetName();
+	//	const G4VProcess *creatorProcess = theTrack->GetCreatorProcess();
+	//	if (creatorProcess != NULL) {
+	//		fProcessName = creatorProcess->GetProcessName();
+	//		fProcessType = creatorProcess->GetProcessType();
+	//		fProcessSubType = creatorProcess->GetProcessSubType();
+	//	}
+	//	else {//If step nor creator process exists, it is 0th step of primary.
+	//		fProcessName = "primaryParticle";
+	//		fProcessType = -100;
+	//		fProcessSubType = -100;
+	//	}
+	//	fTotalEnergyDeposit = 0;
+	//	fStepLength = theTrack->GetStepLength()/mm;
+	//}
+
+	// Added as test to see if we can extract step info from G4Track object.
+	// Step info from G4Track object gets post-step info except for GetVolume()
+	// which gets the pre-step point volume. Lets get the post-step volume name
+	// from the G4Step object if it exists. If it doesn't exist, this means that
+	// the post-step volume is out of the world volume.
+	G4ThreeVector postStepPos = theTrack->GetPosition(); // Use track position info.
+	G4ThreeVector postStepMom = theTrack->GetMomentum();
+	fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
+	fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
+	G4VPhysicalVolume* nextVolume = theTrack->GetNextVolume();
+	if (nextVolume) {
+		fPostStepPhysVolumeName = nextVolume->GetName();
 	}
-	else { // If step doesn't exist, particle is not yet tracked, ie 0th step.
-		postStepPos = theTrack->GetPosition(); // Use track position info.
-		postStepMom = theTrack->GetMomentum();
-		fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
-		fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
-		fPostStepPhysVolumeName = theTrack->GetVolume()->GetName();
-		const G4VProcess *postStepProcess = theTrack->GetCreatorProcess();
-		if (postStepProcess != NULL) {
-			fProcessName = postStepProcess->GetProcessName();
-			fProcessType = postStepProcess->GetProcessType();
-			fProcessSubType = postStepProcess->GetProcessSubType();
+	else {
+		fPostStepPhysVolumeName = "outOfWorld";
+	}
+	if (!theStep) { // If step doesn't exist, it is still 0th step.
+		const G4VProcess *creatorProcess = theTrack->GetCreatorProcess();
+		if (creatorProcess != NULL) {
+			fProcessName = creatorProcess->GetProcessName();
+			fProcessType = creatorProcess->GetProcessType();
+			fProcessSubType = creatorProcess->GetProcessSubType();
 		}
 		else {//If step nor creator process exists, it is 0th step of primary.
 			fProcessName = "primaryParticle";
@@ -156,8 +188,20 @@ void StepTextIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 			fProcessSubType = -100;
 		}
 		fTotalEnergyDeposit = 0;
-		fStepLength = theTrack->GetStepLength()/mm;
 	}
+	else { // G4Step object exists. Tracking is underway. stepID > 0.
+		const G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
+		assert(postStepPoint);
+		const G4VProcess *postStepProcess = postStepPoint->GetProcessDefinedStep();
+		assert(postStepProcess);
+		fProcessName = postStepProcess->GetProcessName();
+		fProcessType = postStepProcess->GetProcessType();
+		fProcessSubType = postStepProcess->GetProcessSubType();
+		fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
+	}
+	fStepLength = theTrack->GetStepLength()/mm;
+	// End of test. 20140429 -- Mich.
+
 	G4ParticleDefinition* particleDef = theTrack->GetDefinition();
 	G4ThreeVector nuMomUnitVector =
 		(dynamic_cast<MTCG4EventAction*>(G4EventManager::GetEventManager()->GetUserEventAction()))->GetNeutrinoMomentumUnitVector();

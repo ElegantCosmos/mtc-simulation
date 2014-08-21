@@ -40,6 +40,7 @@ public:
   void DetectPhoton(MTCG4HitPhoton*);
   void SortTimeAscending();
   int GetEntries() const;
+  int GetTotalPE() const;
   MTCG4HitPmt* GetPmt(int i) const;
   MTCG4HitPmt* GetPmt_ByID(int id) const;
 
