@@ -171,75 +171,43 @@ void StepRootIO::SetTreeBranches()
 
 void StepRootIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 {
-	//const G4Event *theEvent = G4EventManager::GetEventManager()->GetConstCurrentEvent();
-	////G4ThreeVector postStepPos;
-	////G4ThreeVector postStepMom;
-	////if (theStep) {// If step exists, tracking is underway. Get info from step.
-	////	G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
-	////	postStepPos = postStepPoint->GetPosition();
-	////	postStepMom = postStepPoint->GetMomentum();
-	////	fPostStepGlobalTime = postStepPoint->GetGlobalTime()/ns;
-	////	fPostStepKineticEnergy = postStepPoint->GetKineticEnergy()/MeV;
-	////	strcpy(fPostStepPhysVolumeName,
-	////			postStepPoint->GetPhysicalVolume()->GetName());
-	////	const G4VProcess *postStepProcess =
-	////	   	postStepPoint->GetProcessDefinedStep();
-	////	if (postStepProcess != NULL) {
-	////		strcpy(fProcessName, postStepProcess->GetProcessName());
-	////		fProcessType = postStepProcess->GetProcessType();
-	////		fProcessSubType = postStepProcess->GetProcessSubType();
-	////	}
-	////	else {
-	////		strcpy(fProcessName, "nullProcess");
-	////		fProcessType = -100;
-	////		fProcessSubType = -100;
-	////	}
-	////	fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
-	////	fStepLength = theStep->GetStepLength()/mm;
-	////}
-	////else { // If step doesn't exist, particle is not yet tracked, ie 0th step.
-	////	postStepPos = theTrack->GetPosition(); // Use track position info.
-	////	postStepMom = theTrack->GetMomentum();
-	////	fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
-	////	fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
-	////	strcpy(fPostStepPhysVolumeName, theTrack->GetVolume()->GetName());
-	////	const G4VProcess *postStepProcess = theTrack->GetCreatorProcess();
-	////	if (postStepProcess != NULL) {
-	////		strcpy(fProcessName, postStepProcess->GetProcessName());
-	////		fProcessType = postStepProcess->GetProcessType();
-	////		fProcessSubType = postStepProcess->GetProcessSubType();
-	////	}
-	////	else {//If step nor creator process exists, it is 0th step of primary.
-	////		strcpy(fProcessName, "primaryParticle");
-	////		fProcessType = -100;
-	////		fProcessSubType = -100;
-	////	}
-	////	fTotalEnergyDeposit = 0;
-	////	fStepLength = theTrack->GetStepLength()/mm;
-	////}
-
-	//// Added as test to see if we can extract step info from G4Track object.
-	//// Step info from G4Track object gets post-step info except for GetVolume()
-	//// which gets the pre-step point volume. Lets get the post-step volume name
-	//// from the G4Step object if it exists. If it doesn't exist, this means that
-	//// the post-step volume is out of the world volume.
-	//G4ThreeVector postStepPos = theTrack->GetPosition(); // Use track position info.
-	//G4ThreeVector postStepMom = theTrack->GetMomentum();
-	//fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
-	//fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
-	//G4VPhysicalVolume* nextVolume = theTrack->GetNextVolume();
-	//if (nextVolume) {
-	//	strcpy(fPostStepPhysVolumeName, nextVolume->GetName());
+	const G4Event *theEvent = G4EventManager::GetEventManager()->GetConstCurrentEvent();
+	//G4ThreeVector postStepPos;
+	//G4ThreeVector postStepMom;
+	//if (theStep) {// If step exists, tracking is underway. Get info from step.
+	//	G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
+	//	postStepPos = postStepPoint->GetPosition();
+	//	postStepMom = postStepPoint->GetMomentum();
+	//	fPostStepGlobalTime = postStepPoint->GetGlobalTime()/ns;
+	//	fPostStepKineticEnergy = postStepPoint->GetKineticEnergy()/MeV;
+	//	strcpy(fPostStepPhysVolumeName,
+	//			postStepPoint->GetPhysicalVolume()->GetName());
+	//	const G4VProcess *postStepProcess =
+	//	   	postStepPoint->GetProcessDefinedStep();
+	//	if (postStepProcess != NULL) {
+	//		strcpy(fProcessName, postStepProcess->GetProcessName());
+	//		fProcessType = postStepProcess->GetProcessType();
+	//		fProcessSubType = postStepProcess->GetProcessSubType();
+	//	}
+	//	else {
+	//		strcpy(fProcessName, "nullProcess");
+	//		fProcessType = -100;
+	//		fProcessSubType = -100;
+	//	}
+	//	fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
+	//	fStepLength = theStep->GetStepLength()/mm;
 	//}
-	//else {
-	//	strcpy(fPostStepPhysVolumeName, "outOfWorld");
-	//}
-	//if (!theStep) { // If step doesn't exist, it is still 0th step.
-	//	const G4VProcess *creatorProcess = theTrack->GetCreatorProcess();
-	//	if (creatorProcess != NULL) {
-	//		strcpy(fProcessName, creatorProcess->GetProcessName());
-	//		fProcessType = creatorProcess->GetProcessType();
-	//		fProcessSubType = creatorProcess->GetProcessSubType();
+	//else { // If step doesn't exist, particle is not yet tracked, ie 0th step.
+	//	postStepPos = theTrack->GetPosition(); // Use track position info.
+	//	postStepMom = theTrack->GetMomentum();
+	//	fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
+	//	fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
+	//	strcpy(fPostStepPhysVolumeName, theTrack->GetVolume()->GetName());
+	//	const G4VProcess *postStepProcess = theTrack->GetCreatorProcess();
+	//	if (postStepProcess != NULL) {
+	//		strcpy(fProcessName, postStepProcess->GetProcessName());
+	//		fProcessType = postStepProcess->GetProcessType();
+	//		fProcessSubType = postStepProcess->GetProcessSubType();
 	//	}
 	//	else {//If step nor creator process exists, it is 0th step of primary.
 	//		strcpy(fProcessName, "primaryParticle");
@@ -247,99 +215,132 @@ void StepRootIO::Fill(const G4Track *theTrack, const G4Step *theStep)
 	//		fProcessSubType = -100;
 	//	}
 	//	fTotalEnergyDeposit = 0;
+	//	fStepLength = theTrack->GetStepLength()/mm;
 	//}
-	//else { // G4Step object exists. Tracking is underway. stepID > 0.
-	//	const G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
-	//	assert(postStepPoint);
-	//	const G4VProcess *postStepProcess = postStepPoint->GetProcessDefinedStep();
-	//	assert(postStepProcess);
-	//	strcpy(fProcessName, postStepProcess->GetProcessName());
-	//	fProcessType = postStepProcess->GetProcessType();
-	//	fProcessSubType = postStepProcess->GetProcessSubType();
-	//	fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
-	//}
-	//fStepLength = theTrack->GetStepLength()/mm;
-	//// End of test. 20140429 -- Mich.
 
-	//G4ParticleDefinition *particleDef = theTrack->GetDefinition();
-	//G4ThreeVector nuMomUnitVector =
-	//	dynamic_cast<MTCG4EventAction*>(G4EventManager::GetEventManager()->GetUserEventAction())->GetNeutrinoMomentumUnitVector();
+	// Added as test to see if we can extract step info from G4Track object.
+	// Step info from G4Track object gets post-step info except for GetVolume()
+	// which gets the pre-step point volume. Lets get the post-step volume name
+	// from the G4Step object if it exists. If it doesn't exist, this means that
+	// the post-step volume is out of the world volume.
+	G4ThreeVector postStepPos = theTrack->GetPosition(); // Use track position info.
+	G4ThreeVector postStepMom = theTrack->GetMomentum();
+	fPostStepGlobalTime = theTrack->GetGlobalTime()/ns;
+	fPostStepKineticEnergy = theTrack->GetKineticEnergy()/MeV;
+	G4VPhysicalVolume* nextVolume = theTrack->GetNextVolume();
+	if (nextVolume) {
+		strcpy(fPostStepPhysVolumeName, nextVolume->GetName());
+	}
+	else {
+		strcpy(fPostStepPhysVolumeName, "outOfWorld");
+	}
+	if (!theStep) { // If step doesn't exist, it is still 0th step.
+		const G4VProcess *creatorProcess = theTrack->GetCreatorProcess();
+		if (creatorProcess != NULL) {
+			strcpy(fProcessName, creatorProcess->GetProcessName());
+			fProcessType = creatorProcess->GetProcessType();
+			fProcessSubType = creatorProcess->GetProcessSubType();
+		}
+		else {//If step nor creator process exists, it is 0th step of primary.
+			strcpy(fProcessName, "primaryParticle");
+			fProcessType = -100;
+			fProcessSubType = -100;
+		}
+		fTotalEnergyDeposit = 0;
+	}
+	else { // G4Step object exists. Tracking is underway. stepID > 0.
+		const G4StepPoint* postStepPoint = theStep->GetPostStepPoint();
+		assert(postStepPoint);
+		const G4VProcess *postStepProcess = postStepPoint->GetProcessDefinedStep();
+		assert(postStepProcess);
+		strcpy(fProcessName, postStepProcess->GetProcessName());
+		fProcessType = postStepProcess->GetProcessType();
+		fProcessSubType = postStepProcess->GetProcessSubType();
+		fTotalEnergyDeposit = theStep->GetTotalEnergyDeposit()/MeV;
+	}
+	fStepLength = theTrack->GetStepLength()/mm;
+	// End of test. 20140429 -- Mich.
 
-	//// Variables to output.
-	//const MTCG4RunAction *runAction = dynamic_cast<const MTCG4RunAction*>(
-	//			G4RunManager::GetRunManager()->GetUserRunAction());
-	//assert(runAction);
-	//fRunID = runAction->GetRunID();
-	//fEventID = theEvent->GetEventID();
-	//fNuKineticEnergy = (
-	//		(MTCG4EventAction*)
-	//		G4EventManager::GetEventManager()->GetUserEventAction()
-	//		)->GetNeutrinoKineticEnergyOfEventAction()/MeV;
-	//fNuMomUnitVectorX = nuMomUnitVector.x();
-	//fNuMomUnitVectorY = nuMomUnitVector.y();
-	//fNuMomUnitVectorZ = nuMomUnitVector.z();
-	//fStepID = theTrack->GetCurrentStepNumber();
-	//strcpy(fParticleName, particleDef->GetParticleName().c_str());
-	//fPdgEncoding = particleDef->GetPDGEncoding(); 
-	//fTrackID = theTrack->GetTrackID();
-	//fParentID = theTrack->GetParentID();
-	//fPostStepPosX = postStepPos.x()/mm;
-	//fPostStepPosY = postStepPos.y()/mm;
-	//fPostStepPosZ = postStepPos.z()/mm;
-	//fPostStepMomX = postStepMom.x()/MeV;
-	//fPostStepMomY = postStepMom.y()/MeV;
-	//fPostStepMomZ = postStepMom.z()/MeV;
-	//fTrackLength = theTrack->GetTrackLength()/mm;
-	//fTrackStatus = theTrack->GetTrackStatus();
-	//fPhotonDetectedAtEndOfStep = (
-	//		(MTCG4SteppingAction*)
-	//		G4RunManager::GetRunManager()->GetUserSteppingAction()
-	//		)->GetPhotonDetectedAtEndOfStep();
+	G4ParticleDefinition *particleDef = theTrack->GetDefinition();
+	G4ThreeVector nuMomUnitVector =
+		dynamic_cast<MTCG4EventAction*>(G4EventManager::GetEventManager()->GetUserEventAction())->GetNeutrinoMomentumUnitVector();
 
-	//if (fPdgEncoding == 1000030090) fLi9WasFound = true; // 9Li found in step.
-	//if (fPdgEncoding == 1000020080) fHe8WasFound = true; // 8He found in step.
+	// Variables to output.
+	const MTCG4RunAction *runAction = dynamic_cast<const MTCG4RunAction*>(
+				G4RunManager::GetRunManager()->GetUserRunAction());
+	assert(runAction);
+	fRunID = runAction->GetRunID();
+	fEventID = theEvent->GetEventID();
+	fNuKineticEnergy = (
+			(MTCG4EventAction*)
+			G4EventManager::GetEventManager()->GetUserEventAction()
+			)->GetNeutrinoKineticEnergyOfEventAction()/MeV;
+	fNuMomUnitVectorX = nuMomUnitVector.x();
+	fNuMomUnitVectorY = nuMomUnitVector.y();
+	fNuMomUnitVectorZ = nuMomUnitVector.z();
+	fStepID = theTrack->GetCurrentStepNumber();
+	strcpy(fParticleName, particleDef->GetParticleName().c_str());
+	fPdgEncoding = particleDef->GetPDGEncoding(); 
+	fTrackID = theTrack->GetTrackID();
+	fParentID = theTrack->GetParentID();
+	fPostStepPosX = postStepPos.x()/mm;
+	fPostStepPosY = postStepPos.y()/mm;
+	fPostStepPosZ = postStepPos.z()/mm;
+	fPostStepMomX = postStepMom.x()/MeV;
+	fPostStepMomY = postStepMom.y()/MeV;
+	fPostStepMomZ = postStepMom.z()/MeV;
+	fTrackLength = theTrack->GetTrackLength()/mm;
+	fTrackStatus = theTrack->GetTrackStatus();
+	fPhotonDetectedAtEndOfStep = (
+			(MTCG4SteppingAction*)
+			G4RunManager::GetRunManager()->GetUserSteppingAction()
+			)->GetPhotonDetectedAtEndOfStep();
 
-	//fStepTree->Fill();
+	if (fPdgEncoding == 1000030090) fLi9WasFound = true; // 9Li found in step.
+	if (fPdgEncoding == 1000020080) fHe8WasFound = true; // 8He found in step.
+
+	fStepTree->Fill();
 }
 
-//// Write at end of every event.
-//// This was used for saving long lived isotopes from muon spallation.
-//void StepRootIO::Write()
-//{
-//	if (true) { // Write event always.
-//	//if (fLi9WasFound || fHe8WasFound) { // Write event if 8He/9Li was found.
-//		struct stat buffer;
-//		std::cout << "fFileName: " << fFileName << std::endl;
-//		if ( stat(fFileName.c_str(), &buffer) ) // If output file doesn't exist.
-//			fRootFile = new TFile(fFileName.c_str(), "RECREATE");
-//		else // Update file if it already exists.
-//			fRootFile = new TFile(fFileName.c_str(), "UPDATE");
-//		assert(fRootFile); // Make sure ROOT file exits.
-//		TTree *previousTree = dynamic_cast<TTree*>(fRootFile->Get("stepTree"));
-//		TList *list = new TList();
-//		if (previousTree) list->Add(previousTree); // If previous tree is found.
-//		list->Add(fStepTree); // Add new tree addition.
-//		TTree *newTree = TTree::MergeTrees(list); // New tree from merging list.
-//		assert(newTree);
-//		//newTree->SetName("stepTree");
-//		//newTree->SetDirectory(fRootFile); // No need to set dir to root file?
-//		fRootFile->cd(); // Make sure current dir is the file to be saved to.
-//		newTree->Write("", TObject::kOverwrite);
-//		fRootFile->Close();
-//		delete fRootFile;
-//		fRootFile = NULL; // Reinitialize dangling pointer.
-//	}
-//	delete fStepTree; // Delete old step tree, it doesn't belong to any file.
-//	fStepTree = new TTree("stepTree", "stepTree"); // New empty step tree.
-//	SetTreeBranches(); // Need to recreate branches for new tree.
-//	fLi9WasFound = false; // Reinitialize flags.
-//	fHe8WasFound = false; // Reinitialize flags.
-//}
-
-void StepRootIO::Write() // Write at end of run.
+// Write at end of every event.
+// This was used for saving long lived isotopes from muon spallation.
+void StepRootIO::WriteAtEndOfEvent()
 {
-	//std::cout << "fFileName: " << fFileName << std::endl;
-	//fRootFile->cd(); // Make sure current dir is the file to be saved to.
-	//fStepTree->Write("", TObject::kOverwrite);
-	//fRootFile->Close();
+	if (true) { // Write event always.
+	//if (fLi9WasFound || fHe8WasFound) { // Write event if 8He/9Li was found.
+		struct stat buffer;
+		std::cout << "fFileName: " << fFileName << std::endl;
+		if (fRootFile) if (fRootFile->IsOpen()) fRootFile->Close();
+		if ( stat(fFileName.c_str(), &buffer) ) // If output file doesn't exist.
+			fRootFile = new TFile(fFileName.c_str(), "RECREATE");
+		else // Update file if it already exists.
+			fRootFile = new TFile(fFileName.c_str(), "UPDATE");
+		assert(fRootFile); // Make sure ROOT file exits.
+		TTree *previousTree = dynamic_cast<TTree*>(fRootFile->Get("stepTree"));
+		TList *list = new TList();
+		if (previousTree) list->Add(previousTree); // If previous tree is found.
+		list->Add(fStepTree); // Add new tree addition.
+		TTree *newTree = TTree::MergeTrees(list); // New tree from merging list.
+		assert(newTree);
+		//newTree->SetName("stepTree");
+		//newTree->SetDirectory(fRootFile); // No need to set dir to root file?
+		fRootFile->cd(); // Make sure current dir is the file to be saved to.
+		newTree->Write("", TObject::kOverwrite);
+		fRootFile->Close();
+		delete fRootFile;
+		fRootFile = NULL; // Reinitialize dangling pointer.
+	}
+	delete fStepTree; // Delete old step tree, it doesn't belong to any file.
+	fStepTree = new TTree("stepTree", "stepTree"); // New empty step tree.
+	SetTreeBranches(); // Need to recreate branches for new tree.
+	fLi9WasFound = false; // Reinitialize flags.
+	fHe8WasFound = false; // Reinitialize flags.
+}
+
+void StepRootIO::WriteAtEndOfRun() // Write at end of run.
+{
+	std::cout << "fFileName: " << fFileName << std::endl;
+	fRootFile->cd(); // Make sure current dir is the file to be saved to.
+	fStepTree->Write("", TObject::kOverwrite);
+	fRootFile->Close();
 }

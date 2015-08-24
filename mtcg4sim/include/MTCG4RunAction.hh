@@ -24,6 +24,9 @@ class MTCG4RunAction : public G4UserRunAction
 		void CreatePESdsOutput(const G4Run* theRun);
 		void CreateStepRootOutput();
 		void CreateStepTextOutput();
+		void ProcessPESds();
+		void ProcessStepTextOut();
+		void ProcessStepRootOut();
 
 		inline void SetRunID(G4int runID)
 		{ fRunID = runID; }

@@ -159,5 +159,5 @@ ${CMAKE_SOURCE_DIR}/tools/ ${CMAKE_BINARY_DIR}/tools/)
 #----------------------------------------------------------------------------
 # Specify build type for specific compiler flags.
 # E.g. "Release" build type will set compiler optimization flags.
-#set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Debug)

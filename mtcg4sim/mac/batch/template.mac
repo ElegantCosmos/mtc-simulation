@@ -170,14 +170,15 @@
 ######################################################################
 
 # Set flag to shoot cosmic ray muon.
-/gun/shootCosmicRayMuon false
+/gun/shootCosmicRayMuon true
 # Set energy of muon. Set <= 0 to specify sea level energy spectrum.
 #/gun/setCosmicRayMuonEnergy 283 GeV
 /gun/setCosmicRayMuonEnergy -1 GeV
 # Set muon direction. Choose "sea-level" or "-z".
 # sea-level: random direction with zenith angle distribution at sea level.
 # -z: Straight down from top of cube.
-/gun/setCosmicRayMuonDirection sea-level
+#/gun/setCosmicRayMuonDirection sea-level
+/gun/setCosmicRayMuonDirection -z
 
 
 
@@ -190,7 +191,7 @@
 ######################################################################
 
 # Set flag to shoot general particle source.
-/gps/shootGeneralParticleSource true
+/gps/shootGeneralParticleSource false
 # Settings for particle.
 #/gps/particle gamma
 /gps/particle neutron

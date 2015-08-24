@@ -51,11 +51,11 @@
 
 ## Produce Cerenkov light.
 ## true: produce, false: do not produce.
-#/mtcg4/physics/produceCerenkov true
+#/mtcg4/physics/produceCerenkov false
 #
 ## Produce Scintillation light.
 ## true: produce, false: do not produce.
-#/mtcg4/physics/produceScintillation true
+#/mtcg4/physics/produceScintillation false
 #
 ## Take into account chemically bound atoms for thermal neutron scattering.
 ## true: yes, false: no.
@@ -211,8 +211,9 @@
 # Settings for particle.
 
 #/gps/particle gamma
-/gps/particle neutron
-#/gps/particle e-
+#/gps/particle neutron
+#/gps/particle mu-
+/gps/particle e-
 
 #/gps/position 0 0 -65 mm
 /gps/pos/type Point
@@ -225,14 +226,14 @@
 /gps/pos/centre 0 0 0 cm
 #/gps/pos/centre 0 0 -65 mm
 
-#/gps/direction 0 0 1
+/gps/direction 0 0 1
 #/gps/ang/type cos
 #/gps/ang/rot1 1 0 0
 #/gps/ang/rot2 0 1 0
 #/gps/ang/mintheta 0 deg
 #/gps/ang/maxtheta 90 deg
 
-/gps/ang/type iso
+#/gps/ang/type iso
 #/gps/energy 1 MeV
 #/gps/energy 100 keV
 #/gps/energy 1 GeV
@@ -281,10 +282,10 @@
 #/tracking/storeTrajectory 1
 
 # Set number of events for this run.
-#/run/beamOn 1
+/run/beamOn 1
 #/run/beamOn 3 
 #/run/beamOn 5
-/run/beamOn 10
+#/run/beamOn 10
 #/run/beamOn 100
 #/run/beamOn 500
 #/run/beamOn 1000

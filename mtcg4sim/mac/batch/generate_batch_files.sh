@@ -17,11 +17,16 @@ WORK_DIR=$TRUNK_DIR/../mtcg4sim-build
 MAC_DIR=$WORK_DIR/mac/batch
 CONDOR_OUTPUT_BASE=/data/mich/mtc-sim
 #CONDOR_OUTPUT_DIR=${CONDOR_OUTPUT_BASE}/cosmogenic_isotopes_of_sea_level_spectrum_mu_1kevt_1mmCut_20140211
-CONDOR_OUTPUT_DIR=${CONDOR_OUTPUT_BASE}/neutron/isotropic_from_center/2.5mev
+#CONDOR_OUTPUT_DIR=${CONDOR_OUTPUT_BASE}/cosmogenic_isotopes_of_sea_level_spectrum_mu_straight_down_1Mevt_0.001mmCut_20150809
+CONDOR_OUTPUT_DIR=${CONDOR_OUTPUT_BASE}/test
+#CONDOR_OUTPUT_DIR=${CONDOR_OUTPUT_BASE}/neutron/isotropic_from_center/2.5mev
 
 ### Number of runs and Condor execution queue.
-N_EVENTS=100 # Number of events per run. One run per job.
-N_JOBS=100 # Number of jobs in queue.
+#N_EVENTS=1000 # Number of events per run. One run per job.
+#N_JOBS=100 # Number of jobs in queue.
+
+N_EVENTS=10 # Number of events per run. One run per job.
+N_JOBS=10 # Number of jobs in queue.
 
 ### File names.
 IN_FILE_1=${MAC_DIR}/template.mac

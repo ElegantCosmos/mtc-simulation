@@ -55,7 +55,8 @@ public:
 	// if current step number is 0 or not, i.e. if the particle is being tracked
 	// yet or not.
 	void Fill(const G4Track *theTrack, const G4Step *theStep);
-	void Write();
+	void WriteAtEndOfEvent();
+	void WriteAtEndOfRun();
 
 protected:
 	StepRootIO(); 

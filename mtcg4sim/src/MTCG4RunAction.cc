@@ -35,28 +35,21 @@ void MTCG4RunAction::BeginOfRunAction(const G4Run* theRun)
 	G4cout << "### Run " << theRun->GetRunID() << " start." << G4endl; 
 	fTimer->Start(); // Start timer.
 
-	// Photo-electron data output in SDS format.
-	CreatePESdsOutput(theRun);
-
 	// Create step output in ROOT format.
 	CreateStepRootOutput();
 
 	// Create step output in text format.
-	CreateStepTextOutput();
+	//CreateStepTextOutput();
+
+	// Photo-electron data output in SDS format.
+	//CreatePESdsOutput(theRun);
 }
 
 void MTCG4RunAction::EndOfRunAction(const G4Run* theRun)
 {
-	// Delete output object singletons.	
-	fPESdsOut = PESdsIO::GetInstance();
-	fPESdsOut->ResetInstance();
-
-	fStepTextOut = StepTextIO::GetInstance();
-	fStepTextOut->ResetInstance();
-
-	fStepRootOut = StepRootIO::GetInstance();
-	fStepRootOut->Write();
-	fStepRootOut->ResetInstance();
+	this->ProcessStepRootOut();
+	//this->ProcessStepTextOut();
+	//this->ProcessPESds();
 
 	// Stop timer and print info.
 	fTimer->Stop();
@@ -119,4 +112,24 @@ void MTCG4RunAction::CreateStepTextOutput()
 
 	// Object for text output to user.
 	StepTextIO::CreateInstance(outputPath + stepOutputFileName + ".dat");
+}
+
+void MTCG4RunAction::ProcessPESds()
+{
+	// Delete output object singletons.	
+	fPESdsOut = PESdsIO::GetInstance();
+	fPESdsOut->ResetInstance();
+}
+
+void MTCG4RunAction::ProcessStepTextOut()
+{
+	fStepTextOut = StepTextIO::GetInstance();
+	fStepTextOut->ResetInstance();
+}
+
+void MTCG4RunAction::ProcessStepRootOut()
+{
+	fStepRootOut = StepRootIO::GetInstance();
+	fStepRootOut->WriteAtEndOfRun();
+	fStepRootOut->ResetInstance();
 }

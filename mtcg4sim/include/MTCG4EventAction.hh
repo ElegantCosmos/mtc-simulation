@@ -44,6 +44,9 @@ public:
 public:
 	static MTCG4HitPmtCollection *GetTheHitPmtCollection()
 	{ return &fTheHitPmtCollection; }
+	void DoStepOutToRoot();
+	void PrintTrajectories(const G4Event*);
+	void WritePESds(const G4Event*);
 
 private:
 	static MTCG4HitPmtCollection fTheHitPmtCollection;
