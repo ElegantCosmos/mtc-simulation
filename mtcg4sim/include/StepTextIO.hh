@@ -41,7 +41,6 @@
  */
 
 /// Root IO implementation for the persistency example
-class TFile;
 class TTree;
 class G4Track;
 class G4Step;
@@ -60,6 +59,7 @@ public:
 	void Fill(const G4Track *theTrack, const G4Step *theStep);
 	void Write();
 	void Close();
+	void inline SetFirstLineOfEvent(bool flag = true) { fFirstLineOfEvent = flag; }
 
 protected:
 	StepTextIO(); 
@@ -74,6 +74,7 @@ private:
 	static G4String			fFileName;
 	G4String				fAllParticleStepHeader;
 	G4bool					fFirstLineOfOutput;
+	G4bool					fFirstLineOfEvent;
 
 	// Variables to output to user.
 	G4int		fRunID;

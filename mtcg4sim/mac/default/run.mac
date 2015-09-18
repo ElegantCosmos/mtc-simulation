@@ -98,8 +98,8 @@
 
 # Options: killImmediately, trackImmediately, saveAndTrack, saveAndKill.
 # Not specifying any option will default to trackImmediately.
-#/mtcg4/stackingAction/trackOpticalPhotons killImmediately
-/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
+/mtcg4/stackingAction/trackOpticalPhotons killImmediately
+#/mtcg4/stackingAction/trackOpticalPhotons trackImmediately
 #/mtcg4/stackingAction/trackOpticalPhotons saveAndTrack
 
 
@@ -111,17 +111,17 @@
 
 # Flag to shoot or omit primary positron.
 # True: shoot, false: do not shoot.
-/mtcg4/primary/shootPrimaryPositron false
+/mtcg4/primary/shootPrimaryPositron true
 
 # Flag to shoot or omit primary neutron.
 # True: shoot, false: do not shoot.
-/mtcg4/primary/shootPrimaryNeutron false
+/mtcg4/primary/shootPrimaryNeutron true
 
 # Set incoming neutrino direction.
 # Options:
 #		+z			- all neutrinos will have the direction (x,y,z) = (0,0,1);
 #		random	- direction of neutrinos will be distributed isotropically.
-/mtcg4/primary/setIncomingNeutrinoDirection random
+/mtcg4/primary/setIncomingNeutrinoDirection +z
 
 # Set the neutrino inverse-beta decay interaction vertex in x-y-z coordinate
 # space inside the cube.
@@ -129,7 +129,7 @@
 #		center	- all event vertices are located at the center of cube.
 #		random	- event vertices will be distributed randomly inside of cube.
 #		-z			- all event vertices will be located at (0mm, 0mm, -15mm).
-/mtcg4/primary/setInverseBetaDecayInteractionVertex random
+/mtcg4/primary/setInverseBetaDecayInteractionVertex center
 
 # Flag to read in data to set the initial momentum directions of the primary
 # particles with respect to incoming neutrino direction from file primary
@@ -207,7 +207,7 @@
 ######################################################################
 
 # Set flag to shoot general particle source.
-/gps/shootGeneralParticleSource true
+/gps/shootGeneralParticleSource false
 # Settings for particle.
 
 #/gps/particle gamma
@@ -282,12 +282,13 @@
 #/tracking/storeTrajectory 1
 
 # Set number of events for this run.
-/run/beamOn 1
+#/run/beamOn 1
 #/run/beamOn 3 
 #/run/beamOn 5
-#/run/beamOn 10
+/run/beamOn 10
 #/run/beamOn 100
 #/run/beamOn 500
 #/run/beamOn 1000
+#/run/beamOn 8193 # number of events from 1.807 to 10.000 MeV in keV increments
 #/run/beamOn 10000
 #/run/beamOn 10000000

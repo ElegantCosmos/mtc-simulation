@@ -15,6 +15,7 @@
 
 #include "PESdsIO.hh"
 #include "StepRootIO.hh"
+#include "StepTextIO.hh"
 
 //KLHitPhotonCollection MTCG4EventAction :: theHitPhotons = MTCG4HitPhotonCollection();
 MTCG4HitPmtCollection MTCG4EventAction :: fTheHitPmtCollection = MTCG4HitPmtCollection();
@@ -29,6 +30,8 @@ MTCG4EventAction::~MTCG4EventAction()
 void MTCG4EventAction::BeginOfEventAction(const G4Event*)
 {
 	fTheHitPmtCollection.Clear(); // Clear all data stored in PMT collection.
+	fStepOutToText = StepTextIO::GetInstance();
+	fStepOutToText->SetFirstLineOfEvent();
 }
 
 // Method Called At End Of Action //

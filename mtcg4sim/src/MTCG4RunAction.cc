@@ -36,10 +36,10 @@ void MTCG4RunAction::BeginOfRunAction(const G4Run* theRun)
 	fTimer->Start(); // Start timer.
 
 	// Create step output in ROOT format.
-	CreateStepRootOutput();
+	//CreateStepRootOutput();
 
 	// Create step output in text format.
-	//CreateStepTextOutput();
+	CreateStepTextOutput();
 
 	// Photo-electron data output in SDS format.
 	//CreatePESdsOutput(theRun);
@@ -47,8 +47,8 @@ void MTCG4RunAction::BeginOfRunAction(const G4Run* theRun)
 
 void MTCG4RunAction::EndOfRunAction(const G4Run* theRun)
 {
-	this->ProcessStepRootOut();
-	//this->ProcessStepTextOut();
+	//this->ProcessStepRootOut();
+	this->ProcessStepTextOut();
 	//this->ProcessPESds();
 
 	// Stop timer and print info.

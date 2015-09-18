@@ -40,7 +40,6 @@
 #include "StepTextIO.hh"
 
 #include "TROOT.h"
-#include "TFile.h"
 #include "TTree.h"
 
 static StepTextIO* StepTextIOManager = 0;
@@ -51,39 +50,42 @@ std::ofstream StepTextIO::fOut;
 StepTextIO::StepTextIO()
 {
 	fFirstLineOfOutput = true;
+	fFirstLineOfEvent = true;
 	unlink(fFileName.c_str());
 	fOut.open(fFileName, std::ofstream::out);
 
 	// Create output header.
-	fAllParticleStepHeader = "# ";
-	fAllParticleStepHeader += "RunID ";
-	fAllParticleStepHeader += "EventID ";
-	fAllParticleStepHeader += "NeutrinoKineticEnergy(MeV) ";
-	fAllParticleStepHeader += "NeutrinoMomentumUnitVectorX ";
-	fAllParticleStepHeader += "NeutrinoMomentumUnitVectorY ";
-	fAllParticleStepHeader += "NeutrinoMomentumUnitVectorZ ";
-	fAllParticleStepHeader += "StepID ";
-	fAllParticleStepHeader += "ParticleName ";
-	fAllParticleStepHeader += "PdgEncoding ";
+	fAllParticleStepHeader = "#";
+	//fAllParticleStepHeader += "RunID ";
+	//fAllParticleStepHeader += "EventID ";
+	fAllParticleStepHeader += "EventNumber ";
+	//fAllParticleStepHeader += "NeutrinoKineticEnergy(MeV) ";
+	//fAllParticleStepHeader += "NeutrinoMomentumUnitVectorX ";
+	//fAllParticleStepHeader += "NeutrinoMomentumUnitVectorY ";
+	//fAllParticleStepHeader += "NeutrinoMomentumUnitVectorZ ";
+	//fAllParticleStepHeader += "StepID ";
+	//fAllParticleStepHeader += "ParticleName ";
+	//fAllParticleStepHeader += "PdgEncoding ";
+	fAllParticleStepHeader += "PDGEncoding ";
 	fAllParticleStepHeader += "TrackID ";
 	fAllParticleStepHeader += "ParentID ";
 	fAllParticleStepHeader += "PostStepPositionX(mm) ";
 	fAllParticleStepHeader += "PostStepPositionY(mm) ";
 	fAllParticleStepHeader += "PostStepPositionZ(mm) ";
-	fAllParticleStepHeader += "PostStepMomentumX(MeV) ";
-	fAllParticleStepHeader += "PostStepMomentumY(MeV) ";
-	fAllParticleStepHeader += "PostStepMomentumZ(MeV) ";
+	//fAllParticleStepHeader += "PostStepMomentumX(MeV) ";
+	//fAllParticleStepHeader += "PostStepMomentumY(MeV) ";
+	//fAllParticleStepHeader += "PostStepMomentumZ(MeV) ";
 	fAllParticleStepHeader += "PostStepGlobalTime(ns) ";
 	fAllParticleStepHeader += "PostStepKineticEnergy(MeV) ";
 	fAllParticleStepHeader += "TotalEnergyDeposit(MeV) ";
-	fAllParticleStepHeader += "StepLength(mm) ";
-	fAllParticleStepHeader += "TrackLength(mm) ";
-	fAllParticleStepHeader += "ProcessName ";
-	fAllParticleStepHeader += "ProcessType ";
-	fAllParticleStepHeader += "ProcessSubType ";
-	fAllParticleStepHeader += "TrackStatus ";
-	fAllParticleStepHeader += "postStepPointPhysicalVolumeName ";
-	fAllParticleStepHeader += "photonDetectedAtEndOfStep";
+	//fAllParticleStepHeader += "StepLength(mm) ";
+	//fAllParticleStepHeader += "TrackLength(mm) ";
+	//fAllParticleStepHeader += "ProcessName ";
+	//fAllParticleStepHeader += "ProcessType ";
+	//fAllParticleStepHeader += "ProcessSubType ";
+	//fAllParticleStepHeader += "TrackStatus ";
+	//fAllParticleStepHeader += "postStepPointPhysicalVolumeName ";
+	//fAllParticleStepHeader += "photonDetectedAtEndOfStep";
 }
 
 StepTextIO::~StepTextIO()
@@ -246,36 +248,54 @@ void StepTextIO::Write()
 	const G4int s=5;
 	const G4int m=10;
 	const G4int l=15;
-	if(fFirstLineOfOutput) fOut << fAllParticleStepHeader << G4endl;
-	fFirstLineOfOutput = false;
-	fOut << std::setw(m) << fRunID << " ";
+	if (fFirstLineOfOutput) {
+		fOut << fAllParticleStepHeader << G4endl;
+		fFirstLineOfOutput = false;
+	}
+	if (fFirstLineOfEvent) {
+		fOut << std::setw(m) << fEventID << " ";
+		fOut << std::setw(m) << -12 << " ";
+		fOut << std::setw(s) << std::right << 0 << " ";
+		fOut << std::setw(s) << -1 << " ";
+		fOut << std::setw(m) << 0.0 << " ";
+		fOut << std::setw(m) << 0.0 << " ";
+		fOut << std::setw(m) << 0.0 << " ";
+		fOut << std::setw(m) << 0.0 << " ";
+		fOut << std::setw(l) << fNuKineticEnergy << " ";
+		fOut << std::setw(l) << 0.0 << G4endl;
+		fFirstLineOfEvent = false;
+	}
+	if (fStepID != 0) {
+		if (fStepLength < 0 + 1e-10) return;
+	}
+	//fOut << std::setw(m) << fRunID << " ";
 	fOut << std::setw(m) << fEventID << " ";
-	fOut << std::setw(m) << fNuKineticEnergy << " ";
-	fOut << std::setw(m) << fNuMomUnitVectorX << " ";
-	fOut << std::setw(m) << fNuMomUnitVectorY << " ";
-	fOut << std::setw(m) << fNuMomUnitVectorZ << " ";
-	fOut << std::setw(s) << fStepID << " ";
-	fOut << std::setw(l) << fParticleName << " ";
+	//fOut << std::setw(m) << fNuKineticEnergy << " ";
+	//fOut << std::setw(m) << fNuMomUnitVectorX << " ";
+	//fOut << std::setw(m) << fNuMomUnitVectorY << " ";
+	//fOut << std::setw(m) << fNuMomUnitVectorZ << " ";
+	//fOut << std::setw(s) << fStepID << " ";
+	//fOut << std::setw(l) << fParticleName << " ";
 	fOut << std::setw(m) << fPdgEncoding << " ";
 	fOut << std::setw(s) << std::right << fTrackID << " ";
 	fOut << std::setw(s) <<	fParentID << " ";
 	fOut << std::setw(m) <<	fPostStepPosX << " ";
 	fOut << std::setw(m) <<	fPostStepPosY << " ";
 	fOut << std::setw(m) <<	fPostStepPosZ << " ";
-	fOut << std::setw(m) <<	fPostStepMomX << " ";
-	fOut << std::setw(m) <<	fPostStepMomY << " ";
-	fOut << std::setw(m) <<	fPostStepMomZ << " ";
+	//fOut << std::setw(m) <<	fPostStepMomX << " ";
+	//fOut << std::setw(m) <<	fPostStepMomY << " ";
+	//fOut << std::setw(m) <<	fPostStepMomZ << " ";
 	fOut << std::setw(m) <<	fPostStepGlobalTime << " ";
 	fOut << std::setw(l) <<	fPostStepKineticEnergy << " ";
 	fOut << std::setw(l) <<	fTotalEnergyDeposit << " ";
-	fOut << std::setw(l) <<	fStepLength << " ";
-	fOut << std::setw(l) <<	fTrackLength << " ";
-	fOut << std::setw(l) << fProcessName << " ";
-	fOut << std::setw(m) << fProcessType << " ";
-	fOut << std::setw(m) << fProcessSubType << " ";
-	fOut << std::setw(s) << std::right << fTrackStatus << " ";
-	fOut << fPostStepPhysVolumeName << " ";
-	fOut << fPhotonDetectedAtEndOfStep;
+	//fOut << std::setw(l) <<	fStepLength << " ";
+	//fOut << std::setw(l) <<	fTrackLength << " ";
+	//fOut << std::setw(l) << fProcessName << " ";
+	//fOut << std::setw(m) << fProcessType << " ";
+	//fOut << std::setw(m) << fProcessSubType << " ";
+	//fOut << std::setw(s) << std::right << fTrackStatus << " ";
+	//fOut << fPostStepPhysVolumeName << " ";
+	//fOut << fPhotonDetectedAtEndOfStep;
 	fOut << G4endl;
 }
 

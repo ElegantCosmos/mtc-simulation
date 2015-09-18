@@ -68,7 +68,8 @@ MTCG4PhysicsList::MTCG4PhysicsList() : G4VModularPhysicsList(),
 {
 	fVerbose = 0;
 	//defaultCutValue = 1.*mm; // Taken from original KLG4sim code
-	defaultCutValue = 0.001*mm; // Taken from KLG4sim modifications by D. Motoki
+	//defaultCutValue = 0.001*mm; // Taken from KLG4sim modifications by D. Motoki
+	defaultCutValue = 0.1*mm; // Option preferred by Glen Jocher for his work.
 	fCutForGamma     = defaultCutValue;
 	fCutForElectron  = defaultCutValue;
 	fCutForPositron  = defaultCutValue;
@@ -184,8 +185,8 @@ void MTCG4PhysicsList::ConstructOpticalPhysics()
 	G4OpticalPhysics *opticalPhysics = new G4OpticalPhysics(fVerbose);
 	opticalPhysics->SetMaxNumPhotonsPerStep(100); // #of photons per step.
 	//opticalPhysics->SetMaxBetaChangePerStep(0.10); //%change in beta per step.
-	opticalPhysics->SetTrackSecondariesFirst(kCerenkov, true);
-	opticalPhysics->SetTrackSecondariesFirst(kScintillation, true);
+	opticalPhysics->SetTrackSecondariesFirst(kCerenkov, false);
+	opticalPhysics->SetTrackSecondariesFirst(kScintillation, false);
 
 	fOpticalPhysics.push_back(opticalPhysics);
 	for (size_t i = 0; i < fOpticalPhysics.size(); ++i) {

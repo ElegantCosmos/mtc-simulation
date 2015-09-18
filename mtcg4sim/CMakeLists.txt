@@ -45,7 +45,7 @@ set(CMAKE_PREFIX_PATH $ENV{MTCSDS_INSTALL_DIR} ${CMAKE_PREFIX_PATH})
 #----------------------------------------------------------------------------
 # Add g++ flags.
 #
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -Wl,-V")
 
 # Setup include directory for this project

@@ -11,6 +11,7 @@
 class G4Event;
 class PESdsIO;
 class StepRootIO;
+class StepTextIO;
 
 class MTCG4EventAction : public G4UserEventAction
 {
@@ -59,6 +60,7 @@ private:
 private:
 	PESdsIO*	fPEOut;
 	StepRootIO*	fStepOutToRoot;
+	StepTextIO*	fStepOutToText;
 };
 
 #endif

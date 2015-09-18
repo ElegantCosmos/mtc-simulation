@@ -49,8 +49,8 @@ void MTCG4SteppingAction::UserSteppingAction(const G4Step *theStep)
 			return;
 	}
 
-	DoStepOutputToRootFile(theStep);
-	//DoStepOutputToTextFile(theStep);
+	//DoStepOutputToRootFile(theStep);
+	DoStepOutputToTextFile(theStep);
 
 	fPhotonDetectedAtEndOfStep = false; // Reset photon detection flag.
 }

@@ -49,7 +49,7 @@ static StepRootIO* StepRootIOManager = NULL;
 
 TFile *StepRootIO::fRootFile = NULL;
 TTree *StepRootIO::fStepTree = NULL;
-G4String StepRootIO::fFileName = "";
+G4String StepRootIO::fFileName = "test.root";
 
 StepRootIO::StepRootIO() :
 	fRunID(-1),
@@ -90,7 +90,7 @@ StepRootIO::StepRootIO() :
 
 	// Create TTree object.
 	fStepTree = new TTree("stepTree", "stepTree");
-	fStepTree->SetDirectory(fRootFile);
+	//fStepTree->SetDirectory(fRootFile);
 	SetTreeBranches();
 }
 
@@ -107,11 +107,6 @@ void StepRootIO::ResetInstance()
 	//	delete fStepTree; // Is memory-resident so needs to be deleted.
 	//	fStepTree = NULL;
 	//}
-	if (fRootFile) {
-		if (fRootFile->IsOpen()) fRootFile->Close();
-		delete fRootFile;
-		fRootFile = NULL;
-	}
 	delete StepRootIOManager;
 	StepRootIOManager = NULL;
 }

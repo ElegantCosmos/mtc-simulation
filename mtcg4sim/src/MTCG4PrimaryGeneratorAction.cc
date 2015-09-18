@@ -83,10 +83,12 @@ MTCG4PrimaryGeneratorAction::MTCG4PrimaryGeneratorAction() :
 
 MTCG4PrimaryGeneratorAction::~MTCG4PrimaryGeneratorAction()
 {
-	//if (fFlagForReadingInPrimaryParticleDataFile) {
-	//	fPrimaryParticleDataInput->close(); // Make sure file is closed.
-	//	delete fPrimaryParticleDataInput;
-	//}
+	if (fFlagForReadingInPrimaryParticleDataFile) {
+		if (fPrimaryParticleDataInput) {
+			fPrimaryParticleDataInput->close(); // Make sure file is closed.
+			delete fPrimaryParticleDataInput;
+		}
+	}
 	delete fParticleGun;
 	delete fGeneralParticleSource;
 	delete fPrimaryNeutronGun;
@@ -180,7 +182,7 @@ void MTCG4PrimaryGeneratorAction::GenerateIBDPrimaries(G4Event *theEvent)
 			bufferString.assign(bufferChar);
 			// Ignore all comment lines of which the first non-space or
 			// non-tab character of the line is not a digit.
-			if (isdigit(bufferString[bufferString.find_first_not_of("		")])) break;
+			if (isdigit(bufferString[bufferString.find_first_not_of(" \t")])) break;
 		}
 		std::istringstream inputLine(bufferString.data());
 		if (!( // If primary data file is unsuccessfully read.
